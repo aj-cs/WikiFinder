@@ -24,18 +24,34 @@ internal class Index1
         {
             using (StreamReader input = new StreamReader(filename, System.Text.Encoding.UTF8))
             {
-                string word = input.ReadLine();
-                start = new WikiItem(word, null);
-                WikiItem current = start;
+                String line;
+                WikiItem current = null;
 
-                while ((word = input.ReadLine()) != null)
+                while ((line = input.ReadLine()) != null)
                 {
-                    Console.WriteLine(word);
-                    WikiItem tmp = new WikiItem(word, null);
-                    current.Next = tmp;
-                    current = tmp;
+                    String[] words = line.Split(' ');
+
+                    foreach (string element in words)
+                    {
+                        Console.WriteLine(element);
+
+                        WikiItem tmp = new WikiItem(element, null);
+
+                        if (start == null)
+                        {
+                            start = tmp;
+                            current = start;
+                        }
+                        else
+                        {
+                            current.Next = tmp;
+                            current = tmp;
+                        }
+                    }
                 }
             }
+
+
         }
         catch (FileNotFoundException)
         {
@@ -43,18 +59,21 @@ internal class Index1
         }
     }
 
-    public bool Search(string searchStr)
-    {
-        WikiItem current = start;
-        while (current != null)
-        {
-            if (current.Str.Equals(searchStr, StringComparison.OrdinalIgnoreCase))
-            {
-                return true;
-            }
-            current = current.Next;
-        }
 
-        return false;
-    }
+    public bool Search(string searchStr)
+        {
+            WikiItem current = start;
+            while (current != null)
+            {
+                if (current.Str.Equals(searchStr, StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+
+                current = current.Next;
+            }
+
+            return false;
+        }
+    
 }
