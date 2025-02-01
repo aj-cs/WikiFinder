@@ -1,6 +1,37 @@
-var builder = WebApplication.CreateBuilder(args);
-var app = builder.Build();
+using System;
+namespace SearchEngineProject;
+class Program
+{
+    static void Main(string[] args)
+    {
+        if (args.Length == 0)
+        {
+            Console.WriteLine("Usage: Index1 <filename>");
+            return;
+        }
 
-app.MapGet("/", () => "Hello World!");
+        Console.WriteLine("Preprocessing " + args[0]);
+        Index1 index = new Index1(args[0]);
 
-app.Run();
+        while (true)
+        {
+            Console.WriteLine("Input search string or type exit to stop");
+            string searchStr = Console.ReadLine();
+
+            if (searchStr.Equals("exit", StringComparison.OrdinalIgnoreCase))
+            {
+                break;
+            }
+
+            if (index.Search(searchStr))
+            {
+                Console.WriteLine(searchStr + " exists");
+            }
+            else
+            {
+                Console.WriteLine(searchStr + " does not exist");
+            }
+        }
+    }
+}
+
