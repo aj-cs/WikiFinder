@@ -33,19 +33,22 @@ internal class Index1
 
                     foreach (string element in words)
                     {
-                        Console.WriteLine(element);
-
-                        WikiItem tmp = new WikiItem(element, null);
-
-                        if (start == null)
+                        if (element != "")
                         {
-                            start = tmp;
-                            current = start;
-                        }
-                        else
-                        {
-                            current.Next = tmp;
-                            current = tmp;
+                            Console.WriteLine(element);
+
+                            WikiItem tmp = new WikiItem(element, null);
+
+                            if (start == null)
+                            {
+                                start = tmp;
+                                current = start;
+                            }
+                            else
+                            {
+                                current.Next = tmp;
+                                current = tmp;
+                            }
                         }
                     }
                 }
@@ -57,23 +60,48 @@ internal class Index1
         {
             Console.WriteLine("Error reading file " + filename);
         }
-    }
+        }
 
-
-    public bool Search(string searchStr)
+    //TODO Make sure to include full title of document in title var 
+        public bool Search(string searchStr)
         {
             WikiItem current = start;
+            bool foundAny = false;
+
             while (current != null)
             {
-                if (current.Str.Equals(searchStr, StringComparison.OrdinalIgnoreCase))
-                {
-                    return true;
-                }
+                string title = current.Str; //first item in linked list is the title
+                bool inDocument = false;
 
                 current = current.Next;
-            }
 
-            return false;
+                while (current != null && !current.Str.Equals("---END.OF.DOCUMENT---"))
+                {
+                    if (current.Str.Equals(searchStr, StringComparison.OrdinalIgnoreCase))
+                    {
+                        inDocument = true;
+                    }
+
+                    current = current.Next;
+                }
+
+                if(inDocument)
+                {
+                    Console.WriteLine($"Found {searchStr} in {title}");
+                    foundAny = true;
+                }
+
+                if (current != null && current.Str.Equals("---END.OF.DOCUMENT---"))
+                {
+                    current = current.Next;
+                }
+        }
+
+            if (!foundAny)
+            {
+                Console.WriteLine("No matches for " + searchStr + " found");
+            }
+            return foundAny;
         }
     
 }
