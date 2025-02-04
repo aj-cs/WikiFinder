@@ -61,21 +61,30 @@ internal class Index1
             Console.WriteLine("Error reading file " + filename);
         }
         }
-
-    //TODO Make sure to include full title of document in title var 
+    
         public bool Search(string searchStr)
         {
             WikiItem current = start;
             bool foundAny = false;
+            string title = "";
 
             while (current != null)
             {
-                string title = current.Str; //first item in linked list is the title
                 bool inDocument = false;
 
-                current = current.Next;
+                while (current != null && !current.Str.Contains(".")) // include the full title which ends on a period (.)
+                {
+                    title += " " + current.Str;
+                    current = current.Next;
+                }
 
-                while (current != null && !current.Str.Equals("---END.OF.DOCUMENT---"))
+                if (current != null) //make sure that the title also includes the word with the period
+                {
+                    title += " " + current.Str;
+                    current = current.Next;
+                }
+
+                while (current != null && !current.Str.Equals("---END.OF.DOCUMENT---")) // search for the given search string
                 {
                     if (current.Str.Equals(searchStr, StringComparison.OrdinalIgnoreCase))
                     {
@@ -87,7 +96,7 @@ internal class Index1
 
                 if(inDocument)
                 {
-                    Console.WriteLine($"Found {searchStr} in {title}");
+                    Console.WriteLine($"Found {searchStr} in{title}");
                     foundAny = true;
                 }
 
@@ -95,7 +104,9 @@ internal class Index1
                 {
                     current = current.Next;
                 }
-        }
+
+                title = "";
+            }
 
             if (!foundAny)
             {
