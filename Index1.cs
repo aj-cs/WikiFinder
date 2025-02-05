@@ -1,118 +1,135 @@
 using System;
 using System.IO;
-namespace SearchEngineProject;
-
-internal class Index1
+namespace SearchEngineProject
 {
-    private WikiItem start;
-
-    private class WikiItem
+    internal class Index1
     {
-        public string Str;
-        public WikiItem Next;
+        private WikiItem start;
 
-        public WikiItem(string s, WikiItem n)
+        private class WikiItem
         {
-            Str = s;
-            Next = n;
-        }
-    }
-
-    public Index1(string filename)
-    {
-        try
-        {
-            using (StreamReader input = new StreamReader(filename, System.Text.Encoding.UTF8))
+            public string Str;
+            public DocumentLog Log;
+            public WikiItem Next;
+            public WikiItem(string s, DocumentLog l, WikiItem n)
             {
-                String line;
-                WikiItem current = null;
+                Str = s;
+                Log = l;
+                Next = n;
+            }
+            
+        }
 
-                while ((line = input.ReadLine()) != null)
+        private class DocumentLog
+        {
+            public string Title;
+            public DocumentLog Next;
+            public DocumentLog(string title, DocumentLog next)
+            {
+                Title = title;
+                Next = next;
+            }
+        }
+
+        public Index1(string filename)
+        {
+            try
+            {
+                using (StreamReader input = new StreamReader(filename, System.Text.Encoding.UTF8))
                 {
-                    String[] words = line.Split(' ');
-
-                    foreach (string element in words)
+                    string line;
+                    string currentTitle = "";
+                    bool titleRead = false;
+                    while ((line = input.ReadLine()) != null)
                     {
-                        if (element != "")
+                        if (line == "")
+                            continue;
+                        if (line.Equals("---END.OF.DOCUMENT---", StringComparison.OrdinalIgnoreCase))
                         {
-                            Console.WriteLine(element);
-
-                            WikiItem tmp = new WikiItem(element, null);
-
-                            if (start == null)
+                            titleRead = false;
+                            currentTitle = "";
+                            continue;
+                        }
+                        if (!titleRead)
+                        {
+                            currentTitle = line;
+                            titleRead = true;
+                        }
+                        else
+                        {
+                            string[] words = line.Split(' ');
+                            foreach (string word in words)
                             {
-                                start = tmp;
-                                current = start;
-                            }
-                            else
-                            {
-                                current.Next = tmp;
-                                current = tmp;
+                                if (word != "")
+                                    InsertWord(word, currentTitle);
                             }
                         }
                     }
                 }
             }
-
-
+            catch (FileNotFoundException)
+            {
+                Console.WriteLine("Error reading file " + filename);
+            }
         }
-        catch (FileNotFoundException)
+
+        private void InsertWord(string word, string title)
         {
-            Console.WriteLine("Error reading file " + filename);
+            WikiItem current = FindWord(word);
+            if (current == null)
+            {
+                current = new WikiItem(word, new DocumentLog(title, null), start);
+                start = current;
+            }
+            else
+            {
+                if (!DocExists(current.Log, title))
+                    current.Log = new DocumentLog(title, current.Log);
+            }
         }
-        }
-    
-        public bool Search(string searchStr)
+
+        private WikiItem FindWord(string word)
         {
             WikiItem current = start;
-            bool foundAny = false;
-            string title = "";
-
             while (current != null)
             {
-                bool inDocument = false;
-
-                while (current != null && !current.Str.Contains(".")) // include the full title which ends on a period (.)
-                {
-                    title += " " + current.Str;
-                    current = current.Next;
-                }
-
-                if (current != null) //make sure that the title also includes the word with the period
-                {
-                    title += " " + current.Str;
-                    current = current.Next;
-                }
-
-                while (current != null && !current.Str.Equals("---END.OF.DOCUMENT---")) // search for the given search string
-                {
-                    if (current.Str.Equals(searchStr, StringComparison.OrdinalIgnoreCase))
-                    {
-                        inDocument = true;
-                    }
-
-                    current = current.Next;
-                }
-
-                if(inDocument)
-                {
-                    Console.WriteLine($"Found {searchStr} in{title}");
-                    foundAny = true;
-                }
-
-                if (current != null && current.Str.Equals("---END.OF.DOCUMENT---"))
-                {
-                    current = current.Next;
-                }
-
-                title = "";
+                if (current.Str.Equals(word, StringComparison.OrdinalIgnoreCase))
+                    return current;
+                current = current.Next;
             }
+            return null;
+        }
 
-            if (!foundAny)
+        private bool DocExists(DocumentLog log, string title)
+        {
+            while (log != null)
+            {
+                if (log.Title.Equals(title, StringComparison.OrdinalIgnoreCase))
+                    return true;
+                log = log.Next;
+            }
+            return false;
+        }
+
+        public bool Search(string searchStr)
+        {
+            WikiItem current = FindWord(searchStr);
+            if (current != null)
+            {
+                Console.WriteLine("Found " + searchStr + " in:");
+                DocumentLog log = current.Log;
+                while (log != null)
+                {
+                    Console.WriteLine(log.Title);
+                    log = log.Next;
+                }
+                return true;
+            }
+            else
             {
                 Console.WriteLine("No matches for " + searchStr + " found");
+                return false;
             }
-            return foundAny;
         }
-    
+    }
 }
