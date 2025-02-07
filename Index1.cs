@@ -4,7 +4,8 @@ namespace SearchEngineProject
 {
     internal class Index1
     {
-        private WikiItem start;
+        private const int TSize = 11831; // Use a prime num. 11831 
+        private WikiItem[] table;
 
         private class WikiItem
         {
@@ -33,6 +34,7 @@ namespace SearchEngineProject
 
         public Index1(string filename)
         {
+            table = new WikiItem[TSize];
             try
             {
                 using (StreamReader input = new StreamReader(filename, System.Text.Encoding.UTF8))
@@ -44,7 +46,7 @@ namespace SearchEngineProject
                     {
                         if (line == "")
                             continue;
-                        if (line.Equals("---END.OF.DOCUMENT---", StringComparison.OrdinalIgnoreCase))
+                        if (line.Equals("---END.OF.DOCUMENT---"))
                         {
                             titleRead = false;
                             currentTitle = "";
@@ -52,7 +54,9 @@ namespace SearchEngineProject
                         }
                         if (!titleRead)
                         {
+                            
                             currentTitle = line;
+                            Console.WriteLine(currentTitle);
                             titleRead = true;
                         }
                         else
@@ -75,25 +79,34 @@ namespace SearchEngineProject
 
         private void InsertWord(string word, string title)
         {
-            WikiItem current = FindWord(word);
-            if (current == null)
+            int index = Math.Abs(word.GetHashCode()) % TSize; // we could implement our own hash function
+            WikiItem current = table[index];
+
+            while (current != null)
             {
-                current = new WikiItem(word, new DocumentLog(title, null), start);
-                start = current;
+                if (current.Str.Equals(word))
+                {
+                    if (!DocExists(current.Log, title))
+                    {   
+                        current.Log = new DocumentLog(title, current.Log); 
+                    }
+                    return;
+                }
+
+                current = current.Next;
             }
-            else
-            {
-                if (!DocExists(current.Log, title))
-                    current.Log = new DocumentLog(title, current.Log);
-            }
+            // in case no word exists within the table yet
+            table[index] = new WikiItem(word, new DocumentLog(title, null), table[index]);
+            
         }
 
         private WikiItem FindWord(string word)
         {
-            WikiItem current = start;
+            int index = Math.Abs(word.GetHashCode()) % TSize; // case sensitive atm 
+            WikiItem current = table[index];
             while (current != null)
             {
-                if (current.Str.Equals(word, StringComparison.OrdinalIgnoreCase))
+                if (current.Str.Equals(word))
                     return current;
                 current = current.Next;
             }
@@ -104,7 +117,7 @@ namespace SearchEngineProject
         {
             while (log != null)
             {
-                if (log.Title.Equals(title, StringComparison.OrdinalIgnoreCase))
+                if (log.Title.Equals(title))
                     return true;
                 log = log.Next;
             }
