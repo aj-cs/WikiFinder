@@ -6,14 +6,28 @@ internal class Index1
 {
     private WikiItem start;
 
+    private class DocumentItem
+    {
+        public string Title;
+        public DocumentItem? Next;
+
+        public DocumentItem(string title, DocumentItem next)
+        {
+            Title = title;
+            Next = next;
+        }
+
+    }
     private class WikiItem
     {
         public string Str;
-        public WikiItem Next;
+        public DocumentItem DocumentList;
+        public WikiItem? Next;
 
         public WikiItem(string s, WikiItem n)
         {
             Str = s;
+            DocumentList = null;
             Next = n;
         }
     }
@@ -25,29 +39,25 @@ internal class Index1
             using (StreamReader input = new StreamReader(filename, System.Text.Encoding.UTF8))
             {
                 string line;
-                WikiItem current = null;
-
+                string currentTitle = null;
+                start = null;
 
                 while ((line = input.ReadLine()) != null)
                 {
-                    string[] words = line.Split(' ');
-
-                    foreach (string element in words)
+                    if (start == null || line == "---END.OF.DOCUMENT---")
                     {
-                        Console.WriteLine(element);
-
-                        WikiItem tmp = new WikiItem(element, null);
-
-                        if (start == null)
+                        currentTitle = input.ReadLine();
+                        if (currentTitle == null)
                         {
-                            start = tmp;
-                            current = start;
+                            break;
                         }
-                        else
-                        {
-                            current.Next = tmp;
-                            current = tmp;
-                        }
+                    }
+                    string[] words = line.Split(' ');
+                    foreach (string word in words)
+                    {
+                        Console.WriteLine(word);
+                        WikiItem node = FindOrCreateWord(word);
+                        AddDocumentToWord(node, currentTitle);
                     }
                 }
             }
@@ -58,18 +68,65 @@ internal class Index1
         }
     }
 
-    public bool Search(string searchStr)
+    private void AddDocumentToWord(WikiItem node, string title)
+    {
+        DocumentItem doc = node.DocumentList;
+        while (doc != null)
+        {
+            if (doc.Title.Equals(title, StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+            doc = doc.Next;
+        }
+        node.DocumentList = new DocumentItem(title, node.DocumentList);
+    }
+
+    private WikiItem FindOrCreateWord(string word)
+    {
+        WikiItem current = start;
+        WikiItem previous = null;
+
+        while (current != null)
+        {
+            if (current.Str.Equals(word, StringComparison.OrdinalIgnoreCase))
+            {
+                return current;
+            }
+
+            previous = current;
+            current = current.Next;
+        }
+
+        WikiItem newWord = new WikiItem(word, null);
+        if (previous == null)
+        {
+            start = newWord;
+        }
+        else
+        {
+            previous.Next = newWord;
+        }
+        return newWord;
+    }
+
+    public void Search(string searchStr)
     {
         WikiItem current = start;
         while (current != null)
         {
             if (current.Str.Equals(searchStr, StringComparison.OrdinalIgnoreCase))
             {
-                return true;
+                Console.WriteLine($"The search string '{searchStr}' appears in: ");
+                DocumentItem doc = current.DocumentList;
+                while (doc != null)
+                {
+                    Console.WriteLine($"- {doc.Title}");
+                    doc = doc.Next;
+                }
             }
             current = current.Next;
         }
-
-        return false;
+        Console.WriteLine($"'{searchStr}' could not be found in any document");
     }
 }
