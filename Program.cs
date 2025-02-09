@@ -23,14 +23,7 @@ class Program
                 break;
             }
 
-            if (index.Search(searchStr))
-            {
-                Console.WriteLine(searchStr + " exists");
-            }
-            else
-            {
-                Console.WriteLine(searchStr + " does not exist");
-            }
+            index.Search(searchStr);
         }
     }
 }
