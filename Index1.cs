@@ -58,18 +58,42 @@ internal class Index1
         }
     }
 
-    public bool Search(string searchStr)
+    public void Search(string searchStr)
     {
         WikiItem current = start;
+        string lastTitle = null;
+
         while (current != null)
         {
             if (current.Str.Equals(searchStr, StringComparison.OrdinalIgnoreCase))
             {
-                return true;
+                // we search backwards in the linked list to find the latest title
+                WikiItem findTitle = current;
+
+                string title = null;
+
+                while (findTitle != null)
+                {
+                    if (findTitle.Str == "---END.OF.DOCUMENT---" || findTitle == start)
+                    {
+                        title = findTitle.Next?.Str ?? "Error: Unknown Title";
+                        break;
+                    }
+                    findTitle = findTitle.Next;
+                }
+                if (title != null & title != lastTitle)
+                {
+                    Console.WriteLine($"- {title}");
+                    lastTitle = title;
+                }
             }
             current = current.Next;
         }
 
-        return false;
+        if (lastTitle == null)
+        {
+            Console.WriteLine($"{searchStr} not found in any documents.");
+        }
+
     }
 }
