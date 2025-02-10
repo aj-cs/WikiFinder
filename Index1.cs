@@ -1,151 +1,149 @@
 using System;
 using System.IO;
-namespace SearchEngineProject
+namespace SearchEngineProject;
+
+internal class Index1
 {
-    internal class Index1
+    private const int TSize = 11831; // Use a prime num. 11831 
+    private WikiItem[] table;
+
+    private class WikiItem
     {
-        private const int TSize = 11831; // Use a prime num. 11831 
-        private WikiItem[] table;
-
-        private class WikiItem
+        public string Str;
+        public DocumentLog Log;
+        public WikiItem Next;
+        public WikiItem(string s, DocumentLog l, WikiItem n)
         {
-            public string Str;
-            public DocumentLog Log;
-            public WikiItem Next;
-            public WikiItem(string s, DocumentLog l, WikiItem n)
-            {
-                Str = s;
-                Log = l;
-                Next = n;
-            }
-
+            Str = s;
+            Log = l;
+            Next = n;
         }
 
-        private class DocumentLog
-        {
-            public string Title;
-            public DocumentLog Next;
-            public DocumentLog(string title, DocumentLog next)
-            {
-                Title = title;
-                Next = next;
-            }
-        }
+    }
 
-        public Index1(string filename)
+    private class DocumentLog
+    {
+        public string Title;
+        public DocumentLog Next;
+        public DocumentLog(string title, DocumentLog next)
         {
-            table = new WikiItem[TSize];
-            try
+            Title = title;
+            Next = next;
+        }
+    }
+
+    public Index1(string filename)
+    {
+        table = new WikiItem[TSize];
+        try
+        {
+            using (StreamReader input = new StreamReader(filename, System.Text.Encoding.UTF8))
             {
-                using (StreamReader input = new StreamReader(filename, System.Text.Encoding.UTF8))
+                string line;
+                string currentTitle = "";
+                bool titleRead = false;
+                while ((line = input.ReadLine()) != null)
                 {
-                    string line;
-                    string currentTitle = "";
-                    bool titleRead = false;
-                    while ((line = input.ReadLine()) != null)
+                    if (string.IsNullOrWhiteSpace(line))
+                        continue;
+                    if (line.Equals("---END.OF.DOCUMENT---"))
                     {
-                        if (string.IsNullOrWhiteSpace(line))
-                            continue;
-                        if (line.Equals("---END.OF.DOCUMENT---"))
-                        {
-                            titleRead = false;
-                            currentTitle = "";
-                            continue;
-                        }
-                        if (!titleRead)
-                        {
+                        titleRead = false;
+                        currentTitle = "";
+                        continue;
+                    }
+                    if (!titleRead)
+                    {
 
-                            currentTitle = line;
-                            Console.WriteLine(currentTitle);
-                            titleRead = true;
-                        }
-                        else
+                        currentTitle = line;
+                        Console.WriteLine(currentTitle);
+                        titleRead = true;
+                    }
+                    else
+                    {
+                        string[] words = line.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                        foreach (string word in words)
                         {
-                            string[] words = line.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-                            foreach (string word in words)
-                            {
-                                InsertWord(word, currentTitle);
-                            }
+                            InsertWord(word, currentTitle);
                         }
                     }
                 }
             }
-            catch (FileNotFoundException)
-            {
-                Console.WriteLine("Error reading file " + filename);
-            }
         }
-
-        private void InsertWord(string word, string title)
+        catch (FileNotFoundException)
         {
-            word = word.ToLower();
-            int index = Math.Abs(word.GetHashCode()) % TSize; // we could implement our own hash function
-            WikiItem current = table[index];
+            Console.WriteLine("Error reading file " + filename);
+        }
+    }
 
-            while (current != null)
+    private void InsertWord(string word, string title)
+    {
+        word = word.ToLower();
+        int index = Math.Abs(word.GetHashCode()) % TSize; // we could implement our own hash function
+        WikiItem current = table[index];
+
+        while (current != null)
+        {
+            if (current.Str.Equals(word))
             {
-                if (current.Str.Equals(word))
+                if (!DocExists(current.Log, title))
                 {
-                    if (!DocExists(current.Log, title))
-                    {
-                        current.Log = new DocumentLog(title, current.Log);
-                    }
-                    return;
+                    current.Log = new DocumentLog(title, current.Log);
                 }
-
-                current = current.Next;
+                return;
             }
-            // in case no word exists within the table yet
-            table[index] = new WikiItem(word, new DocumentLog(title, null), table[index]);
 
+            current = current.Next;
         }
+        // in case no word exists within the table yet
+        table[index] = new WikiItem(word, new DocumentLog(title, null), table[index]);
 
-        private WikiItem FindWord(string word)
+    }
+
+    private WikiItem FindWord(string word)
+    {
+        word = word.ToLower();
+        int index = Math.Abs(word.GetHashCode()) % TSize; // case sensitive atm 
+        WikiItem current = table[index];
+        while (current != null)
         {
-            word = word.ToLower();
-            int index = Math.Abs(word.GetHashCode()) % TSize; // case sensitive atm 
-            WikiItem current = table[index];
-            while (current != null)
-            {
-                if (current.Str.Equals(word))
-                    return current;
-                current = current.Next;
-            }
-            return null;
+            if (current.Str.Equals(word))
+                return current;
+            current = current.Next;
         }
+        return null;
+    }
 
-        private bool DocExists(DocumentLog log, string title)
+    private bool DocExists(DocumentLog log, string title)
+    {
+        while (log != null)
         {
+            if (log.Title.Equals(title))
+                return true;
+            log = log.Next;
+        }
+        return false;
+    }
+
+    public bool Search(string searchStr)
+    {
+        WikiItem current = FindWord(searchStr);
+        if (current != null)
+        {
+            Console.WriteLine("Found " + searchStr + " in:");
+            DocumentLog log = current.Log;
             while (log != null)
             {
-                if (log.Title.Equals(title))
-                    return true;
+                Console.WriteLine(log.Title);
                 log = log.Next;
             }
-            return false;
+            return true;
         }
-
-        public bool Search(string searchStr)
+        else
         {
-            WikiItem current = FindWord(searchStr);
-            if (current != null)
-            {
-                Console.WriteLine("Found " + searchStr + " in:");
-                DocumentLog log = current.Log;
-                while (log != null)
-                {
-                    Console.WriteLine(log.Title);
-                    log = log.Next;
-                }
-                return true;
-            }
-            else
-            {
-                Console.WriteLine("No matches for " + searchStr + " found");
-                return false;
-            }
+            Console.WriteLine("No matches for " + searchStr + " found");
+            return false;
         }
     }
 }
-
 
