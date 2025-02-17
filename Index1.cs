@@ -1,11 +1,14 @@
 using System;
+using System.Diagnostics;
 using System.IO;
 namespace SearchEngineProject;
 
 internal class Index1
 {
-    private const int TSize = 11831; // Use a prime num. 11831 
+    private int TableCapacity = 1213; // Use a prime num. 11831 
+    private const double LoadFactor =  0.75;
     private WikiItem[] table;
+    private int counter;
 
     private class WikiItem
     {
@@ -34,7 +37,9 @@ internal class Index1
 
     public Index1(string filename)
     {
-        table = new WikiItem[TSize];
+        Stopwatch sw = new Stopwatch();
+        sw.Start();
+        table = new WikiItem[TableCapacity];
         try
         {
             using (StreamReader input = new StreamReader(filename, System.Text.Encoding.UTF8))
@@ -56,7 +61,7 @@ internal class Index1
                     {
 
                         currentTitle = line;
-                        Console.WriteLine(currentTitle);
+                        //Console.WriteLine(currentTitle);
                         titleRead = true;
                     }
                     else
@@ -68,6 +73,8 @@ internal class Index1
                         }
                     }
                 }
+                sw.Stop();
+                Console.WriteLine("Indexing took " + sw.Elapsed);
             }
         }
         catch (FileNotFoundException)
@@ -79,7 +86,7 @@ internal class Index1
     private void InsertWord(string word, string title)
     {
         word = word.ToLower();
-        int index = Math.Abs(word.GetHashCode()) % TSize; // we could implement our own hash function
+        int index = Math.Abs(word.GetHashCode()) % TableCapacity; // we could implement our own hash function
         WikiItem current = table[index];
 
         while (current != null)
@@ -97,13 +104,41 @@ internal class Index1
         }
         // in case no word exists within the table yet
         table[index] = new WikiItem(word, new DocumentLog(title, null), table[index]);
+        counter++;
+        
+        if (counter > TableCapacity * LoadFactor)
+        {
+            Rehash();
+            //Console.WriteLine(TableCapacity);
+        }
+    }
 
+    private void Rehash()
+    {
+        int newSize = TableCapacity * 2;
+        WikiItem[] newTable = new WikiItem[newSize];
+        
+        for (int i = 0; i < TableCapacity; i++)
+        {
+            WikiItem current = table[i];
+            while (current != null) 
+            {
+                WikiItem next = current.Next; 
+                int index = Math.Abs(current.Str.GetHashCode()) % newSize;
+                current.Next = newTable[index];
+                newTable[index] = current;
+                current = next;
+            }
+        }
+        
+        table = newTable;
+        TableCapacity = newSize;
     }
 
     private WikiItem FindWord(string word)
     {
         word = word.ToLower();
-        int index = Math.Abs(word.GetHashCode()) % TSize; // case sensitive atm 
+        int index = Math.Abs(word.GetHashCode()) % TableCapacity; // case sensitive atm 
         WikiItem current = table[index];
         while (current != null)
         {
@@ -127,20 +162,26 @@ internal class Index1
 
     public bool Search(string searchStr)
     {
+        Stopwatch sw = new Stopwatch();
+        sw.Start();
         WikiItem current = FindWord(searchStr);
         if (current != null)
         {
-            Console.WriteLine("Found " + searchStr + " in:");
+            //Console.WriteLine("Found " + searchStr + " in:");
             DocumentLog log = current.Log;
             while (log != null)
             {
-                Console.WriteLine(log.Title);
+                //Console.WriteLine(log.Title);
                 log = log.Next;
             }
+            sw.Stop();
+            Console.WriteLine($"Search took: {sw.Elapsed}");
             return true;
         }
         else
         {
+            sw.Stop();
+            Console.WriteLine($"Search took: {sw.Elapsed}");
             Console.WriteLine("No matches for " + searchStr + " found");
             return false;
         }
