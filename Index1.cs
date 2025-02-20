@@ -37,8 +37,8 @@ internal class Index1
 
     public Index1(string filename)
     {
-        Stopwatch sw = new Stopwatch();
-        sw.Start();
+        //Stopwatch sw = new Stopwatch();
+        //sw.Start();
         table = new WikiItem[TableCapacity];
         try
         {
@@ -61,7 +61,7 @@ internal class Index1
                     {
 
                         currentTitle = line;
-                        //Console.WriteLine(currentTitle);
+                        Console.WriteLine(currentTitle);
                         titleRead = true;
                     }
                     else
@@ -73,8 +73,8 @@ internal class Index1
                         }
                     }
                 }
-                sw.Stop();
-                Console.WriteLine("Indexing took " + sw.Elapsed);
+                //sw.Stop();
+                //Console.WriteLine("Indexing took " + sw.Elapsed);
             }
         }
         catch (FileNotFoundException)
@@ -162,26 +162,26 @@ internal class Index1
 
     public bool Search(string searchStr)
     {
-        Stopwatch sw = new Stopwatch();
-        sw.Start();
+        //Stopwatch sw = new Stopwatch();
+        //sw.Start();
         WikiItem current = FindWord(searchStr);
         if (current != null)
         {
-            //Console.WriteLine("Found " + searchStr + " in:");
+            Console.WriteLine("Found " + searchStr + " in:");
             DocumentLog log = current.Log;
             while (log != null)
             {
-                //Console.WriteLine(log.Title);
+                Console.WriteLine(log.Title);
                 log = log.Next;
             }
-            sw.Stop();
-            Console.WriteLine($"Search took: {sw.Elapsed}");
+            //sw.Stop();
+            //Console.WriteLine($"Search took: {sw.Elapsed}");
             return true;
         }
         else
         {
-            sw.Stop();
-            Console.WriteLine($"Search took: {sw.Elapsed}");
+            //sw.Stop();
+            //Console.WriteLine($"Search took: {sw.Elapsed}");
             Console.WriteLine("No matches for " + searchStr + " found");
             return false;
         }
