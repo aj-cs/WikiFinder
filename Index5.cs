@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.IO;
 namespace SearchEngineProject;
 
-internal class Index1
+internal class Index5
 {
     private TrieNode root;
     private int counter;
@@ -35,7 +35,7 @@ internal class Index1
         }
     }
 
-    public Index1(string filename)
+    public Index5(string filename)
     {
         //Stopwatch sw = new Stopwatch();
         //sw.Start();
