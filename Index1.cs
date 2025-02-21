@@ -5,25 +5,25 @@ namespace SearchEngineProject;
 
 internal class Index1
 {
-    private int TableCapacity = 1213; // Use a prime num. 11831 
-    private const double LoadFactor =  0.75;
-    private WikiItem[] table;
+    private TrieNode root;
     private int counter;
 
-    private class WikiItem
+    private class TrieNode
     {
-        public string Str;
+        public TrieNode[] Children;
         public DocumentLog Log;
-        public WikiItem Next;
-        public WikiItem(string s, DocumentLog l, WikiItem n)
+        public int Count;
+        public bool isEndOfWord;
+
+        public TrieNode()
         {
-            Str = s;
-            Log = l;
-            Next = n;
+            Children = new TrieNode[26];
+            Count = 0;
+            isEndOfWord = false;
         }
 
     }
-
+    
     private class DocumentLog
     {
         public string Title;
@@ -39,7 +39,7 @@ internal class Index1
     {
         //Stopwatch sw = new Stopwatch();
         //sw.Start();
-        table = new WikiItem[TableCapacity];
+        root = new TrieNode();
         try
         {
             using (StreamReader input = new StreamReader(filename, System.Text.Encoding.UTF8))
@@ -86,67 +86,50 @@ internal class Index1
     private void InsertWord(string word, string title)
     {
         word = word.ToLower();
-        int index = Math.Abs(word.GetHashCode()) % TableCapacity; // we could implement our own hash function
-        WikiItem current = table[index];
-
-        while (current != null)
+        TrieNode current = root;
+        foreach (char c in word)
         {
-            if (current.Str.Equals(word))
+            if (char.IsLetter(c))
             {
-                if (!DocExists(current.Log, title))
+                int index = c - 'a';
+                if (index >= 0 && index < 26)
                 {
-                    current.Log = new DocumentLog(title, current.Log);
+                    if (current.Children[index] == null)
+                    {
+                        current.Children[index] = new TrieNode();
+                    }
+                    current = current.Children[index];
                 }
-                return;
-            }
-
-            current = current.Next;
-        }
-        // in case no word exists within the table yet
-        table[index] = new WikiItem(word, new DocumentLog(title, null), table[index]);
-        counter++;
-        
-        if (counter > TableCapacity * LoadFactor)
-        {
-            Rehash();
-            //Console.WriteLine(TableCapacity);
-        }
-    }
-
-    private void Rehash()
-    {
-        int newSize = TableCapacity * 2;
-        WikiItem[] newTable = new WikiItem[newSize];
-        
-        for (int i = 0; i < TableCapacity; i++)
-        {
-            WikiItem current = table[i];
-            while (current != null) 
-            {
-                WikiItem next = current.Next; 
-                int index = Math.Abs(current.Str.GetHashCode()) % newSize;
-                current.Next = newTable[index];
-                newTable[index] = current;
-                current = next;
             }
         }
-        
-        table = newTable;
-        TableCapacity = newSize;
+        current.isEndOfWord = true;
+        current.Count++;
+        if (current.Log == null)
+        {
+            current.Log = new DocumentLog(title, null);
+        }
+        else if (!DocExists(current.Log, title))
+        {
+            current.Log = new DocumentLog(title, current.Log);
+        }
     }
+    
 
-    private WikiItem FindWord(string word)
+    private TrieNode FindWord(string word)
     {
         word = word.ToLower();
-        int index = Math.Abs(word.GetHashCode()) % TableCapacity; // case sensitive atm 
-        WikiItem current = table[index];
-        while (current != null)
+        TrieNode current = root;
+        foreach (char c in word)
         {
-            if (current.Str.Equals(word))
-                return current;
-            current = current.Next;
+            int index = c - 'a';
+            if (current.Children[index] == null)
+            {
+                return null;
+            }
+            current = current.Children[index];
         }
-        return null;
+        
+        return current.isEndOfWord ? current : null;
     }
 
     private bool DocExists(DocumentLog log, string title)
@@ -160,11 +143,13 @@ internal class Index1
         return false;
     }
 
+   
+
     public bool Search(string searchStr)
     {
         //Stopwatch sw = new Stopwatch();
         //sw.Start();
-        WikiItem current = FindWord(searchStr);
+        TrieNode current = FindWord(searchStr);
         if (current != null)
         {
             Console.WriteLine("Found " + searchStr + " in:");
