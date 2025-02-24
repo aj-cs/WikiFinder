@@ -24,8 +24,8 @@ class Program
             }
 
             index.PrefixSearchDocuments(searchStr);
-            Console.WriteLine($"\nAuto-completion of words starting with '{searchStr}': ");
-            index.PrefixSearch(searchStr);
+            //Console.WriteLine($"\nAuto-completion of words starting with '{searchStr}': ");
+            //index.PrefixSearch(searchStr);
         }
     }
 }

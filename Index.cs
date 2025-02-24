@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 
 namespace SearchEngineProject;
@@ -39,6 +40,8 @@ internal class Index
         root = new TrieNode();
         try
         {
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
             using (StreamReader input = new StreamReader(filename, System.Text.Encoding.UTF8))
             {
                 string line;
@@ -69,7 +72,10 @@ internal class Index
                         }
                     }
                 }
+                sw.Stop();
+                Console.WriteLine("Indexing completed in " + sw.Elapsed.TotalSeconds + " seconds");
             }
+            
         }
         catch (FileNotFoundException)
         {
@@ -159,6 +165,7 @@ internal class Index
     // NOTE: exact match search (unchanged in terms of implementation compared to like iondex4)
     public bool Search(string searchStr)
     {
+        Stopwatch sw = new Stopwatch();
         TrieNode current = FindWord(searchStr);
         if (current != null)
         {
@@ -166,14 +173,18 @@ internal class Index
             DocumentLog log = current.Log;
             while (log != null)
             {
-                Console.WriteLine(log.Title);
+                //Console.WriteLine(log.Title);
                 log = log.Next;
             }
+            sw.Stop();
+            Console.WriteLine("Search completed in " + sw.Elapsed.TotalSeconds + " seconds");
             return true;
         }
         else
         {
             Console.WriteLine("No matches for " + searchStr + " found");
+            sw.Stop();
+            Console.WriteLine("Search completed in " + sw.Elapsed.Seconds + " seconds");
             return false;
         }
     }
@@ -212,14 +223,18 @@ internal class Index
     }
 
     // NOTE: returns the (unique) documents  where any word starting with the given prefix appears
-    public void PrefixSearchDocuments(string prefix)
+    public bool PrefixSearchDocuments(string prefix)
     {
+        Stopwatch sw = new Stopwatch();
+        sw.Start();
         prefix = prefix.ToLower();
         TrieNode node = FindPrefixNode(prefix);
         if (node == null)
         {
             Console.WriteLine("No matches for " + prefix + " found");
-            return;
+            sw.Stop();
+            Console.WriteLine("Search completed in " + sw.Elapsed.TotalSeconds + " seconds");
+            return false;
         }
 
         // hashset to avoid duplicate titles
@@ -248,9 +263,12 @@ internal class Index
 
             foreach (var doc in documents)
             {
-                Console.WriteLine(doc);
+                //Console.WriteLine(doc);
             }
         }
+        sw.Stop();
+        Console.WriteLine("Search completed in " + sw.Elapsed.TotalSeconds + " seconds");
+        return true;
     }
 
     /*
