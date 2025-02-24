@@ -11,7 +11,7 @@ class Program
         }
 
         Console.WriteLine("Preprocessing " + args[0]);
-        Index1 index = new Index1(args[0]);
+        Index5 index = new Index5(args[0]);
 
         while (true)
         {
