@@ -11,7 +11,7 @@ class Program
         }
 
         Console.WriteLine("Preprocessing " + args[0]);
-        Index5 index = new Index5(args[0]);
+        Index index = new Index(args[0]);
 
         while (true)
         {
@@ -23,7 +23,9 @@ class Program
                 break;
             }
 
-            index.Search(searchStr);
+            index.PrefixSearchDocuments(searchStr);
+            Console.WriteLine($"\nAuto-completion of words starting with '{searchStr}': ");
+            index.PrefixSearch(searchStr);
         }
     }
 }
