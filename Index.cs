@@ -30,14 +30,19 @@ namespace SearchEngineProject
             }
         }
 
-        // linked list that stores document titles
+        // Document ID mapping system to store document titles in a more efficient way
+        private Dictionary<string, int> documentIdMap;
+        private List<string> documentTitles;
+        private int nextDocumentId;
+        
+        // Linked list that stores document IDs
         private class DocumentLog
         {
-            public string Title;
+            public int DocumentId;
             public DocumentLog Next;
-            public DocumentLog(string title, DocumentLog next)
+            public DocumentLog(int documentId, DocumentLog next)
             {
-                Title = title;
+                DocumentId = documentId;
                 Next = next;
             }
         }
@@ -45,6 +50,9 @@ namespace SearchEngineProject
         public Index(string filename)
         {
             root = null;
+            documentIdMap = new Dictionary<string, int>();
+            documentTitles = new List<string>();
+            nextDocumentId = 0;
             try
             {
                 using (StreamReader input = new StreamReader(filename, System.Text.Encoding.UTF8))
@@ -109,6 +117,18 @@ namespace SearchEngineProject
         // recursive insertion into the ternary trie
         private TrieNode Insert(TrieNode node, string word, int d, string title)
         {
+            int documentId;
+            if (!documentIdMap.ContainsKey(title))
+            {
+                documentId = nextDocumentId++;
+                documentIdMap[title] = documentId;
+                documentTitles.Add(title);
+            }
+            else
+            {
+                documentId = documentIdMap[title];
+            }
+
             char c = word[d];
             if (node == null)
                 node = new TrieNode(c);
@@ -125,26 +145,26 @@ namespace SearchEngineProject
                     node.isEndOfWord = true;
                     node.count++;
                     if (node.log == null)
-                        node.log = new DocumentLog(title, null);
-                    else if (!DocExists(node.log, title))
-                        node.log = new DocumentLog(title, node.log);
+                        node.log = new DocumentLog(documentId, null);
+                    else if (!DocExists(node.log, documentId))
+                        node.log = new DocumentLog(documentId, node.log);
                 }
             }
             return node;
         }
 
-        private bool DocExists(DocumentLog log, string title)
+        private bool DocExists(DocumentLog log, int documentId)
         {
             while (log != null)
             {
-                if (log.Title.Equals(title))
+                if (log.DocumentId == documentId)
                     return true;
                 log = log.Next;
             }
             return false;
         }
 
-        // exact match seach
+        // exact match search
         public bool Search(string searchStr)
         {
             string word = FilterWord(searchStr);
@@ -155,7 +175,7 @@ namespace SearchEngineProject
                 DocumentLog log = node.log;
                 while (log != null)
                 {
-                    Console.WriteLine(log.Title);
+                    Console.WriteLine(documentTitles[log.DocumentId]);
                     log = log.Next;
                 }
                 return true;
@@ -219,7 +239,7 @@ namespace SearchEngineProject
                     DocumentLog log = trieNode.log;
                     while (log != null)
                     {
-                        Console.WriteLine(log.Title);
+                        Console.WriteLine(documentTitles[log.DocumentId]);
                         log = log.Next;
                     }
                 }
@@ -241,7 +261,7 @@ namespace SearchEngineProject
                 Console.WriteLine("No matches for " + prefix + " found");
                 return;
             }
-            HashSet<string> documents = new HashSet<string>();
+            HashSet<int> documentIds = new HashSet<int>();
             List<(string word, TrieNode node)> completions = new List<(string, TrieNode)>();
             if (node.isEndOfWord)
                 completions.Add((prefix, node));
@@ -251,20 +271,20 @@ namespace SearchEngineProject
                 DocumentLog log = trieNode.log;
                 while (log != null)
                 {
-                    documents.Add(log.Title);
+                    documentIds.Add(log.DocumentId);
                     log = log.Next;
                 }
             }
-            if (documents.Count == 0)
+            if (documentIds.Count == 0)
             {
                 Console.WriteLine($"No documents found for prefix: '{prefix}'");
             }
             else
             {
                 Console.WriteLine($"Documents containing a word starting with '{prefix}':");
-                foreach (var doc in documents)
+                foreach (var docId in documentIds)
                 {
-                    Console.WriteLine(doc);
+                    Console.WriteLine(documentTitles[docId]);
                 }
             }
         }
@@ -292,4 +312,3 @@ namespace SearchEngineProject
         }
     }
 }
-
