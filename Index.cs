@@ -39,10 +39,12 @@ namespace SearchEngineProject
         private class DocumentLog
         {
             public int DocumentId;
+            public List<int> Positions;
             public DocumentLog Next;
-            public DocumentLog(int documentId, DocumentLog next)
+            public DocumentLog(int documentId, int position, DocumentLog next)
             {
                 DocumentId = documentId;
+                Positions = new List<int> { position };
                 Next = next;
             }
         }
@@ -79,9 +81,9 @@ namespace SearchEngineProject
                         else
                         {
                             string[] words = line.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-                            foreach (string word in words)
+                            for (int position = 0; position < words.Length; position++)
                             {
-                                InsertWord(word, currentTitle);
+                                InsertWord(words[position], currentTitle, position);
                             }
                         }
                     }
@@ -105,17 +107,17 @@ namespace SearchEngineProject
             return result;
         }
 
-        // InserWord filters the word and then recursively inserts it
-        private void InsertWord(string word, string title)
+        // InsertWord filters the word and then recursively inserts it
+        private void InsertWord(string word, string title, int position)
         {
             string filtered = FilterWord(word);
             if (filtered.Length == 0)
                 return;
-            root = Insert(root, filtered, 0, title);
+            root = Insert(root, filtered, 0, title, position);
         }
 
         // recursive insertion into the ternary trie
-        private TrieNode Insert(TrieNode node, string word, int d, string title)
+        private TrieNode Insert(TrieNode node, string word, int d, string title, int position)
         {
             int documentId;
             if (!documentIdMap.ContainsKey(title))
@@ -133,24 +135,42 @@ namespace SearchEngineProject
             if (node == null)
                 node = new TrieNode(c);
             if (c < node.c)
-                node.left = Insert(node.left, word, d, title);
+                node.left = Insert(node.left, word, d, title, position);
             else if (c > node.c)
-                node.right = Insert(node.right, word, d, title);
+                node.right = Insert(node.right, word, d, title, position);
             else
             {
                 if (d < word.Length - 1)
-                    node.mid = Insert(node.mid, word, d + 1, title);
+                    node.mid = Insert(node.mid, word, d + 1, title, position);
                 else
                 {
                     node.isEndOfWord = true;
                     node.count++;
-                    if (node.log == null)
-                        node.log = new DocumentLog(documentId, null);
-                    else if (!DocExists(node.log, documentId))
-                        node.log = new DocumentLog(documentId, node.log);
+                    DocumentLog existing = FindDocLog(node.log, documentId);
+                    if (existing != null)
+                    {
+                        if (!existing.Positions.Contains(position))
+                            existing.Positions.Add(position);
+                    }
+                    else
+                    {
+                        node.log = new DocumentLog(documentId, position, node.log);
+                    }
                 }
             }
             return node;
+        }
+
+        private DocumentLog FindDocLog(DocumentLog log, int documentId)
+        {
+            while (log != null)
+            {
+                if (log.DocumentId == documentId)
+                    return log;
+                log = log.Next;
+            }
+
+            return null;
         }
 
         private bool DocExists(DocumentLog log, int documentId)
@@ -287,6 +307,111 @@ namespace SearchEngineProject
                     Console.WriteLine(documentTitles[docId]);
                 }
             }
+        }
+        public bool PhraseSearch(string phrase)
+        {
+            string[] words = phrase.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            if (words.Length == 0)
+            {
+                Console.WriteLine("invalid search provided.");
+                return false;
+            }
+            if (words.Length == 1)
+            {
+                return Search(words[0]);
+            }
+            for (int i = 0; i < words.Length; i++)
+            {
+                words[i] = FilterWord(words[i]);
+            }
+            TrieNode firstNode = Get(root, words[0], 0);
+            if (firstNode == null || !firstNode.isEndOfWord)
+            {
+                Console.WriteLine($"Phrase '{phrase}' not found - first word doesn't exist");
+                return false;
+            }
+            Dictionary<int, List<int>> candidateDocs = new Dictionary<int, List<int>>();
+            DocumentLog log = firstNode.log;
+            while (log != null)
+            {
+                candidateDocs[log.DocumentId] = new List<int>(log.Positions);
+                log = log.Next;
+            }
+            for (int wordIndex = 1; wordIndex < words.Length; wordIndex++)
+            {
+                TrieNode node = Get(root, words[wordIndex], 0);
+                if (node == null || !node.isEndOfWord)
+                {
+                    Console.WriteLine($"Phrase '{phrase}' not found - word '{words[wordIndex]}' doesn't exist");
+                    return false;
+                }
+                Dictionary<int, List<int>> newCandidates = new Dictionary<int, List<int>>();
+                foreach (var docEntry in candidateDocs)
+                {
+                    int docId = docEntry.Key;
+                    List<int> prevPositions = docEntry.Value;
+                    DocumentLog currLog = FindDocLog(node.log, docId);
+                    if (currLog != null)
+                    {
+                        List<int> validPositions = new List<int>();
+                        HashSet<int> currPositions = new HashSet<int>(currLog.Positions);
+                        foreach (int prevPos in prevPositions)
+                        {
+                            if (currPositions.Contains(prevPos + 1))
+                            {
+                                validPositions.Add(prevPos + 1);
+                            }
+                        }
+                        if (validPositions.Count > 0)
+                        {
+                            newCandidates[docId] = validPositions;
+                        }
+                    }
+                }
+                candidateDocs = newCandidates;
+                if (candidateDocs.Count == 0)
+                {
+                    Console.WriteLine($"Phrase '{phrase}' not found in any document");
+                    return false;
+                }
+            }
+            Console.WriteLine($"Found phrase '{phrase}' in:");
+            foreach (var docId in candidateDocs.Keys)
+            {
+                Console.WriteLine(documentTitles[docId]);
+            }
+            return true;
+        }
+        public bool SearchRanked(string searchStr)
+        {
+            string word = FilterWord(searchStr);
+            TrieNode node = Get(root, word, 0);
+            if (node == null || !node.isEndOfWord)
+            {
+                Console.WriteLine("No matches for " + searchStr + " found");
+                return false;
+            }
+            //collect occurrence counts for each document
+            Dictionary<int, int> docCounts = new Dictionary<int, int>();
+            DocumentLog log = node.log;
+            while (log != null)
+            {
+                if (!docCounts.ContainsKey(log.DocumentId))
+                    docCounts[log.DocumentId] = 0;
+                docCounts[log.DocumentId] += log.Positions.Count;
+                log = log.Next;
+            }
+
+            //sort descending order of occurrences
+            var sortedDocs = new List<KeyValuePair<int, int>>(docCounts);
+            sortedDocs.Sort((a, b) => b.Value.CompareTo(a.Value));
+
+            Console.WriteLine("Found " + searchStr + " in (ranked by occurrences):");
+            foreach (var docPair in sortedDocs)
+            {
+                Console.WriteLine(documentTitles[docPair.Key] + " (occurrences: " + docPair.Value + ")");
+            }
+            return true;
         }
 
         // recursively collects complete words from the ternary trie
