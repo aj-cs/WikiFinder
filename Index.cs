@@ -34,6 +34,8 @@ namespace SearchEngineProject
         private Dictionary<string, int> documentIdMap;
         private List<string> documentTitles;
         private int nextDocumentId;
+
+        private int documentPositionCounter;
         
         // Linked list that stores document IDs
         private class DocumentLog
@@ -55,6 +57,7 @@ namespace SearchEngineProject
             documentIdMap = new Dictionary<string, int>();
             documentTitles = new List<string>();
             nextDocumentId = 0;
+            documentPositionCounter = 0;
             try
             {
                 using (StreamReader input = new StreamReader(filename, System.Text.Encoding.UTF8))
@@ -70,6 +73,7 @@ namespace SearchEngineProject
                         {
                             titleRead = false;
                             currentTitle = "";
+                            documentPositionCounter = 0;
                             continue;
                         }
                         if (!titleRead)
@@ -81,9 +85,9 @@ namespace SearchEngineProject
                         else
                         {
                             string[] words = line.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-                            for (int position = 0; position < words.Length; position++)
+                            for (int i = 0; i < words.Length; i++)
                             {
-                                InsertWord(words[position], currentTitle, position);
+                                InsertWord(words[i], currentTitle, documentPositionCounter++);
                             }
                         }
                     }
