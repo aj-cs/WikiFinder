@@ -14,15 +14,15 @@ namespace SearchEngineProject
         */
         private class TrieNode
         {
-            public char c;
+            public string strSegment;
             public TrieNode left, mid, right;
             public DocumentLog log;
             public int count;
             public bool isEndOfWord;
 
-            public TrieNode(char c)
+            public TrieNode(string segment)
             {
-                this.c = c;
+                strSegment = segment;
                 left = mid = right = null;
                 log = null;
                 count = 0;
@@ -107,30 +107,100 @@ namespace SearchEngineProject
         }
 
         // recursive insertion into the ternary trie
+        // d is the index in the word from which we still have to match
         private TrieNode Insert(TrieNode node, string word, int d, string title)
         {
-            char c = word[d];
             if (node == null)
-                node = new TrieNode(c);
-            if (c < node.c)
+            {
+                // create a new node with the remainign substring
+                TrieNode newNode = new TrieNode(word.Substring(d));
+                newNode.isEndOfWord = true;
+                newNode.count = 1;
+                newNode.log = new DocumentLog(title, null);
+                return newNode;
+            }
+
+            char currentChar = word[d];
+            if (currentChar < node.strSegment[0])
+            {
                 node.left = Insert(node.left, word, d, title);
-            else if (c > node.c)
+                return node;
+            }
+            else if (currentChar > node.strSegment[0])
+            {
                 node.right = Insert(node.right, word, d, title);
+                return node;
+            }
             else
             {
-                if (d < word.Length - 1)
-                    node.mid = Insert(node.mid, word, d + 1, title);
+                // else case is when they share the first character, so now we compute
+                // the longest common prefix between node.segment and the word starting at d
+                int i = 0;
+                while (i < node.strSegment.Length
+                        && d + i < word.Length
+                        && node.strSegment[i] == word[d + i])
+                {
+                    i++;
+                }
+
+                if (i < node.strSegment.Length)
+                {
+                    // partially matches, we split the node
+
+                    TrieNode splitNode = new TrieNode(node.strSegment.Substring(i));
+                    splitNode.mid = node.mid;
+                    splitNode.isEndOfWord = node.isEndOfWord;
+                    splitNode.count = node.count;
+                    splitNode.log = node.log;
+
+                    // now we adjust the current node, basically its segment becomes the common prefix
+                    node.strSegment = node.strSegment.Substring(0, i);
+                    node.isEndOfWord = false;
+                    node.count = 0;
+                    node.log = null;
+                    node.mid = splitNode;
+
+                    // we insert the remainder of the new word if there is one
+                    if (d + i < word.Length)
+                    {
+                        node.mid = Insert(node.mid, word, d + i, title);
+                    }
+
+                    else
+                    {
+                        // when the new word exactly matches the common prefix
+                        node.isEndOfWord = true;
+                        node.count++;
+                        if (!DocExists(node.log, title))
+                        {
+                            node.log = new DocumentLog(title, node.log);
+                        }
+                    }
+                    return node;
+                }
                 else
                 {
-                    node.isEndOfWord = true;
-                    node.count++;
-                    if (node.log == null)
-                        node.log = new DocumentLog(title, null);
-                    else if (!DocExists(node.log, title))
-                        node.log = new DocumentLog(title, node.log);
+                    // node segment completely matches the corresponding part of the word
+                    if (d + i == word.Length)
+                    {
+                        // word matches exactly
+                        node.isEndOfWord = true;
+                        node.count++;
+                        if (!DocExists(node.log, title))
+                        {
+                            node.log = new DocumentLog(title, node.log);
+                        }
+                    }
+                    else
+                    {
+                        // cotniue with insertion on the mid child with the remaining part
+                        node.mid = Insert(node.mid, word, d + i, title);
+                    }
+
+                    return node;
                 }
             }
-            return node;
+
         }
 
         private bool DocExists(DocumentLog log, string title)
@@ -171,18 +241,86 @@ namespace SearchEngineProject
         private TrieNode Get(TrieNode node, string word, int d)
         {
             if (node == null)
+            {
                 return null;
-            char c = word[d];
-            if (c < node.c)
+            }
+            if (d >= word.Length)
+            {
+                return node;
+            }
+            char currentChar = word[d];
+            if (currentChar < node.strSegment[0])
+            {
                 return Get(node.left, word, d);
-            else if (c > node.c)
+            }
+            else if (currentChar > node.strSegment[0])
+            {
                 return Get(node.right, word, d);
+            }
             else
             {
-                if (d == word.Length - 1)
+                int i = 0;
+                while (i < node.strSegment.Length
+                        && d + i < word.Length
+                        && node.strSegment[i] == word[d + i])
+                {
+                    i++;
+                }
+
+                if (i < node.strSegment.Length)
+                {
+                    // mismatch in the middle of the node.segment, word is not present
+                    return null;
+                }
+
+                if (d + i == word.Length)
+                {
                     return node;
-                else
-                    return Get(node.mid, word, d + 1);
+                }
+                return Get(node.mid, word, d + i);
+
+            }
+        }
+
+        // returns the node where the prefix search should start
+        // this handles the case where the prefix is within a nodes segemnt
+        private TrieNode GetPrefixNode(TrieNode node, string prefix, int d)
+        {
+            if (node == null)
+            {
+                return null;
+            }
+
+            if (d >= prefix.Length)
+            {
+                return node;
+            }
+
+            char currentChar = prefix[d];
+            if (currentChar < node.strSegment[0])
+            {
+                return GetPrefixNode(node.left, prefix, d);
+            }
+
+            else if (currentChar > node.strSegment[0])
+            {
+                return GetPrefixNode(node.right, prefix, d);
+            }
+
+            else
+            {
+                int i = 0;
+                while (i < node.strSegment.Length
+                        && d + i < prefix.Length
+                        && node.strSegment[i] == prefix[d + i])
+                {
+                    i++;
+                }
+                if (d + i == prefix.Length)
+                    return node;
+                if (i == node.strSegment.Length)
+                    return GetPrefixNode(node.mid, prefix, d + i);
+                return null;
             }
         }
 
@@ -280,7 +418,7 @@ namespace SearchEngineProject
             Collect(node.left, prefix, completions);
 
             // process the current node
-            string word = prefix + node.c;
+            string word = prefix + node.strSegment;
             if (node.isEndOfWord)
                 completions.Add((word, node));
 
