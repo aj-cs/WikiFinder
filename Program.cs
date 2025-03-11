@@ -5,89 +5,86 @@ using BenchmarkDotNet.Exporters.Csv;
 using BenchmarkDotNet.Running;
 
 namespace SearchEngineProject;
-
+/*
+ * 100KB.txt
+100MB.txt
+10MB.txt
+1GB.txt
+1MB.txt
+200MB.txt
+20MB.txt
+2MB.txt
+400MB.txt
+50MB.txt
+5MB.txt
+800MB.txt*/
 [CsvExporter]
 [MemoryDiagnoser]
-public class IndexBenchmark
+public class IndexConstructionBenchmark
 {
-    // Parameterized input: run benchmarks for each file in this list.
-    // WestburyLab.wikicorp.201004_100KB.txt
-    // WestburyLab.wikicorp.201004_100MB.txt
-    // WestburyLab.wikicorp.201004_10MB.txt
-    // WestburyLab.wikicorp.201004_1MB.txt
-    // WestburyLab.wikicorp.201004_200MB.txt
-    // WestburyLab.wikicorp.201004_20MB.txt
-    // WestburyLab.wikicorp.201004_2MB.txt
-    // WestburyLab.wikicorp.201004_400MB.txt
-    // WestburyLab.wikicorp.201004_50MB.txt
-    // WestburyLab.wikicorp.201004_5MB.txt
-    // WestburyLab.wikicorp.201004_800MB.txt
-    // WestburyLab.wikicorp.201004.txt
-    [Params("WestburyLab.wikicorp.201004_100KB.txt",
-            "WestburyLab.wikicorp.201004_1MB.txt",
-            "WestburyLab.wikicorp.201004_2MB.txt",
-            "WestburyLab.wikicorp.201004_5MB.txt",
-            "WestburyLab.wikicorp.201004_10MB.txt",
-            "WestburyLab.wikicorp.201004_20MB.txt"
-            // "WestburyLab.wikicorp.201004_50MB.txt",
-            // "WestburyLab.wikicorp.201004_200MB.txt",
-            //"WestburyLab.wikicorp.201004_400MB.txt"
-            )]
+    // Parameterized list of file names.
+    // (These file names are relative to your project directory.)
+    [Params("100KB.txt", "1MB.txt", "2MB.txt", "5MB.txt", "10MB.txt", "20MB.txt", "50MB.txt", "100MB.txt")]
     public string FileName { get; set; }
 
-    // The set of queries for search benchmarks.
-    private readonly string[] queries = new[] { "and", "or", "cat", "bread" };
+    [Benchmark]
+    public Index BenchmarkIndexConstruction()
+    {
+        // Use an absolute path to your project directory
+        string projectDir = "/home/arjun/Documents/SearchEngine/SearchEngineProject";
+        string fullPath = System.IO.Path.Combine(projectDir, FileName);
+        return new Index(fullPath);
+    }
+}
 
-    // We'll use this index for the search benchmarks.
+// This benchmark class measures the time and memory of search queries individually.
+[CsvExporter]
+[MemoryDiagnoser]
+public class QueryBenchmark
+{
+    // Parameterized file name for building the index.
+    [Params("100KB.txt", "1MB.txt", "2MB.txt", "5MB.txt", "10MB.txt", "20MB.txt", "50MB.txt", "100MB.txt")]
+    public string FileName { get; set; }
+
+    // Parameterized query so that each query ("and", "or", "cat", "bread") is benchmarked separately.
+    [Params("and", "or", "cat", "bread")]
+    public string Query { get; set; }
+
     private Index index;
 
-    // GlobalSetup for search benchmarks; this setup is not measured.
-    // It runs before benchmarks that use the index.
-    [GlobalSetup(Targets = new[] { nameof(BenchmarkPrefixSearch), nameof(BenchmarkPrefixSearchDocuments) })]
-    public void SetupSearch()
+    [GlobalSetup]
+    public void Setup()
     {
-        // Use the absolute path to your project directory
         string projectDir = "/home/arjun/Documents/SearchEngine/SearchEngineProject";
         string fullPath = System.IO.Path.Combine(projectDir, FileName);
         index = new Index(fullPath);
     }
 
-    // Benchmark for measuring preprocessing (index construction) time.
-
-    [Benchmark]
-    public Index BenchmarkIndexConstruction()
-    {
-        string projectDir = "/home/arjun/Documents/SearchEngine/SearchEngineProject";
-        string fullPath = System.IO.Path.Combine(projectDir, FileName);
-        return new Index(fullPath);
-    }
-
-
-    // Benchmark for the PrefixSearch method.
+    // Measures the time for the PrefixSearch method for a single query.
     [Benchmark]
     public void BenchmarkPrefixSearch()
     {
-        foreach (var query in queries)
-        {
-            index.PrefixSearch(query);
-        }
+        index.PrefixSearch(Query);
     }
 
-    // Benchmark for the PrefixSearchDocuments method.
+    // Measures the time for the PrefixSearchDocuments method for a single query.
     [Benchmark]
     public void BenchmarkPrefixSearchDocuments()
     {
-        foreach (var query in queries)
-        {
-            index.PrefixSearchDocuments(query);
-        }
+        index.PrefixSearchDocuments(Query);
     }
 }
+
+// The Program class runs both sets of benchmarks.
 public class Program
 {
     public static void Main(string[] args)
     {
-        BenchmarkRunner.Run<IndexBenchmark>();
+        // Run the index construction benchmarks.
+        BenchmarkRunner.Run<IndexConstructionBenchmark>();
+
+        // Run the query benchmarks (for both PrefixSearch and PrefixSearchDocuments).
+        BenchmarkRunner.Run<QueryBenchmark>();
     }
 }
 /*class Program

@@ -3,22 +3,23 @@ using System.Collections.Generic;
 using System.IO;
 
 namespace SearchEngineProject;
+//RENAME RADIX TO COMPACT TRIE CUZ RADIX TRIE IS BAD
 public class Index
 {
-    private RadixNode root;
+    private TrieNode root;
 
-    private class RadixNode
+    private class TrieNode
     {
         public string Segment;
-        public Dictionary<char, RadixNode> Children;
+        public Dictionary<char, TrieNode> Children;
         public DocumentLog Log;
         public int Count;
         public bool EndOfWord;
 
-        public RadixNode(string segment)
+        public TrieNode(string segment)
         {
             Segment = segment;
-            Children = new Dictionary<char, RadixNode>();
+            Children = new Dictionary<char, TrieNode>();
             Log = null;
             Count = 0;
             EndOfWord = false;
@@ -38,7 +39,7 @@ public class Index
 
     public Index(string filename)
     {
-        root = new RadixNode("");
+        root = new TrieNode("");
         try
         {
             using (StreamReader input = new StreamReader(filename, System.Text.Encoding.UTF8))
@@ -86,7 +87,7 @@ public class Index
     }
     //recursive insertion into the tree
     // node is the current node and key is the substring that we need to insert
-    private void Insert(RadixNode node, string key, string title)
+    private void Insert(TrieNode node, string key, string title)
     {
         // when key is empty, mark current node as a word
         if (key.Length == 0)
@@ -107,10 +108,10 @@ public class Index
         char firstChar = key[0];
 
         // check if a child with a segment starting with firstChar exists
-        if (!node.Children.TryGetValue(firstChar, out RadixNode child))
+        if (!node.Children.TryGetValue(firstChar, out TrieNode child))
         {
             // no child exists so we create a new one with the entire key
-            RadixNode newNode = new RadixNode(key);
+            TrieNode newNode = new TrieNode(key);
             newNode.EndOfWord = true;
             newNode.Count = 1;
             newNode.Log = new DocumentLog(title, null);
@@ -125,7 +126,7 @@ public class Index
             // partial match which means we gotta split the child
             // create a new node for the remainder of the childs segment
             string childSuffix = child.Segment.Substring(commonLength);
-            RadixNode splitNode = new RadixNode(childSuffix)
+            TrieNode splitNode = new TrieNode(childSuffix)
             {
                 Children = child.Children,
                 EndOfWord = child.EndOfWord,
@@ -137,7 +138,7 @@ public class Index
             child.Segment = child.Segment.Substring(0, commonLength);
 
             //resett children dict and add split node
-            child.Children = new Dictionary<char, RadixNode>();
+            child.Children = new Dictionary<char, TrieNode>();
             child.Children[childSuffix[0]] = splitNode;
             // if the key exactly matches the common pref
             if (commonLength == key.Length)
@@ -157,7 +158,7 @@ public class Index
             {
                 // insert the remainder of the key as a new child
                 string keySuffix = key.Substring(commonLength);
-                RadixNode newChild = new RadixNode(keySuffix);
+                TrieNode newChild = new TrieNode(keySuffix);
                 newChild.EndOfWord = true;
                 newChild.Count = 1;
                 newChild.Log = new DocumentLog(title, null);
@@ -200,14 +201,14 @@ public class Index
 
 
     // find node corresponding to complete word
-    private RadixNode FindWord(string word)
+    private TrieNode FindWord(string word)
     {
         word = word.ToLower();
-        RadixNode current = root;
+        TrieNode current = root;
         while (word.Length > 0)
         {
             char firstChar = word[0];
-            if (!current.Children.TryGetValue(firstChar, out RadixNode child))
+            if (!current.Children.TryGetValue(firstChar, out TrieNode child))
             {
                 return null;
             }
@@ -242,7 +243,7 @@ public class Index
     // NOTE: exact match search (unchanged in terms of implementation compared to like iondex4)
     public bool Search(string searchStr)
     {
-        RadixNode current = FindWord(searchStr);
+        TrieNode current = FindWord(searchStr);
         if (current != null)
         {
             Console.WriteLine("Found " + searchStr + " in:");
@@ -262,15 +263,15 @@ public class Index
     }
 
     // helper method to find node corresponding to prefix returns tuple of (matching node, accumualted string that's been matched)
-    private (RadixNode node, string matched) FindPrefixNode(string prefix)
+    private (TrieNode node, string matched) FindPrefixNode(string prefix)
     {
         prefix = prefix.ToLower();
-        RadixNode current = root;
+        TrieNode current = root;
         string matched = "";
         while (prefix.Length > 0)
         {
             char firstChar = prefix[0];
-            if (!current.Children.TryGetValue(firstChar, out RadixNode child))
+            if (!current.Children.TryGetValue(firstChar, out TrieNode child))
             {
                 return (null, null);
             }
@@ -301,7 +302,7 @@ public class Index
             return;
         }
 
-        List<(string word, RadixNode node)> completions = new List<(string, RadixNode)>();
+        List<(string word, TrieNode node)> completions = new List<(string, TrieNode)>();
 
         // matched is the portion of the pref that was found, we use it as the starting point
 
@@ -339,7 +340,7 @@ public class Index
         // hashset to avoid duplicate titles
         HashSet<string> documents = new HashSet<string>();
 
-        List<(string word, RadixNode node)> completions = new List<(string, RadixNode)>();
+        List<(string word, TrieNode node)> completions = new List<(string, TrieNode)>();
         CollectWords(node, matched, completions);
 
         foreach (var (word, radNode) in completions)
@@ -373,7 +374,7 @@ public class Index
 
     // recursively collects complete words (nodes marked as isEndOfWord) from a given node
     //  prefix is the accumulated string that leads to that node
-    private void CollectWords(RadixNode node, string prefix, List<(string, RadixNode)> completions)
+    private void CollectWords(TrieNode node, string prefix, List<(string, TrieNode)> completions)
     {
         if (node.EndOfWord)
         {
