@@ -3,23 +3,25 @@ using System.Collections.Generic;
 using System.IO;
 
 namespace SearchEngineProject;
-internal class Index
+public class Index
 {
-    private TrieNode root;
-    private int counter;
+    private RadixNode root;
 
-    private class TrieNode
+    private class RadixNode
     {
-        public TrieNode[] Children;
+        public string Segment;
+        public Dictionary<char, RadixNode> Children;
         public DocumentLog Log;
         public int Count;
-        public bool isEndOfWord;
+        public bool EndOfWord;
 
-        public TrieNode()
+        public RadixNode(string segment)
         {
-            Children = new TrieNode[36];
+            Segment = segment;
+            Children = new Dictionary<char, RadixNode>();
+            Log = null;
             Count = 0;
-            isEndOfWord = false;
+            EndOfWord = false;
         }
     }
 
@@ -36,7 +38,7 @@ internal class Index
 
     public Index(string filename)
     {
-        root = new TrieNode();
+        root = new RadixNode("");
         try
         {
             using (StreamReader input = new StreamReader(filename, System.Text.Encoding.UTF8))
@@ -80,68 +82,149 @@ internal class Index
     private void InsertWord(string word, string title)
     {
         word = word.ToLower();
-        TrieNode current = root;
-        foreach (char c in word)
-        {
-            // FIX: Support special characters, currently only supports letters and numbers
-            if (char.IsLetterOrDigit(c))
-            {
-                int index;
-                if (char.IsLetter(c))
-                {
-                    index = c - 'a'; // letters, 'a' -> 0, 'b' -> 1
-                }
-                else // if it's a digit
-                {
-                    index = 26 + (c - '0'); // digits, '0' -> 26, '1' -> 27
-                }
-                if (index >= 0 && index < current.Children.Length)
-                {
-                    if (current.Children[index] == null)
-                    {
-                        current.Children[index] = new TrieNode();
-                    }
-                    current = current.Children[index];
-                }
-            }
-        }
-        current.isEndOfWord = true;
-        current.Count++;
-        if (current.Log == null)
-        {
-            current.Log = new DocumentLog(title, null);
-        }
-        else if (!DocExists(current.Log, title))
-        {
-            current.Log = new DocumentLog(title, current.Log);
-        }
+        Insert(root, word, title);
     }
-
-    private TrieNode FindWord(string word)
+    //recursive insertion into the tree
+    // node is the current node and key is the substring that we need to insert
+    private void Insert(RadixNode node, string key, string title)
     {
-        word = word.ToLower();
-        TrieNode current = root;
-        foreach (char c in word)
+        // when key is empty, mark current node as a word
+        if (key.Length == 0)
         {
-            int index = -1;
-            if (char.IsLetter(c))
+            node.EndOfWord = true;
+            node.Count++;
+            if (node.Log == null)
             {
-                index = c - 'a';
+                node.Log = new DocumentLog(title, null);
             }
-            else if (char.IsDigit(c))
+            else if (!DocExists(node.Log, title))
             {
-                index = 26 + (c - '0');
+                node.Log = new DocumentLog(title, node.Log);
+            }
+            return;
+        }
+
+        char firstChar = key[0];
+
+        // check if a child with a segment starting with firstChar exists
+        if (!node.Children.TryGetValue(firstChar, out RadixNode child))
+        {
+            // no child exists so we create a new one with the entire key
+            RadixNode newNode = new RadixNode(key);
+            newNode.EndOfWord = true;
+            newNode.Count = 1;
+            newNode.Log = new DocumentLog(title, null);
+            node.Children[firstChar] = newNode;
+            return;
+        }
+        // compute the longest common prefix length between the childs segment and the key
+        int commonLength = CommonPrefixLength(child.Segment, key);
+
+        if (commonLength < child.Segment.Length)
+        {
+            // partial match which means we gotta split the child
+            // create a new node for the remainder of the childs segment
+            string childSuffix = child.Segment.Substring(commonLength);
+            RadixNode splitNode = new RadixNode(childSuffix)
+            {
+                Children = child.Children,
+                EndOfWord = child.EndOfWord,
+                Count = child.Count,
+                Log = child.Log
+            };
+
+            // update the child node by setting its segment to the common prefix
+            child.Segment = child.Segment.Substring(0, commonLength);
+
+            //resett children dict and add split node
+            child.Children = new Dictionary<char, RadixNode>();
+            child.Children[childSuffix[0]] = splitNode;
+            // if the key exactly matches the common pref
+            if (commonLength == key.Length)
+            {
+                child.EndOfWord = true;
+                child.Count++;
+                if (child.Log == null)
+                {
+                    child.Log = new DocumentLog(title, null);
+                }
+                else if (!DocExists(child.Log, title))
+                {
+                    child.Log = new DocumentLog(title, child.Log);
+                }
             }
             else
             {
-                // skip any special character for now
-                continue;
+                // insert the remainder of the key as a new child
+                string keySuffix = key.Substring(commonLength);
+                RadixNode newChild = new RadixNode(keySuffix);
+                newChild.EndOfWord = true;
+                newChild.Count = 1;
+                newChild.Log = new DocumentLog(title, null);
+                child.Children[keySuffix[0]] = newChild;
             }
-            if (current.Children[index] == null)
-                return null;
-            current = current.Children[index];
+            return;
         }
-        return current.isEndOfWord ? current : null;
+        // commonLength == child.Segment.Length (child seg fully matches pref of key)
+        else
+        {
+            string keyRemainder = key.Substring(commonLength);
+            if (keyRemainder.Length == 0)
+            {
+                //key exactly matches the childs segment
+                child.EndOfWord = true;
+                child.Count++;
+                if (child.Log == null)
+                {
+                    child.Log = new DocumentLog(title, null);
+                }
+                else if (!DocExists(child.Log, title))
+                {
+                    child.Log = new DocumentLog(title, child.Log);
+                }
+                return;
+            }
+            // proceed with insertion of child node
+            Insert(child, keyRemainder, title);
+        }
+    }
+    // returns the length of the common prefix between two strings
+    private int CommonPrefixLength(string s1, string s2)
+    {
+        int len = Math.Min(s1.Length, s2.Length);
+        int i = 0;
+        while (i < len && s1[i] == s2[i])
+            i++;
+        return i;
+    }
+
+
+    // find node corresponding to complete word
+    private RadixNode FindWord(string word)
+    {
+        word = word.ToLower();
+        RadixNode current = root;
+        while (word.Length > 0)
+        {
+            char firstChar = word[0];
+            if (!current.Children.TryGetValue(firstChar, out RadixNode child))
+            {
+                return null;
+            }
+
+            // the childs segment must matches the beginning of the word
+            if (word.StartsWith(child.Segment))
+            {
+                word = word.Substring(child.Segment.Length);
+                current = child;
+            }
+            else
+            {
+                return null;
+            }
+        }
+        return current.EndOfWord ? current : null;
+
     }
 
 
@@ -159,7 +242,7 @@ internal class Index
     // NOTE: exact match search (unchanged in terms of implementation compared to like iondex4)
     public bool Search(string searchStr)
     {
-        TrieNode current = FindWord(searchStr);
+        RadixNode current = FindWord(searchStr);
         if (current != null)
         {
             Console.WriteLine("Found " + searchStr + " in:");
@@ -178,19 +261,51 @@ internal class Index
         }
     }
 
+    // helper method to find node corresponding to prefix returns tuple of (matching node, accumualted string that's been matched)
+    private (RadixNode node, string matched) FindPrefixNode(string prefix)
+    {
+        prefix = prefix.ToLower();
+        RadixNode current = root;
+        string matched = "";
+        while (prefix.Length > 0)
+        {
+            char firstChar = prefix[0];
+            if (!current.Children.TryGetValue(firstChar, out RadixNode child))
+            {
+                return (null, null);
+            }
+            int commonLength = CommonPrefixLength(child.Segment, prefix);
+            matched += child.Segment.Substring(0, commonLength);
+            if (commonLength < child.Segment.Length)
+            {
+                // if the prefix ends in the middle of the child's segment it's a match
+                if (commonLength == prefix.Length)
+                {
+                    return (child, matched);
+                }
+                else { return (null, null); }
+            }
+            // childs segement fully matches so we continue with remainder of prefix
+            prefix = prefix.Substring(commonLength);
+            current = child;
+        }
+        return (current, matched);
+    }
     // NOTE: auto-completion, lists all words starting with the given prefix and their documents
     public void PrefixSearch(string prefix)
     {
-        prefix = prefix.ToLower();
-        TrieNode node = FindPrefixNode(prefix);
+        var (node, matched) = FindPrefixNode(prefix);
         if (node == null)
         {
             Console.WriteLine("No matches for " + prefix + " found");
             return;
         }
 
-        List<(string word, TrieNode node)> completions = new List<(string, TrieNode)>();
-        CollectWords(node, prefix, completions);
+        List<(string word, RadixNode node)> completions = new List<(string, RadixNode)>();
+
+        // matched is the portion of the pref that was found, we use it as the starting point
+
+        CollectWords(node, matched, completions);
 
         if (completions.Count == 0)
         {
@@ -198,10 +313,10 @@ internal class Index
         }
         else
         {
-            foreach (var (word, trieNode) in completions)
+            foreach (var (word, radNode) in completions)
             {
                 Console.WriteLine("Found " + word + " in:");
-                DocumentLog log = trieNode.Log;
+                DocumentLog log = radNode.Log;
                 while (log != null)
                 {
                     Console.WriteLine(log.Title);
@@ -214,8 +329,7 @@ internal class Index
     // NOTE: returns the (unique) documents  where any word starting with the given prefix appears
     public void PrefixSearchDocuments(string prefix)
     {
-        prefix = prefix.ToLower();
-        TrieNode node = FindPrefixNode(prefix);
+        var (node, matched) = FindPrefixNode(prefix);
         if (node == null)
         {
             Console.WriteLine("No matches for " + prefix + " found");
@@ -225,12 +339,12 @@ internal class Index
         // hashset to avoid duplicate titles
         HashSet<string> documents = new HashSet<string>();
 
-        List<(string word, TrieNode node)> completions = new List<(string, TrieNode)>();
-        CollectWords(node, prefix, completions);
+        List<(string word, RadixNode node)> completions = new List<(string, RadixNode)>();
+        CollectWords(node, matched, completions);
 
-        foreach (var (word, trieNode) in completions)
+        foreach (var (word, radNode) in completions)
         {
-            DocumentLog log = trieNode.Log;
+            DocumentLog log = radNode.Log;
             while (log != null)
             {
                 documents.Add(log.Title);
@@ -256,58 +370,21 @@ internal class Index
     /*
      * helper to locate node corresponding to the last character of the prefix
      */
-    private TrieNode FindPrefixNode(string prefix)
-    {
-        TrieNode current = root;
-        foreach (char c in prefix)
-        {
-            int index = -1;
-            if (char.IsLetter(c))
-            {
-                index = c - 'a';
-            }
-            else if (char.IsDigit(c))
-            {
-                index = 26 + (c - '0');
-            }
-            else
-            {
-                //  ignore special characters for now
-                continue;
-            }
-            if (current.Children[index] == null)
-                return null;
-            current = current.Children[index];
-        }
-        return current;
-    }
 
     // recursively collects complete words (nodes marked as isEndOfWord) from a given node
-    //  iterates over the entire Children array 
-    private void CollectWords(TrieNode node, string currentPrefix, List<(string, TrieNode)> completions)
+    //  prefix is the accumulated string that leads to that node
+    private void CollectWords(RadixNode node, string prefix, List<(string, RadixNode)> completions)
     {
-        if (node == null)
-            return;
-
-        if (node.isEndOfWord)
-            completions.Add((currentPrefix, node));
-
-        for (int i = 0; i < node.Children.Length; i++)
+        if (node.EndOfWord)
         {
-            if (node.Children[i] != null)
-            {
-                char nextChar;
-                if (i < 26)
-                {
-                    nextChar = (char)(i + 'a');
-                }
-                else
-                {
-                    nextChar = (char)(i - 26 + '0');
-                }
-                CollectWords(node.Children[i], currentPrefix + nextChar, completions);
-            }
+            completions.Add((prefix, node));
         }
+        foreach (var child in node.Children.Values)
+        {
+            // append the childs segement to the current prefix and recusre
+            CollectWords(child, prefix + child.Segment, completions);
+        }
+
     }
 }
 
