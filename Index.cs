@@ -76,7 +76,7 @@ public class Index
         }
         catch (FileNotFoundException)
         {
-            Console.WriteLine("Error reading file " + filename);
+            //Console.WriteLine("Error reading file " + filename);
         }
     }
 
@@ -246,18 +246,18 @@ public class Index
         TrieNode current = FindWord(searchStr);
         if (current != null)
         {
-            Console.WriteLine("Found " + searchStr + " in:");
+            // Console.WriteLine("Found " + searchStr + " in:");
             DocumentLog log = current.Log;
             while (log != null)
             {
-                Console.WriteLine(log.Title);
+                // Console.WriteLine(log.Title);
                 log = log.Next;
             }
             return true;
         }
         else
         {
-            Console.WriteLine("No matches for " + searchStr + " found");
+            // Console.WriteLine("No matches for " + searchStr + " found");
             return false;
         }
     }
@@ -293,13 +293,14 @@ public class Index
         return (current, matched);
     }
     // NOTE: auto-completion, lists all words starting with the given prefix and their documents
-    public void PrefixSearch(string prefix)
+    //TODO: make searches return boolean instead of void
+    public bool PrefixSearch(string prefix)
     {
         var (node, matched) = FindPrefixNode(prefix);
         if (node == null)
         {
-            Console.WriteLine("No matches for " + prefix + " found");
-            return;
+            // Console.WriteLine("No matches for " + prefix + " found");
+            return false;
         }
 
         List<(string word, TrieNode node)> completions = new List<(string, TrieNode)>();
@@ -310,31 +311,33 @@ public class Index
 
         if (completions.Count == 0)
         {
-            Console.WriteLine("No complete words found with prefix " + prefix);
+            // Console.WriteLine("No complete words found with prefix " + prefix);
+            return false;
         }
         else
         {
             foreach (var (word, radNode) in completions)
             {
-                Console.WriteLine("Found " + word + " in:");
+                // Console.WriteLine("Found " + word + " in:");
                 DocumentLog log = radNode.Log;
                 while (log != null)
                 {
-                    Console.WriteLine(log.Title);
+                    // Console.WriteLine(log.Title);
                     log = log.Next;
                 }
             }
         }
+        return true;
     }
 
     // NOTE: returns the (unique) documents  where any word starting with the given prefix appears
-    public void PrefixSearchDocuments(string prefix)
+    public bool PrefixSearchDocuments(string prefix)
     {
         var (node, matched) = FindPrefixNode(prefix);
         if (node == null)
         {
-            Console.WriteLine("No matches for " + prefix + " found");
-            return;
+            // Console.WriteLine("No matches for " + prefix + " found");
+            return false;
         }
 
         // hashset to avoid duplicate titles
@@ -355,17 +358,19 @@ public class Index
 
         if (documents.Count == 0)
         {
-            Console.WriteLine($"No documents found for prefix: '{prefix}'");
+            // Console.WriteLine($"No documents found for prefix: '{prefix}'");
+            return false;
         }
         else
         {
-            Console.WriteLine($"Documents containing a word starting with '{prefix}'");
+            // Console.WriteLine($"Documents containing a word starting with '{prefix}'");
 
             foreach (var doc in documents)
             {
-                Console.WriteLine(doc);
+                // Console.WriteLine(doc);
             }
         }
+        return true;
     }
 
     /*
