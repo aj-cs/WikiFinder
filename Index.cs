@@ -14,19 +14,19 @@ namespace SearchEngineProject
         */
         private class TrieNode
         {
-            public string strSegment;
+            public string Segment;
             public TrieNode left, mid, right;
             public DocumentLog log;
             public int count;
-            public bool isEndOfWord;
+            public bool EndOfWord;
 
             public TrieNode(string segment)
             {
-                strSegment = segment;
+                Segment = segment;
                 left = mid = right = null;
                 log = null;
                 count = 0;
-                isEndOfWord = false;
+                EndOfWord = false;
             }
         }
 
@@ -114,19 +114,19 @@ namespace SearchEngineProject
             {
                 // create a new node with the remainign substring
                 TrieNode newNode = new TrieNode(word.Substring(d));
-                newNode.isEndOfWord = true;
+                newNode.EndOfWord = true;
                 newNode.count = 1;
                 newNode.log = new DocumentLog(title, null);
                 return newNode;
             }
 
             char currentChar = word[d];
-            if (currentChar < node.strSegment[0])
+            if (currentChar < node.Segment[0])
             {
                 node.left = Insert(node.left, word, d, title);
                 return node;
             }
-            else if (currentChar > node.strSegment[0])
+            else if (currentChar > node.Segment[0])
             {
                 node.right = Insert(node.right, word, d, title);
                 return node;
@@ -136,26 +136,26 @@ namespace SearchEngineProject
                 // else case is when they share the first character, so now we compute
                 // the longest common prefix between node.segment and the word starting at d
                 int i = 0;
-                while (i < node.strSegment.Length
+                while (i < node.Segment.Length
                         && d + i < word.Length
-                        && node.strSegment[i] == word[d + i])
+                        && node.Segment[i] == word[d + i])
                 {
                     i++;
                 }
 
-                if (i < node.strSegment.Length)
+                if (i < node.Segment.Length)
                 {
                     // partially matches, we split the node
 
-                    TrieNode splitNode = new TrieNode(node.strSegment.Substring(i));
+                    TrieNode splitNode = new TrieNode(node.Segment.Substring(i));
                     splitNode.mid = node.mid;
-                    splitNode.isEndOfWord = node.isEndOfWord;
+                    splitNode.EndOfWord = node.EndOfWord;
                     splitNode.count = node.count;
                     splitNode.log = node.log;
 
                     // now we adjust the current node, basically its segment becomes the common prefix
-                    node.strSegment = node.strSegment.Substring(0, i);
-                    node.isEndOfWord = false;
+                    node.Segment = node.Segment.Substring(0, i);
+                    node.EndOfWord = false;
                     node.count = 0;
                     node.log = null;
                     node.mid = splitNode;
@@ -169,7 +169,7 @@ namespace SearchEngineProject
                     else
                     {
                         // when the new word exactly matches the common prefix
-                        node.isEndOfWord = true;
+                        node.EndOfWord = true;
                         node.count++;
                         if (!DocExists(node.log, title))
                         {
@@ -184,7 +184,7 @@ namespace SearchEngineProject
                     if (d + i == word.Length)
                     {
                         // word matches exactly
-                        node.isEndOfWord = true;
+                        node.EndOfWord = true;
                         node.count++;
                         if (!DocExists(node.log, title))
                         {
@@ -219,7 +219,7 @@ namespace SearchEngineProject
         {
             string word = FilterWord(searchStr);
             TrieNode node = Get(root, word, 0);
-            if (node != null && node.isEndOfWord)
+            if (node != null && node.EndOfWord)
             {
                 Console.WriteLine("Found " + searchStr + " in:");
                 DocumentLog log = node.log;
@@ -249,25 +249,25 @@ namespace SearchEngineProject
                 return node;
             }
             char currentChar = word[d];
-            if (currentChar < node.strSegment[0])
+            if (currentChar < node.Segment[0])
             {
                 return Get(node.left, word, d);
             }
-            else if (currentChar > node.strSegment[0])
+            else if (currentChar > node.Segment[0])
             {
                 return Get(node.right, word, d);
             }
             else
             {
                 int i = 0;
-                while (i < node.strSegment.Length
+                while (i < node.Segment.Length
                         && d + i < word.Length
-                        && node.strSegment[i] == word[d + i])
+                        && node.Segment[i] == word[d + i])
                 {
                     i++;
                 }
 
-                if (i < node.strSegment.Length)
+                if (i < node.Segment.Length)
                 {
                     // mismatch in the middle of the node.segment, word is not present
                     return null;
@@ -297,12 +297,12 @@ namespace SearchEngineProject
             }
 
             char currentChar = prefix[d];
-            if (currentChar < node.strSegment[0])
+            if (currentChar < node.Segment[0])
             {
                 return GetPrefixNode(node.left, prefix, d);
             }
 
-            else if (currentChar > node.strSegment[0])
+            else if (currentChar > node.Segment[0])
             {
                 return GetPrefixNode(node.right, prefix, d);
             }
@@ -310,15 +310,15 @@ namespace SearchEngineProject
             else
             {
                 int i = 0;
-                while (i < node.strSegment.Length
+                while (i < node.Segment.Length
                         && d + i < prefix.Length
-                        && node.strSegment[i] == prefix[d + i])
+                        && node.Segment[i] == prefix[d + i])
                 {
                     i++;
                 }
                 if (d + i == prefix.Length)
                     return node;
-                if (i == node.strSegment.Length)
+                if (i == node.Segment.Length)
                     return GetPrefixNode(node.mid, prefix, d + i);
                 return null;
             }
@@ -341,7 +341,7 @@ namespace SearchEngineProject
             }
             List<(string word, TrieNode node)> completions = new List<(string, TrieNode)>();
             // if the prefix itself is a word then add it
-            if (node.isEndOfWord)
+            if (node.EndOfWord)
                 completions.Add((prefix, node));
             // collects all completions from the mid subtree
             Collect(node.mid, prefix, completions);
@@ -381,7 +381,7 @@ namespace SearchEngineProject
             }
             HashSet<string> documents = new HashSet<string>();
             List<(string word, TrieNode node)> completions = new List<(string, TrieNode)>();
-            if (node.isEndOfWord)
+            if (node.EndOfWord)
                 completions.Add((prefix, node));
             Collect(node.mid, prefix, completions);
             foreach (var (wordComp, trieNode) in completions)
@@ -418,8 +418,8 @@ namespace SearchEngineProject
             Collect(node.left, prefix, completions);
 
             // process the current node
-            string word = prefix + node.strSegment;
-            if (node.isEndOfWord)
+            string word = prefix + node.Segment;
+            if (node.EndOfWord)
                 completions.Add((word, node));
 
             // traverse the mid subtree which extends the prefix.
