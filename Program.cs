@@ -3,6 +3,8 @@ using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Exporters;
 using BenchmarkDotNet.Exporters.Csv;
 using BenchmarkDotNet.Running;
+using BenchmarkDotNet.Configs;
+using BenchmarkDotNet.Jobs;
 
 namespace SearchEngineProject;
 /*
@@ -18,28 +20,11 @@ namespace SearchEngineProject;
 50MB.txt
 5MB.txt
 800MB.txt*/
-public class IndexConstructionJob : Job
-{
-    public IndexConstructionJob()
-    {
-        WithWarmupCount(1)
-            .WithIterationCount(1)
-            .WithInvocationCount(1);
-    }
-}
-public class QueryJob : Job
-{
-    public QueryJob()
-    {
-        WithWarmupCount(1)
-            .WithIterationCount(3)
-            .WithInvocationCount(1);
-    }
-}
+
 
 [CsvExporter]
 [MemoryDiagnoser]
-[Config(typeof(IndexConstructionJob))]
+[SimpleJob(warmupCount: 1, iterationCount: 1, invocationCount: 1)]
 public class IndexConstructionBenchmark
 {
     // Parameterized list of file names.
@@ -60,7 +45,7 @@ public class IndexConstructionBenchmark
 // This benchmark class measures the time and memory of search queries individually.
 [CsvExporter]
 [MemoryDiagnoser]
-[Config(typeof(QueryJob))]
+[SimpleJob(warmupCount: 1, iterationCount: 3, invocationCount: 1)]
 public class QueryBenchmark
 {
     // Parameterized file name for building the index.
