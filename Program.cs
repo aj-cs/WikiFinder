@@ -45,7 +45,7 @@ public class IndexConstructionBenchmark
 // This benchmark class measures the time and memory of search queries individually.
 [CsvExporter]
 [MemoryDiagnoser]
-[SimpleJob(warmupCount: 1, iterationCount: 3, invocationCount: 1)]
+[SimpleJob(warmupCount: 1, iterationCount: 1)]
 public class QueryBenchmark
 {
     // Parameterized file name for building the index.
