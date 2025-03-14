@@ -18,8 +18,28 @@ namespace SearchEngineProject;
 50MB.txt
 5MB.txt
 800MB.txt*/
+public class IndexConstructionJob : Job
+{
+    public IndexConstructionJob()
+    {
+        WithWarmupCount(1)
+            .WithIterationCount(1)
+            .WithInvocationCount(1);
+    }
+}
+public class QueryJob : Job
+{
+    public QueryJob()
+    {
+        WithWarmupCount(1)
+            .WithIterationCount(3)
+            .WithInvocationCount(1);
+    }
+}
+
 [CsvExporter]
 [MemoryDiagnoser]
+[Config(typeof(IndexConstructionJob))]
 public class IndexConstructionBenchmark
 {
     // Parameterized list of file names.
@@ -40,6 +60,7 @@ public class IndexConstructionBenchmark
 // This benchmark class measures the time and memory of search queries individually.
 [CsvExporter]
 [MemoryDiagnoser]
+[Config(typeof(QueryJob))]
 public class QueryBenchmark
 {
     // Parameterized file name for building the index.
@@ -73,6 +94,13 @@ public class QueryBenchmark
     {
         index.PrefixSearchDocuments(Query);
     }
+
+    //Measures the time for the Normal Search
+    [Benchmark]
+    public void BenchmarkNormalSearchDocuments()
+    {
+        index.PrefixSearchDocuments(Query);
+    }
 }
 
 // The Program class runs both sets of benchmarks.
@@ -83,8 +111,9 @@ public class Program
         // Run the index construction benchmarks.
         BenchmarkRunner.Run<IndexConstructionBenchmark>();
 
-        // Run the query benchmarks (for both PrefixSearch and PrefixSearchDocuments).
+        // Run the query benchmarks
         BenchmarkRunner.Run<QueryBenchmark>();
+
     }
 }
 /*class Program
