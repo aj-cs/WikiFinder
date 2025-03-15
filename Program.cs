@@ -21,10 +21,33 @@ namespace SearchEngineProject;
 5MB.txt
 800MB.txt*/
 
-
+public class IndexConfig : ManualConfig
+{
+    public IndexConfig()
+    {
+        AddJob(Job.Default
+                .WithWarmupCount(1)
+                .WithIterationCount(1)
+                .WithInvocationCount(1)
+                .WithUnrollFactor(1)
+                .WithId("IndexConstructionJob"));
+    }
+}
+public class QueryConfig : ManualConfig
+{
+    public QueryConfig()
+    {
+        AddJob(Job.Default
+                .WithWarmupCount(1)
+                .WithIterationCount(3)
+                .WithInvocationCount(1)
+                .WithUnrollFactor(1)
+                .WithId("QueryJob"));
+    }
+}
 [CsvExporter]
 [MemoryDiagnoser]
-[SimpleJob(warmupCount: 1, iterationCount: 1, invocationCount: 1)]
+[Config(typeof(IndexConfig))]
 public class IndexConstructionBenchmark
 {
     // Parameterized list of file names.
@@ -45,7 +68,7 @@ public class IndexConstructionBenchmark
 // This benchmark class measures the time and memory of search queries individually.
 [CsvExporter]
 [MemoryDiagnoser]
-[SimpleJob(warmupCount: 1, iterationCount: 1)]
+[Config(typeof(QueryConfig))]
 public class QueryBenchmark
 {
     // Parameterized file name for building the index.
