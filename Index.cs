@@ -2,7 +2,7 @@ using System;
 using System.IO;
 namespace SearchEngineProject
 {
-    internal class Index1
+    public class Index
     {
         private WikiItem start;
 
@@ -31,7 +31,7 @@ namespace SearchEngineProject
             }
         }
 
-        public Index1(string filename)
+        public Index(string filename)
         {
             try
             {
