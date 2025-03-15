@@ -47,7 +47,6 @@ public class QueryConfig : ManualConfig
 }
 [CsvExporter]
 [MemoryDiagnoser]
-[Config(typeof(IndexConfig))]
 public class IndexConstructionBenchmark
 {
     // Parameterized list of file names.
@@ -59,7 +58,7 @@ public class IndexConstructionBenchmark
     public Index BenchmarkIndexConstruction()
     {
         // Use an absolute path to your project directory
-        string projectDir = "/home/arjun/Documents/SearchEngine/SearchEngineProject";
+        string projectDir = "/zhome/79/1/188120/search-engine-project";
         string fullPath = System.IO.Path.Combine(projectDir, FileName);
         return new Index(fullPath);
     }
@@ -68,7 +67,6 @@ public class IndexConstructionBenchmark
 // This benchmark class measures the time and memory of search queries individually.
 [CsvExporter]
 [MemoryDiagnoser]
-[Config(typeof(QueryConfig))]
 public class QueryBenchmark
 {
     // Parameterized file name for building the index.
@@ -84,7 +82,7 @@ public class QueryBenchmark
     [GlobalSetup]
     public void Setup()
     {
-        string projectDir = "/home/arjun/Documents/SearchEngine/SearchEngineProject";
+        string projectDir = "/zhome/79/1/188120/search-engine-project";
         string fullPath = System.IO.Path.Combine(projectDir, FileName);
         index = new Index(fullPath);
     }
