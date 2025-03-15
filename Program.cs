@@ -51,7 +51,7 @@ public class IndexConstructionBenchmark
 {
     // Parameterized list of file names.
     // (These file names are relative to your project directory.)
-    [Params("100KB.txt", "1MB.txt", "2MB.txt", "5MB.txt", "10MB.txt", "20MB.txt", "50MB.txt")]
+    [Params("100KB.txt", "1MB.txt", "2MB.txt", "5MB.txt", "10MB.txt", "20MB.txt", "50MB.txt", "100MB.txt")]
     public string FileName { get; set; }
 
     [Benchmark]
@@ -70,7 +70,7 @@ public class IndexConstructionBenchmark
 public class QueryBenchmark
 {
     // Parameterized file name for building the index.
-    [Params("100KB.txt", "1MB.txt", "2MB.txt", "5MB.txt", "10MB.txt", "20MB.txt", "50MB.txt")]
+    [Params("100KB.txt", "1MB.txt", "2MB.txt", "5MB.txt", "10MB.txt", "20MB.txt", "50MB.txt", "100MB.txt")]
     public string FileName { get; set; }
 
     // Parameterized query so that each query ("and", "or", "cat", "bread") is benchmarked separately.
