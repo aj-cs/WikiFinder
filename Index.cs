@@ -2,7 +2,7 @@ using System;
 using System.IO;
 namespace SearchEngineProject;
 
-internal class Index
+public class Index
 {
     private WikiItem start;
 
