@@ -2,7 +2,7 @@ using System;
 using System.IO;
 namespace SearchEngineProject
 {
-    internal class Index1
+    public class Index
     {
         private const int TSize = 11831; // Use a prime num. 11831 
         private WikiItem[] table;
@@ -32,7 +32,7 @@ namespace SearchEngineProject
             }
         }
 
-        public Index1(string filename)
+        public Index(string filename)
         {
             table = new WikiItem[TSize];
             try
