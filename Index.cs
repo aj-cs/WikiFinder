@@ -2,7 +2,7 @@ using System;
 using System.IO;
 namespace SearchEngineProject;
 
-internal class Index1
+internal class Index
 {
     private WikiItem start;
 
@@ -18,7 +18,7 @@ internal class Index1
         }
     }
 
-    public Index1(string filename)
+    public Index(string filename)
     {
         try
         {
@@ -35,7 +35,7 @@ internal class Index1
                     {
                         if (element != "")
                         {
-                            Console.WriteLine(element);
+                            //Console.WriteLine(element);
 
                             WikiItem tmp = new WikiItem(element, null);
 
@@ -96,7 +96,7 @@ internal class Index1
 
                 if(inDocument)
                 {
-                    Console.WriteLine($"Found {searchStr} in{title}");
+                    //Console.WriteLine($"Found {searchStr} in{title}");
                     foundAny = true;
                 }
 
@@ -110,7 +110,7 @@ internal class Index1
 
             if (!foundAny)
             {
-                Console.WriteLine("No matches for " + searchStr + " found");
+                //Console.WriteLine("No matches for " + searchStr + " found");
             }
             return foundAny;
         }
