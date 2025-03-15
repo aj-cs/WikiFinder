@@ -1,0 +1,1789 @@
+// Validating benchmarks:
+// ***** BenchmarkRunner: Start   *****
+// ***** Found 56 benchmark(s) in total *****
+// ***** Building 1 exe(s) in Parallel: Start   *****
+// start dotnet  restore /p:UseSharedCompilation=false /p:BuildInParallel=false /m:1 /p:Deterministic=true /p:Optimize=true /p:IntermediateOutputPath="/zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/obj/Release/net8.0/" /p:OutDir="/zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/bin/Release/net8.0/" /p:OutputPath="/zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/bin/Release/net8.0/" in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455
+// command took 3.8 sec and exited with 0
+// start dotnet  build -c Release --no-restore /p:UseSharedCompilation=false /p:BuildInParallel=false /m:1 /p:Deterministic=true /p:Optimize=true /p:IntermediateOutputPath="/zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/obj/Release/net8.0/" /p:OutDir="/zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/bin/Release/net8.0/" /p:OutputPath="/zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/bin/Release/net8.0/" --output "/zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/bin/Release/net8.0/" in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455
+// command took 19.41 sec and exited with 0
+// ***** Done, took 00:00:23 (23.32 sec)   *****
+// Found 56 benchmarks:
+//   QueryBenchmark.BenchmarkPrefixSearch: DefaultJob [FileName=100KB.txt, Query=and]
+//   QueryBenchmark.BenchmarkPrefixSearchDocuments: DefaultJob [FileName=100KB.txt, Query=and]
+//   QueryBenchmark.BenchmarkPrefixSearch: DefaultJob [FileName=100KB.txt, Query=bread]
+//   QueryBenchmark.BenchmarkPrefixSearchDocuments: DefaultJob [FileName=100KB.txt, Query=bread]
+//   QueryBenchmark.BenchmarkPrefixSearch: DefaultJob [FileName=100KB.txt, Query=cat]
+//   QueryBenchmark.BenchmarkPrefixSearchDocuments: DefaultJob [FileName=100KB.txt, Query=cat]
+//   QueryBenchmark.BenchmarkPrefixSearch: DefaultJob [FileName=100KB.txt, Query=or]
+//   QueryBenchmark.BenchmarkPrefixSearchDocuments: DefaultJob [FileName=100KB.txt, Query=or]
+//   QueryBenchmark.BenchmarkPrefixSearch: DefaultJob [FileName=10MB.txt, Query=and]
+//   QueryBenchmark.BenchmarkPrefixSearchDocuments: DefaultJob [FileName=10MB.txt, Query=and]
+//   QueryBenchmark.BenchmarkPrefixSearch: DefaultJob [FileName=10MB.txt, Query=bread]
+//   QueryBenchmark.BenchmarkPrefixSearchDocuments: DefaultJob [FileName=10MB.txt, Query=bread]
+//   QueryBenchmark.BenchmarkPrefixSearch: DefaultJob [FileName=10MB.txt, Query=cat]
+//   QueryBenchmark.BenchmarkPrefixSearchDocuments: DefaultJob [FileName=10MB.txt, Query=cat]
+//   QueryBenchmark.BenchmarkPrefixSearch: DefaultJob [FileName=10MB.txt, Query=or]
+//   QueryBenchmark.BenchmarkPrefixSearchDocuments: DefaultJob [FileName=10MB.txt, Query=or]
+//   QueryBenchmark.BenchmarkPrefixSearch: DefaultJob [FileName=1MB.txt, Query=and]
+//   QueryBenchmark.BenchmarkPrefixSearchDocuments: DefaultJob [FileName=1MB.txt, Query=and]
+//   QueryBenchmark.BenchmarkPrefixSearch: DefaultJob [FileName=1MB.txt, Query=bread]
+//   QueryBenchmark.BenchmarkPrefixSearchDocuments: DefaultJob [FileName=1MB.txt, Query=bread]
+//   QueryBenchmark.BenchmarkPrefixSearch: DefaultJob [FileName=1MB.txt, Query=cat]
+//   QueryBenchmark.BenchmarkPrefixSearchDocuments: DefaultJob [FileName=1MB.txt, Query=cat]
+//   QueryBenchmark.BenchmarkPrefixSearch: DefaultJob [FileName=1MB.txt, Query=or]
+//   QueryBenchmark.BenchmarkPrefixSearchDocuments: DefaultJob [FileName=1MB.txt, Query=or]
+//   QueryBenchmark.BenchmarkPrefixSearch: DefaultJob [FileName=20MB.txt, Query=and]
+//   QueryBenchmark.BenchmarkPrefixSearchDocuments: DefaultJob [FileName=20MB.txt, Query=and]
+//   QueryBenchmark.BenchmarkPrefixSearch: DefaultJob [FileName=20MB.txt, Query=bread]
+//   QueryBenchmark.BenchmarkPrefixSearchDocuments: DefaultJob [FileName=20MB.txt, Query=bread]
+//   QueryBenchmark.BenchmarkPrefixSearch: DefaultJob [FileName=20MB.txt, Query=cat]
+//   QueryBenchmark.BenchmarkPrefixSearchDocuments: DefaultJob [FileName=20MB.txt, Query=cat]
+//   QueryBenchmark.BenchmarkPrefixSearch: DefaultJob [FileName=20MB.txt, Query=or]
+//   QueryBenchmark.BenchmarkPrefixSearchDocuments: DefaultJob [FileName=20MB.txt, Query=or]
+//   QueryBenchmark.BenchmarkPrefixSearch: DefaultJob [FileName=2MB.txt, Query=and]
+//   QueryBenchmark.BenchmarkPrefixSearchDocuments: DefaultJob [FileName=2MB.txt, Query=and]
+//   QueryBenchmark.BenchmarkPrefixSearch: DefaultJob [FileName=2MB.txt, Query=bread]
+//   QueryBenchmark.BenchmarkPrefixSearchDocuments: DefaultJob [FileName=2MB.txt, Query=bread]
+//   QueryBenchmark.BenchmarkPrefixSearch: DefaultJob [FileName=2MB.txt, Query=cat]
+//   QueryBenchmark.BenchmarkPrefixSearchDocuments: DefaultJob [FileName=2MB.txt, Query=cat]
+//   QueryBenchmark.BenchmarkPrefixSearch: DefaultJob [FileName=2MB.txt, Query=or]
+//   QueryBenchmark.BenchmarkPrefixSearchDocuments: DefaultJob [FileName=2MB.txt, Query=or]
+//   QueryBenchmark.BenchmarkPrefixSearch: DefaultJob [FileName=50MB.txt, Query=and]
+//   QueryBenchmark.BenchmarkPrefixSearchDocuments: DefaultJob [FileName=50MB.txt, Query=and]
+//   QueryBenchmark.BenchmarkPrefixSearch: DefaultJob [FileName=50MB.txt, Query=bread]
+//   QueryBenchmark.BenchmarkPrefixSearchDocuments: DefaultJob [FileName=50MB.txt, Query=bread]
+//   QueryBenchmark.BenchmarkPrefixSearch: DefaultJob [FileName=50MB.txt, Query=cat]
+//   QueryBenchmark.BenchmarkPrefixSearchDocuments: DefaultJob [FileName=50MB.txt, Query=cat]
+//   QueryBenchmark.BenchmarkPrefixSearch: DefaultJob [FileName=50MB.txt, Query=or]
+//   QueryBenchmark.BenchmarkPrefixSearchDocuments: DefaultJob [FileName=50MB.txt, Query=or]
+//   QueryBenchmark.BenchmarkPrefixSearch: DefaultJob [FileName=5MB.txt, Query=and]
+//   QueryBenchmark.BenchmarkPrefixSearchDocuments: DefaultJob [FileName=5MB.txt, Query=and]
+//   QueryBenchmark.BenchmarkPrefixSearch: DefaultJob [FileName=5MB.txt, Query=bread]
+//   QueryBenchmark.BenchmarkPrefixSearchDocuments: DefaultJob [FileName=5MB.txt, Query=bread]
+//   QueryBenchmark.BenchmarkPrefixSearch: DefaultJob [FileName=5MB.txt, Query=cat]
+//   QueryBenchmark.BenchmarkPrefixSearchDocuments: DefaultJob [FileName=5MB.txt, Query=cat]
+//   QueryBenchmark.BenchmarkPrefixSearch: DefaultJob [FileName=5MB.txt, Query=or]
+//   QueryBenchmark.BenchmarkPrefixSearchDocuments: DefaultJob [FileName=5MB.txt, Query=or]
+
+// **************************
+// Benchmark: QueryBenchmark.BenchmarkPrefixSearch: DefaultJob [FileName=100KB.txt, Query=and]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 03fbffc4-9e43-4b25-b159-aca38511c455.dll --anonymousPipes 115 116 --benchmarkName "SearchEngineProject.QueryBenchmark.BenchmarkPrefixSearch(FileName: \"100KB.txt\", Query: \"and\")" --job Default --benchmarkId 0 in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/bin/Release/net8.0
+// Failed to set up high priority (Permission denied). In order to run benchmarks with high priority, make sure you have the right permissions.
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 8.0.13 (8.0.1325.6609), X64 RyuJIT AVX2
+// GC=Concurrent Server
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT VectorSize=256
+// Job: DefaultJob
+
+
+System.Reflection.TargetInvocationException: Exception has been thrown by the target of an invocation.
+ ---> System.IO.DirectoryNotFoundException: Could not find a part of the path '/home/arjun/Documents/SearchEngine/SearchEngineProject/100KB.txt'.
+   at Interop.ThrowExceptionForIoErrno(ErrorInfo errorInfo, String path, Boolean isDirError)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String path, OpenFlags flags, Int32 mode, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, UnixFileMode openPermissions, Int64& fileLength, UnixFileMode& filePermissions, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.StreamReader.ValidateArgsAndOpenPath(String path, Encoding encoding, Int32 bufferSize)
+   at System.IO.StreamReader..ctor(String path, Encoding encoding)
+   at SearchEngineProject.Index..ctor(String filename) in /zhome/6b/1/188023/search-engine-project/Index.cs:line 45
+   at SearchEngineProject.QueryBenchmark.Setup() in /zhome/6b/1/188023/search-engine-project/Program.cs:line 60
+   at BenchmarkDotNet.Engines.EngineFactory.CreateReadyToRun(EngineParameters engineParameters)
+   at BenchmarkDotNet.Autogenerated.Runnable_0.Run(IHost host, String benchmarkName) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 176
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   --- End of inner exception stack trace ---
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at BenchmarkDotNet.Autogenerated.UniqueProgramName.AfterAssemblyLoadingAttached(String[] args) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 57
+// AfterAll
+No Workload Results were obtained from the run.
+// Benchmark Process 1241422 has exited with code 255.
+
+// ** Remained 55 (98.2 %) benchmark(s) to run. Estimated finish 2025-03-11 16:20 (0h 0m from now) **
+// **************************
+// Benchmark: QueryBenchmark.BenchmarkPrefixSearchDocuments: DefaultJob [FileName=100KB.txt, Query=and]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 03fbffc4-9e43-4b25-b159-aca38511c455.dll --anonymousPipes 115 116 --benchmarkName "SearchEngineProject.QueryBenchmark.BenchmarkPrefixSearchDocuments(FileName: \"100KB.txt\", Query: \"and\")" --job Default --benchmarkId 1 in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/bin/Release/net8.0
+// Failed to set up high priority (Permission denied). In order to run benchmarks with high priority, make sure you have the right permissions.
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 8.0.13 (8.0.1325.6609), X64 RyuJIT AVX2
+// GC=Concurrent Server
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT VectorSize=256
+// Job: DefaultJob
+
+
+System.Reflection.TargetInvocationException: Exception has been thrown by the target of an invocation.
+ ---> System.IO.DirectoryNotFoundException: Could not find a part of the path '/home/arjun/Documents/SearchEngine/SearchEngineProject/100KB.txt'.
+   at Interop.ThrowExceptionForIoErrno(ErrorInfo errorInfo, String path, Boolean isDirError)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String path, OpenFlags flags, Int32 mode, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, UnixFileMode openPermissions, Int64& fileLength, UnixFileMode& filePermissions, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.StreamReader.ValidateArgsAndOpenPath(String path, Encoding encoding, Int32 bufferSize)
+   at System.IO.StreamReader..ctor(String path, Encoding encoding)
+   at SearchEngineProject.Index..ctor(String filename) in /zhome/6b/1/188023/search-engine-project/Index.cs:line 45
+   at SearchEngineProject.QueryBenchmark.Setup() in /zhome/6b/1/188023/search-engine-project/Program.cs:line 60
+   at BenchmarkDotNet.Engines.EngineFactory.CreateReadyToRun(EngineParameters engineParameters)
+   at BenchmarkDotNet.Autogenerated.Runnable_1.Run(IHost host, String benchmarkName) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 368
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   --- End of inner exception stack trace ---
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at BenchmarkDotNet.Autogenerated.UniqueProgramName.AfterAssemblyLoadingAttached(String[] args) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 57
+// AfterAll
+No Workload Results were obtained from the run.
+// Benchmark Process 1241451 has exited with code 255.
+
+// ** Remained 54 (96.4 %) benchmark(s) to run. Estimated finish 2025-03-11 16:20 (0h 0m from now) **
+// **************************
+// Benchmark: QueryBenchmark.BenchmarkPrefixSearch: DefaultJob [FileName=100KB.txt, Query=bread]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 03fbffc4-9e43-4b25-b159-aca38511c455.dll --anonymousPipes 115 116 --benchmarkName "SearchEngineProject.QueryBenchmark.BenchmarkPrefixSearch(FileName: \"100KB.txt\", Query: \"bread\")" --job Default --benchmarkId 2 in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/bin/Release/net8.0
+// Failed to set up high priority (Permission denied). In order to run benchmarks with high priority, make sure you have the right permissions.
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 8.0.13 (8.0.1325.6609), X64 RyuJIT AVX2
+// GC=Concurrent Server
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT VectorSize=256
+// Job: DefaultJob
+
+
+System.Reflection.TargetInvocationException: Exception has been thrown by the target of an invocation.
+ ---> System.IO.DirectoryNotFoundException: Could not find a part of the path '/home/arjun/Documents/SearchEngine/SearchEngineProject/100KB.txt'.
+   at Interop.ThrowExceptionForIoErrno(ErrorInfo errorInfo, String path, Boolean isDirError)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String path, OpenFlags flags, Int32 mode, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, UnixFileMode openPermissions, Int64& fileLength, UnixFileMode& filePermissions, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.StreamReader.ValidateArgsAndOpenPath(String path, Encoding encoding, Int32 bufferSize)
+   at System.IO.StreamReader..ctor(String path, Encoding encoding)
+   at SearchEngineProject.Index..ctor(String filename) in /zhome/6b/1/188023/search-engine-project/Index.cs:line 45
+   at SearchEngineProject.QueryBenchmark.Setup() in /zhome/6b/1/188023/search-engine-project/Program.cs:line 60
+   at BenchmarkDotNet.Engines.EngineFactory.CreateReadyToRun(EngineParameters engineParameters)
+   at BenchmarkDotNet.Autogenerated.Runnable_2.Run(IHost host, String benchmarkName) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 560
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   --- End of inner exception stack trace ---
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at BenchmarkDotNet.Autogenerated.UniqueProgramName.AfterAssemblyLoadingAttached(String[] args) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 57
+// AfterAll
+No Workload Results were obtained from the run.
+// Benchmark Process 1241481 has exited with code 255.
+
+// ** Remained 53 (94.6 %) benchmark(s) to run. Estimated finish 2025-03-11 16:20 (0h 0m from now) **
+// **************************
+// Benchmark: QueryBenchmark.BenchmarkPrefixSearchDocuments: DefaultJob [FileName=100KB.txt, Query=bread]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 03fbffc4-9e43-4b25-b159-aca38511c455.dll --anonymousPipes 115 116 --benchmarkName "SearchEngineProject.QueryBenchmark.BenchmarkPrefixSearchDocuments(FileName: \"100KB.txt\", Query: \"bread\")" --job Default --benchmarkId 3 in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/bin/Release/net8.0
+// Failed to set up high priority (Permission denied). In order to run benchmarks with high priority, make sure you have the right permissions.
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 8.0.13 (8.0.1325.6609), X64 RyuJIT AVX2
+// GC=Concurrent Server
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT VectorSize=256
+// Job: DefaultJob
+
+
+System.Reflection.TargetInvocationException: Exception has been thrown by the target of an invocation.
+ ---> System.IO.DirectoryNotFoundException: Could not find a part of the path '/home/arjun/Documents/SearchEngine/SearchEngineProject/100KB.txt'.
+   at Interop.ThrowExceptionForIoErrno(ErrorInfo errorInfo, String path, Boolean isDirError)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String path, OpenFlags flags, Int32 mode, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, UnixFileMode openPermissions, Int64& fileLength, UnixFileMode& filePermissions, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.StreamReader.ValidateArgsAndOpenPath(String path, Encoding encoding, Int32 bufferSize)
+   at System.IO.StreamReader..ctor(String path, Encoding encoding)
+   at SearchEngineProject.Index..ctor(String filename) in /zhome/6b/1/188023/search-engine-project/Index.cs:line 45
+   at SearchEngineProject.QueryBenchmark.Setup() in /zhome/6b/1/188023/search-engine-project/Program.cs:line 60
+   at BenchmarkDotNet.Engines.EngineFactory.CreateReadyToRun(EngineParameters engineParameters)
+   at BenchmarkDotNet.Autogenerated.Runnable_3.Run(IHost host, String benchmarkName) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 752
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   --- End of inner exception stack trace ---
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at BenchmarkDotNet.Autogenerated.UniqueProgramName.AfterAssemblyLoadingAttached(String[] args) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 57
+// AfterAll
+No Workload Results were obtained from the run.
+// Benchmark Process 1241509 has exited with code 255.
+
+// ** Remained 52 (92.9 %) benchmark(s) to run. Estimated finish 2025-03-11 16:20 (0h 0m from now) **
+// **************************
+// Benchmark: QueryBenchmark.BenchmarkPrefixSearch: DefaultJob [FileName=100KB.txt, Query=cat]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 03fbffc4-9e43-4b25-b159-aca38511c455.dll --anonymousPipes 115 116 --benchmarkName "SearchEngineProject.QueryBenchmark.BenchmarkPrefixSearch(FileName: \"100KB.txt\", Query: \"cat\")" --job Default --benchmarkId 4 in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/bin/Release/net8.0
+// Failed to set up high priority (Permission denied). In order to run benchmarks with high priority, make sure you have the right permissions.
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 8.0.13 (8.0.1325.6609), X64 RyuJIT AVX2
+// GC=Concurrent Server
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT VectorSize=256
+// Job: DefaultJob
+
+
+System.Reflection.TargetInvocationException: Exception has been thrown by the target of an invocation.
+ ---> System.IO.DirectoryNotFoundException: Could not find a part of the path '/home/arjun/Documents/SearchEngine/SearchEngineProject/100KB.txt'.
+   at Interop.ThrowExceptionForIoErrno(ErrorInfo errorInfo, String path, Boolean isDirError)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String path, OpenFlags flags, Int32 mode, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, UnixFileMode openPermissions, Int64& fileLength, UnixFileMode& filePermissions, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.StreamReader.ValidateArgsAndOpenPath(String path, Encoding encoding, Int32 bufferSize)
+   at System.IO.StreamReader..ctor(String path, Encoding encoding)
+   at SearchEngineProject.Index..ctor(String filename) in /zhome/6b/1/188023/search-engine-project/Index.cs:line 45
+   at SearchEngineProject.QueryBenchmark.Setup() in /zhome/6b/1/188023/search-engine-project/Program.cs:line 60
+   at BenchmarkDotNet.Engines.EngineFactory.CreateReadyToRun(EngineParameters engineParameters)
+   at BenchmarkDotNet.Autogenerated.Runnable_4.Run(IHost host, String benchmarkName) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 944
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   --- End of inner exception stack trace ---
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at BenchmarkDotNet.Autogenerated.UniqueProgramName.AfterAssemblyLoadingAttached(String[] args) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 57
+// AfterAll
+No Workload Results were obtained from the run.
+// Benchmark Process 1241536 has exited with code 255.
+
+// ** Remained 51 (91.1 %) benchmark(s) to run. Estimated finish 2025-03-11 16:20 (0h 0m from now) **
+// **************************
+// Benchmark: QueryBenchmark.BenchmarkPrefixSearchDocuments: DefaultJob [FileName=100KB.txt, Query=cat]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 03fbffc4-9e43-4b25-b159-aca38511c455.dll --anonymousPipes 115 116 --benchmarkName "SearchEngineProject.QueryBenchmark.BenchmarkPrefixSearchDocuments(FileName: \"100KB.txt\", Query: \"cat\")" --job Default --benchmarkId 5 in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/bin/Release/net8.0
+// Failed to set up high priority (Permission denied). In order to run benchmarks with high priority, make sure you have the right permissions.
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 8.0.13 (8.0.1325.6609), X64 RyuJIT AVX2
+// GC=Concurrent Server
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT VectorSize=256
+// Job: DefaultJob
+
+
+System.Reflection.TargetInvocationException: Exception has been thrown by the target of an invocation.
+ ---> System.IO.DirectoryNotFoundException: Could not find a part of the path '/home/arjun/Documents/SearchEngine/SearchEngineProject/100KB.txt'.
+   at Interop.ThrowExceptionForIoErrno(ErrorInfo errorInfo, String path, Boolean isDirError)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String path, OpenFlags flags, Int32 mode, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, UnixFileMode openPermissions, Int64& fileLength, UnixFileMode& filePermissions, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.StreamReader.ValidateArgsAndOpenPath(String path, Encoding encoding, Int32 bufferSize)
+   at System.IO.StreamReader..ctor(String path, Encoding encoding)
+   at SearchEngineProject.Index..ctor(String filename) in /zhome/6b/1/188023/search-engine-project/Index.cs:line 45
+   at SearchEngineProject.QueryBenchmark.Setup() in /zhome/6b/1/188023/search-engine-project/Program.cs:line 60
+   at BenchmarkDotNet.Engines.EngineFactory.CreateReadyToRun(EngineParameters engineParameters)
+   at BenchmarkDotNet.Autogenerated.Runnable_5.Run(IHost host, String benchmarkName) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 1136
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   --- End of inner exception stack trace ---
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at BenchmarkDotNet.Autogenerated.UniqueProgramName.AfterAssemblyLoadingAttached(String[] args) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 57
+// AfterAll
+No Workload Results were obtained from the run.
+// Benchmark Process 1241563 has exited with code 255.
+
+// ** Remained 50 (89.3 %) benchmark(s) to run. Estimated finish 2025-03-11 16:20 (0h 0m from now) **
+// **************************
+// Benchmark: QueryBenchmark.BenchmarkPrefixSearch: DefaultJob [FileName=100KB.txt, Query=or]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 03fbffc4-9e43-4b25-b159-aca38511c455.dll --anonymousPipes 115 116 --benchmarkName "SearchEngineProject.QueryBenchmark.BenchmarkPrefixSearch(FileName: \"100KB.txt\", Query: \"or\")" --job Default --benchmarkId 6 in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/bin/Release/net8.0
+// Failed to set up high priority (Permission denied). In order to run benchmarks with high priority, make sure you have the right permissions.
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 8.0.13 (8.0.1325.6609), X64 RyuJIT AVX2
+// GC=Concurrent Server
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT VectorSize=256
+// Job: DefaultJob
+
+
+System.Reflection.TargetInvocationException: Exception has been thrown by the target of an invocation.
+ ---> System.IO.DirectoryNotFoundException: Could not find a part of the path '/home/arjun/Documents/SearchEngine/SearchEngineProject/100KB.txt'.
+   at Interop.ThrowExceptionForIoErrno(ErrorInfo errorInfo, String path, Boolean isDirError)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String path, OpenFlags flags, Int32 mode, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, UnixFileMode openPermissions, Int64& fileLength, UnixFileMode& filePermissions, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.StreamReader.ValidateArgsAndOpenPath(String path, Encoding encoding, Int32 bufferSize)
+   at System.IO.StreamReader..ctor(String path, Encoding encoding)
+   at SearchEngineProject.Index..ctor(String filename) in /zhome/6b/1/188023/search-engine-project/Index.cs:line 45
+   at SearchEngineProject.QueryBenchmark.Setup() in /zhome/6b/1/188023/search-engine-project/Program.cs:line 60
+   at BenchmarkDotNet.Engines.EngineFactory.CreateReadyToRun(EngineParameters engineParameters)
+   at BenchmarkDotNet.Autogenerated.Runnable_6.Run(IHost host, String benchmarkName) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 1328
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   --- End of inner exception stack trace ---
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at BenchmarkDotNet.Autogenerated.UniqueProgramName.AfterAssemblyLoadingAttached(String[] args) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 57
+// AfterAll
+No Workload Results were obtained from the run.
+// Benchmark Process 1241590 has exited with code 255.
+
+// ** Remained 49 (87.5 %) benchmark(s) to run. Estimated finish 2025-03-11 16:20 (0h 0m from now) **
+// **************************
+// Benchmark: QueryBenchmark.BenchmarkPrefixSearchDocuments: DefaultJob [FileName=100KB.txt, Query=or]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 03fbffc4-9e43-4b25-b159-aca38511c455.dll --anonymousPipes 115 116 --benchmarkName "SearchEngineProject.QueryBenchmark.BenchmarkPrefixSearchDocuments(FileName: \"100KB.txt\", Query: \"or\")" --job Default --benchmarkId 7 in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/bin/Release/net8.0
+// Failed to set up high priority (Permission denied). In order to run benchmarks with high priority, make sure you have the right permissions.
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 8.0.13 (8.0.1325.6609), X64 RyuJIT AVX2
+// GC=Concurrent Server
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT VectorSize=256
+// Job: DefaultJob
+
+
+System.Reflection.TargetInvocationException: Exception has been thrown by the target of an invocation.
+ ---> System.IO.DirectoryNotFoundException: Could not find a part of the path '/home/arjun/Documents/SearchEngine/SearchEngineProject/100KB.txt'.
+   at Interop.ThrowExceptionForIoErrno(ErrorInfo errorInfo, String path, Boolean isDirError)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String path, OpenFlags flags, Int32 mode, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, UnixFileMode openPermissions, Int64& fileLength, UnixFileMode& filePermissions, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.StreamReader.ValidateArgsAndOpenPath(String path, Encoding encoding, Int32 bufferSize)
+   at System.IO.StreamReader..ctor(String path, Encoding encoding)
+   at SearchEngineProject.Index..ctor(String filename) in /zhome/6b/1/188023/search-engine-project/Index.cs:line 45
+   at SearchEngineProject.QueryBenchmark.Setup() in /zhome/6b/1/188023/search-engine-project/Program.cs:line 60
+   at BenchmarkDotNet.Engines.EngineFactory.CreateReadyToRun(EngineParameters engineParameters)
+   at BenchmarkDotNet.Autogenerated.Runnable_7.Run(IHost host, String benchmarkName) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 1520
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   --- End of inner exception stack trace ---
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at BenchmarkDotNet.Autogenerated.UniqueProgramName.AfterAssemblyLoadingAttached(String[] args) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 57
+// AfterAll
+No Workload Results were obtained from the run.
+// Benchmark Process 1241617 has exited with code 255.
+
+// ** Remained 48 (85.7 %) benchmark(s) to run. Estimated finish 2025-03-11 16:20 (0h 0m from now) **
+// **************************
+// Benchmark: QueryBenchmark.BenchmarkPrefixSearch: DefaultJob [FileName=10MB.txt, Query=and]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 03fbffc4-9e43-4b25-b159-aca38511c455.dll --anonymousPipes 115 116 --benchmarkName "SearchEngineProject.QueryBenchmark.BenchmarkPrefixSearch(FileName: \"10MB.txt\", Query: \"and\")" --job Default --benchmarkId 8 in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/bin/Release/net8.0
+// Failed to set up high priority (Permission denied). In order to run benchmarks with high priority, make sure you have the right permissions.
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 8.0.13 (8.0.1325.6609), X64 RyuJIT AVX2
+// GC=Concurrent Server
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT VectorSize=256
+// Job: DefaultJob
+
+
+System.Reflection.TargetInvocationException: Exception has been thrown by the target of an invocation.
+ ---> System.IO.DirectoryNotFoundException: Could not find a part of the path '/home/arjun/Documents/SearchEngine/SearchEngineProject/10MB.txt'.
+   at Interop.ThrowExceptionForIoErrno(ErrorInfo errorInfo, String path, Boolean isDirError)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String path, OpenFlags flags, Int32 mode, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, UnixFileMode openPermissions, Int64& fileLength, UnixFileMode& filePermissions, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.StreamReader.ValidateArgsAndOpenPath(String path, Encoding encoding, Int32 bufferSize)
+   at System.IO.StreamReader..ctor(String path, Encoding encoding)
+   at SearchEngineProject.Index..ctor(String filename) in /zhome/6b/1/188023/search-engine-project/Index.cs:line 45
+   at SearchEngineProject.QueryBenchmark.Setup() in /zhome/6b/1/188023/search-engine-project/Program.cs:line 60
+   at BenchmarkDotNet.Engines.EngineFactory.CreateReadyToRun(EngineParameters engineParameters)
+   at BenchmarkDotNet.Autogenerated.Runnable_8.Run(IHost host, String benchmarkName) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 1712
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   --- End of inner exception stack trace ---
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at BenchmarkDotNet.Autogenerated.UniqueProgramName.AfterAssemblyLoadingAttached(String[] args) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 57
+// AfterAll
+No Workload Results were obtained from the run.
+// Benchmark Process 1241644 has exited with code 255.
+
+// ** Remained 47 (83.9 %) benchmark(s) to run. Estimated finish 2025-03-11 16:20 (0h 0m from now) **
+// **************************
+// Benchmark: QueryBenchmark.BenchmarkPrefixSearchDocuments: DefaultJob [FileName=10MB.txt, Query=and]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 03fbffc4-9e43-4b25-b159-aca38511c455.dll --anonymousPipes 115 116 --benchmarkName "SearchEngineProject.QueryBenchmark.BenchmarkPrefixSearchDocuments(FileName: \"10MB.txt\", Query: \"and\")" --job Default --benchmarkId 9 in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/bin/Release/net8.0
+// Failed to set up high priority (Permission denied). In order to run benchmarks with high priority, make sure you have the right permissions.
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 8.0.13 (8.0.1325.6609), X64 RyuJIT AVX2
+// GC=Concurrent Server
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT VectorSize=256
+// Job: DefaultJob
+
+
+System.Reflection.TargetInvocationException: Exception has been thrown by the target of an invocation.
+ ---> System.IO.DirectoryNotFoundException: Could not find a part of the path '/home/arjun/Documents/SearchEngine/SearchEngineProject/10MB.txt'.
+   at Interop.ThrowExceptionForIoErrno(ErrorInfo errorInfo, String path, Boolean isDirError)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String path, OpenFlags flags, Int32 mode, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, UnixFileMode openPermissions, Int64& fileLength, UnixFileMode& filePermissions, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.StreamReader.ValidateArgsAndOpenPath(String path, Encoding encoding, Int32 bufferSize)
+   at System.IO.StreamReader..ctor(String path, Encoding encoding)
+   at SearchEngineProject.Index..ctor(String filename) in /zhome/6b/1/188023/search-engine-project/Index.cs:line 45
+   at SearchEngineProject.QueryBenchmark.Setup() in /zhome/6b/1/188023/search-engine-project/Program.cs:line 60
+   at BenchmarkDotNet.Engines.EngineFactory.CreateReadyToRun(EngineParameters engineParameters)
+   at BenchmarkDotNet.Autogenerated.Runnable_9.Run(IHost host, String benchmarkName) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 1904
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   --- End of inner exception stack trace ---
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at BenchmarkDotNet.Autogenerated.UniqueProgramName.AfterAssemblyLoadingAttached(String[] args) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 57
+// AfterAll
+No Workload Results were obtained from the run.
+// Benchmark Process 1241671 has exited with code 255.
+
+// ** Remained 46 (82.1 %) benchmark(s) to run. Estimated finish 2025-03-11 16:20 (0h 0m from now) **
+// **************************
+// Benchmark: QueryBenchmark.BenchmarkPrefixSearch: DefaultJob [FileName=10MB.txt, Query=bread]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 03fbffc4-9e43-4b25-b159-aca38511c455.dll --anonymousPipes 115 116 --benchmarkName "SearchEngineProject.QueryBenchmark.BenchmarkPrefixSearch(FileName: \"10MB.txt\", Query: \"bread\")" --job Default --benchmarkId 10 in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/bin/Release/net8.0
+// Failed to set up high priority (Permission denied). In order to run benchmarks with high priority, make sure you have the right permissions.
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 8.0.13 (8.0.1325.6609), X64 RyuJIT AVX2
+// GC=Concurrent Server
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT VectorSize=256
+// Job: DefaultJob
+
+
+System.Reflection.TargetInvocationException: Exception has been thrown by the target of an invocation.
+ ---> System.IO.DirectoryNotFoundException: Could not find a part of the path '/home/arjun/Documents/SearchEngine/SearchEngineProject/10MB.txt'.
+   at Interop.ThrowExceptionForIoErrno(ErrorInfo errorInfo, String path, Boolean isDirError)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String path, OpenFlags flags, Int32 mode, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, UnixFileMode openPermissions, Int64& fileLength, UnixFileMode& filePermissions, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.StreamReader.ValidateArgsAndOpenPath(String path, Encoding encoding, Int32 bufferSize)
+   at System.IO.StreamReader..ctor(String path, Encoding encoding)
+   at SearchEngineProject.Index..ctor(String filename) in /zhome/6b/1/188023/search-engine-project/Index.cs:line 45
+   at SearchEngineProject.QueryBenchmark.Setup() in /zhome/6b/1/188023/search-engine-project/Program.cs:line 60
+   at BenchmarkDotNet.Engines.EngineFactory.CreateReadyToRun(EngineParameters engineParameters)
+   at BenchmarkDotNet.Autogenerated.Runnable_10.Run(IHost host, String benchmarkName) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 2096
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   --- End of inner exception stack trace ---
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at BenchmarkDotNet.Autogenerated.UniqueProgramName.AfterAssemblyLoadingAttached(String[] args) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 57
+// AfterAll
+No Workload Results were obtained from the run.
+// Benchmark Process 1241703 has exited with code 255.
+
+// ** Remained 45 (80.4 %) benchmark(s) to run. Estimated finish 2025-03-11 16:20 (0h 0m from now) **
+// **************************
+// Benchmark: QueryBenchmark.BenchmarkPrefixSearchDocuments: DefaultJob [FileName=10MB.txt, Query=bread]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 03fbffc4-9e43-4b25-b159-aca38511c455.dll --anonymousPipes 115 116 --benchmarkName "SearchEngineProject.QueryBenchmark.BenchmarkPrefixSearchDocuments(FileName: \"10MB.txt\", Query: \"bread\")" --job Default --benchmarkId 11 in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/bin/Release/net8.0
+// Failed to set up high priority (Permission denied). In order to run benchmarks with high priority, make sure you have the right permissions.
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 8.0.13 (8.0.1325.6609), X64 RyuJIT AVX2
+// GC=Concurrent Server
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT VectorSize=256
+// Job: DefaultJob
+
+
+System.Reflection.TargetInvocationException: Exception has been thrown by the target of an invocation.
+ ---> System.IO.DirectoryNotFoundException: Could not find a part of the path '/home/arjun/Documents/SearchEngine/SearchEngineProject/10MB.txt'.
+   at Interop.ThrowExceptionForIoErrno(ErrorInfo errorInfo, String path, Boolean isDirError)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String path, OpenFlags flags, Int32 mode, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, UnixFileMode openPermissions, Int64& fileLength, UnixFileMode& filePermissions, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.StreamReader.ValidateArgsAndOpenPath(String path, Encoding encoding, Int32 bufferSize)
+   at System.IO.StreamReader..ctor(String path, Encoding encoding)
+   at SearchEngineProject.Index..ctor(String filename) in /zhome/6b/1/188023/search-engine-project/Index.cs:line 45
+   at SearchEngineProject.QueryBenchmark.Setup() in /zhome/6b/1/188023/search-engine-project/Program.cs:line 60
+   at BenchmarkDotNet.Engines.EngineFactory.CreateReadyToRun(EngineParameters engineParameters)
+   at BenchmarkDotNet.Autogenerated.Runnable_11.Run(IHost host, String benchmarkName) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 2288
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   --- End of inner exception stack trace ---
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at BenchmarkDotNet.Autogenerated.UniqueProgramName.AfterAssemblyLoadingAttached(String[] args) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 57
+// AfterAll
+No Workload Results were obtained from the run.
+// Benchmark Process 1241754 has exited with code 255.
+
+// ** Remained 44 (78.6 %) benchmark(s) to run. Estimated finish 2025-03-11 16:20 (0h 0m from now) **
+// **************************
+// Benchmark: QueryBenchmark.BenchmarkPrefixSearch: DefaultJob [FileName=10MB.txt, Query=cat]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 03fbffc4-9e43-4b25-b159-aca38511c455.dll --anonymousPipes 115 116 --benchmarkName "SearchEngineProject.QueryBenchmark.BenchmarkPrefixSearch(FileName: \"10MB.txt\", Query: \"cat\")" --job Default --benchmarkId 12 in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/bin/Release/net8.0
+// Failed to set up high priority (Permission denied). In order to run benchmarks with high priority, make sure you have the right permissions.
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 8.0.13 (8.0.1325.6609), X64 RyuJIT AVX2
+// GC=Concurrent Server
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT VectorSize=256
+// Job: DefaultJob
+
+
+System.Reflection.TargetInvocationException: Exception has been thrown by the target of an invocation.
+ ---> System.IO.DirectoryNotFoundException: Could not find a part of the path '/home/arjun/Documents/SearchEngine/SearchEngineProject/10MB.txt'.
+   at Interop.ThrowExceptionForIoErrno(ErrorInfo errorInfo, String path, Boolean isDirError)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String path, OpenFlags flags, Int32 mode, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, UnixFileMode openPermissions, Int64& fileLength, UnixFileMode& filePermissions, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.StreamReader.ValidateArgsAndOpenPath(String path, Encoding encoding, Int32 bufferSize)
+   at System.IO.StreamReader..ctor(String path, Encoding encoding)
+   at SearchEngineProject.Index..ctor(String filename) in /zhome/6b/1/188023/search-engine-project/Index.cs:line 45
+   at SearchEngineProject.QueryBenchmark.Setup() in /zhome/6b/1/188023/search-engine-project/Program.cs:line 60
+   at BenchmarkDotNet.Engines.EngineFactory.CreateReadyToRun(EngineParameters engineParameters)
+   at BenchmarkDotNet.Autogenerated.Runnable_12.Run(IHost host, String benchmarkName) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 2480
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   --- End of inner exception stack trace ---
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at BenchmarkDotNet.Autogenerated.UniqueProgramName.AfterAssemblyLoadingAttached(String[] args) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 57
+// AfterAll
+No Workload Results were obtained from the run.
+// Benchmark Process 1241808 has exited with code 255.
+
+// ** Remained 43 (76.8 %) benchmark(s) to run. Estimated finish 2025-03-11 16:20 (0h 0m from now) **
+// **************************
+// Benchmark: QueryBenchmark.BenchmarkPrefixSearchDocuments: DefaultJob [FileName=10MB.txt, Query=cat]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 03fbffc4-9e43-4b25-b159-aca38511c455.dll --anonymousPipes 115 116 --benchmarkName "SearchEngineProject.QueryBenchmark.BenchmarkPrefixSearchDocuments(FileName: \"10MB.txt\", Query: \"cat\")" --job Default --benchmarkId 13 in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/bin/Release/net8.0
+// Failed to set up high priority (Permission denied). In order to run benchmarks with high priority, make sure you have the right permissions.
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 8.0.13 (8.0.1325.6609), X64 RyuJIT AVX2
+// GC=Concurrent Server
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT VectorSize=256
+// Job: DefaultJob
+
+
+System.Reflection.TargetInvocationException: Exception has been thrown by the target of an invocation.
+ ---> System.IO.DirectoryNotFoundException: Could not find a part of the path '/home/arjun/Documents/SearchEngine/SearchEngineProject/10MB.txt'.
+   at Interop.ThrowExceptionForIoErrno(ErrorInfo errorInfo, String path, Boolean isDirError)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String path, OpenFlags flags, Int32 mode, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, UnixFileMode openPermissions, Int64& fileLength, UnixFileMode& filePermissions, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.StreamReader.ValidateArgsAndOpenPath(String path, Encoding encoding, Int32 bufferSize)
+   at System.IO.StreamReader..ctor(String path, Encoding encoding)
+   at SearchEngineProject.Index..ctor(String filename) in /zhome/6b/1/188023/search-engine-project/Index.cs:line 45
+   at SearchEngineProject.QueryBenchmark.Setup() in /zhome/6b/1/188023/search-engine-project/Program.cs:line 60
+   at BenchmarkDotNet.Engines.EngineFactory.CreateReadyToRun(EngineParameters engineParameters)
+   at BenchmarkDotNet.Autogenerated.Runnable_13.Run(IHost host, String benchmarkName) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 2672
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   --- End of inner exception stack trace ---
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at BenchmarkDotNet.Autogenerated.UniqueProgramName.AfterAssemblyLoadingAttached(String[] args) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 57
+// AfterAll
+No Workload Results were obtained from the run.
+// Benchmark Process 1241836 has exited with code 255.
+
+// ** Remained 42 (75.0 %) benchmark(s) to run. Estimated finish 2025-03-11 16:20 (0h 0m from now) **
+// **************************
+// Benchmark: QueryBenchmark.BenchmarkPrefixSearch: DefaultJob [FileName=10MB.txt, Query=or]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 03fbffc4-9e43-4b25-b159-aca38511c455.dll --anonymousPipes 115 116 --benchmarkName "SearchEngineProject.QueryBenchmark.BenchmarkPrefixSearch(FileName: \"10MB.txt\", Query: \"or\")" --job Default --benchmarkId 14 in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/bin/Release/net8.0
+// Failed to set up high priority (Permission denied). In order to run benchmarks with high priority, make sure you have the right permissions.
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 8.0.13 (8.0.1325.6609), X64 RyuJIT AVX2
+// GC=Concurrent Server
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT VectorSize=256
+// Job: DefaultJob
+
+
+System.Reflection.TargetInvocationException: Exception has been thrown by the target of an invocation.
+ ---> System.IO.DirectoryNotFoundException: Could not find a part of the path '/home/arjun/Documents/SearchEngine/SearchEngineProject/10MB.txt'.
+   at Interop.ThrowExceptionForIoErrno(ErrorInfo errorInfo, String path, Boolean isDirError)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String path, OpenFlags flags, Int32 mode, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, UnixFileMode openPermissions, Int64& fileLength, UnixFileMode& filePermissions, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.StreamReader.ValidateArgsAndOpenPath(String path, Encoding encoding, Int32 bufferSize)
+   at System.IO.StreamReader..ctor(String path, Encoding encoding)
+   at SearchEngineProject.Index..ctor(String filename) in /zhome/6b/1/188023/search-engine-project/Index.cs:line 45
+   at SearchEngineProject.QueryBenchmark.Setup() in /zhome/6b/1/188023/search-engine-project/Program.cs:line 60
+   at BenchmarkDotNet.Engines.EngineFactory.CreateReadyToRun(EngineParameters engineParameters)
+   at BenchmarkDotNet.Autogenerated.Runnable_14.Run(IHost host, String benchmarkName) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 2864
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   --- End of inner exception stack trace ---
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at BenchmarkDotNet.Autogenerated.UniqueProgramName.AfterAssemblyLoadingAttached(String[] args) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 57
+// AfterAll
+No Workload Results were obtained from the run.
+// Benchmark Process 1241863 has exited with code 255.
+
+// ** Remained 41 (73.2 %) benchmark(s) to run. Estimated finish 2025-03-11 16:20 (0h 0m from now) **
+// **************************
+// Benchmark: QueryBenchmark.BenchmarkPrefixSearchDocuments: DefaultJob [FileName=10MB.txt, Query=or]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 03fbffc4-9e43-4b25-b159-aca38511c455.dll --anonymousPipes 115 116 --benchmarkName "SearchEngineProject.QueryBenchmark.BenchmarkPrefixSearchDocuments(FileName: \"10MB.txt\", Query: \"or\")" --job Default --benchmarkId 15 in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/bin/Release/net8.0
+// Failed to set up high priority (Permission denied). In order to run benchmarks with high priority, make sure you have the right permissions.
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 8.0.13 (8.0.1325.6609), X64 RyuJIT AVX2
+// GC=Concurrent Server
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT VectorSize=256
+// Job: DefaultJob
+
+
+System.Reflection.TargetInvocationException: Exception has been thrown by the target of an invocation.
+ ---> System.IO.DirectoryNotFoundException: Could not find a part of the path '/home/arjun/Documents/SearchEngine/SearchEngineProject/10MB.txt'.
+   at Interop.ThrowExceptionForIoErrno(ErrorInfo errorInfo, String path, Boolean isDirError)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String path, OpenFlags flags, Int32 mode, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, UnixFileMode openPermissions, Int64& fileLength, UnixFileMode& filePermissions, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.StreamReader.ValidateArgsAndOpenPath(String path, Encoding encoding, Int32 bufferSize)
+   at System.IO.StreamReader..ctor(String path, Encoding encoding)
+   at SearchEngineProject.Index..ctor(String filename) in /zhome/6b/1/188023/search-engine-project/Index.cs:line 45
+   at SearchEngineProject.QueryBenchmark.Setup() in /zhome/6b/1/188023/search-engine-project/Program.cs:line 60
+   at BenchmarkDotNet.Engines.EngineFactory.CreateReadyToRun(EngineParameters engineParameters)
+   at BenchmarkDotNet.Autogenerated.Runnable_15.Run(IHost host, String benchmarkName) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 3056
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   --- End of inner exception stack trace ---
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at BenchmarkDotNet.Autogenerated.UniqueProgramName.AfterAssemblyLoadingAttached(String[] args) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 57
+// AfterAll
+No Workload Results were obtained from the run.
+// Benchmark Process 1241890 has exited with code 255.
+
+// ** Remained 40 (71.4 %) benchmark(s) to run. Estimated finish 2025-03-11 16:20 (0h 0m from now) **
+// **************************
+// Benchmark: QueryBenchmark.BenchmarkPrefixSearch: DefaultJob [FileName=1MB.txt, Query=and]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 03fbffc4-9e43-4b25-b159-aca38511c455.dll --anonymousPipes 115 116 --benchmarkName "SearchEngineProject.QueryBenchmark.BenchmarkPrefixSearch(FileName: \"1MB.txt\", Query: \"and\")" --job Default --benchmarkId 16 in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/bin/Release/net8.0
+// Failed to set up high priority (Permission denied). In order to run benchmarks with high priority, make sure you have the right permissions.
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 8.0.13 (8.0.1325.6609), X64 RyuJIT AVX2
+// GC=Concurrent Server
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT VectorSize=256
+// Job: DefaultJob
+
+
+System.Reflection.TargetInvocationException: Exception has been thrown by the target of an invocation.
+ ---> System.IO.DirectoryNotFoundException: Could not find a part of the path '/home/arjun/Documents/SearchEngine/SearchEngineProject/1MB.txt'.
+   at Interop.ThrowExceptionForIoErrno(ErrorInfo errorInfo, String path, Boolean isDirError)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String path, OpenFlags flags, Int32 mode, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, UnixFileMode openPermissions, Int64& fileLength, UnixFileMode& filePermissions, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.StreamReader.ValidateArgsAndOpenPath(String path, Encoding encoding, Int32 bufferSize)
+   at System.IO.StreamReader..ctor(String path, Encoding encoding)
+   at SearchEngineProject.Index..ctor(String filename) in /zhome/6b/1/188023/search-engine-project/Index.cs:line 45
+   at SearchEngineProject.QueryBenchmark.Setup() in /zhome/6b/1/188023/search-engine-project/Program.cs:line 60
+   at BenchmarkDotNet.Engines.EngineFactory.CreateReadyToRun(EngineParameters engineParameters)
+   at BenchmarkDotNet.Autogenerated.Runnable_16.Run(IHost host, String benchmarkName) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 3248
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   --- End of inner exception stack trace ---
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at BenchmarkDotNet.Autogenerated.UniqueProgramName.AfterAssemblyLoadingAttached(String[] args) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 57
+// AfterAll
+No Workload Results were obtained from the run.
+// Benchmark Process 1241919 has exited with code 255.
+
+// ** Remained 39 (69.6 %) benchmark(s) to run. Estimated finish 2025-03-11 16:20 (0h 0m from now) **
+// **************************
+// Benchmark: QueryBenchmark.BenchmarkPrefixSearchDocuments: DefaultJob [FileName=1MB.txt, Query=and]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 03fbffc4-9e43-4b25-b159-aca38511c455.dll --anonymousPipes 115 116 --benchmarkName "SearchEngineProject.QueryBenchmark.BenchmarkPrefixSearchDocuments(FileName: \"1MB.txt\", Query: \"and\")" --job Default --benchmarkId 17 in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/bin/Release/net8.0
+// Failed to set up high priority (Permission denied). In order to run benchmarks with high priority, make sure you have the right permissions.
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 8.0.13 (8.0.1325.6609), X64 RyuJIT AVX2
+// GC=Concurrent Server
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT VectorSize=256
+// Job: DefaultJob
+
+
+System.Reflection.TargetInvocationException: Exception has been thrown by the target of an invocation.
+ ---> System.IO.DirectoryNotFoundException: Could not find a part of the path '/home/arjun/Documents/SearchEngine/SearchEngineProject/1MB.txt'.
+   at Interop.ThrowExceptionForIoErrno(ErrorInfo errorInfo, String path, Boolean isDirError)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String path, OpenFlags flags, Int32 mode, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, UnixFileMode openPermissions, Int64& fileLength, UnixFileMode& filePermissions, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.StreamReader.ValidateArgsAndOpenPath(String path, Encoding encoding, Int32 bufferSize)
+   at System.IO.StreamReader..ctor(String path, Encoding encoding)
+   at SearchEngineProject.Index..ctor(String filename) in /zhome/6b/1/188023/search-engine-project/Index.cs:line 45
+   at SearchEngineProject.QueryBenchmark.Setup() in /zhome/6b/1/188023/search-engine-project/Program.cs:line 60
+   at BenchmarkDotNet.Engines.EngineFactory.CreateReadyToRun(EngineParameters engineParameters)
+   at BenchmarkDotNet.Autogenerated.Runnable_17.Run(IHost host, String benchmarkName) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 3440
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   --- End of inner exception stack trace ---
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at BenchmarkDotNet.Autogenerated.UniqueProgramName.AfterAssemblyLoadingAttached(String[] args) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 57
+// AfterAll
+No Workload Results were obtained from the run.
+// Benchmark Process 1241949 has exited with code 255.
+
+// ** Remained 38 (67.9 %) benchmark(s) to run. Estimated finish 2025-03-11 16:20 (0h 0m from now) **
+// **************************
+// Benchmark: QueryBenchmark.BenchmarkPrefixSearch: DefaultJob [FileName=1MB.txt, Query=bread]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 03fbffc4-9e43-4b25-b159-aca38511c455.dll --anonymousPipes 115 116 --benchmarkName "SearchEngineProject.QueryBenchmark.BenchmarkPrefixSearch(FileName: \"1MB.txt\", Query: \"bread\")" --job Default --benchmarkId 18 in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/bin/Release/net8.0
+// Failed to set up high priority (Permission denied). In order to run benchmarks with high priority, make sure you have the right permissions.
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 8.0.13 (8.0.1325.6609), X64 RyuJIT AVX2
+// GC=Concurrent Server
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT VectorSize=256
+// Job: DefaultJob
+
+
+System.Reflection.TargetInvocationException: Exception has been thrown by the target of an invocation.
+ ---> System.IO.DirectoryNotFoundException: Could not find a part of the path '/home/arjun/Documents/SearchEngine/SearchEngineProject/1MB.txt'.
+   at Interop.ThrowExceptionForIoErrno(ErrorInfo errorInfo, String path, Boolean isDirError)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String path, OpenFlags flags, Int32 mode, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, UnixFileMode openPermissions, Int64& fileLength, UnixFileMode& filePermissions, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.StreamReader.ValidateArgsAndOpenPath(String path, Encoding encoding, Int32 bufferSize)
+   at System.IO.StreamReader..ctor(String path, Encoding encoding)
+   at SearchEngineProject.Index..ctor(String filename) in /zhome/6b/1/188023/search-engine-project/Index.cs:line 45
+   at SearchEngineProject.QueryBenchmark.Setup() in /zhome/6b/1/188023/search-engine-project/Program.cs:line 60
+   at BenchmarkDotNet.Engines.EngineFactory.CreateReadyToRun(EngineParameters engineParameters)
+   at BenchmarkDotNet.Autogenerated.Runnable_18.Run(IHost host, String benchmarkName) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 3632
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   --- End of inner exception stack trace ---
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at BenchmarkDotNet.Autogenerated.UniqueProgramName.AfterAssemblyLoadingAttached(String[] args) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 57
+// AfterAll
+No Workload Results were obtained from the run.
+// Benchmark Process 1241976 has exited with code 255.
+
+// ** Remained 37 (66.1 %) benchmark(s) to run. Estimated finish 2025-03-11 16:20 (0h 0m from now) **
+// **************************
+// Benchmark: QueryBenchmark.BenchmarkPrefixSearchDocuments: DefaultJob [FileName=1MB.txt, Query=bread]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 03fbffc4-9e43-4b25-b159-aca38511c455.dll --anonymousPipes 115 116 --benchmarkName "SearchEngineProject.QueryBenchmark.BenchmarkPrefixSearchDocuments(FileName: \"1MB.txt\", Query: \"bread\")" --job Default --benchmarkId 19 in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/bin/Release/net8.0
+// Failed to set up high priority (Permission denied). In order to run benchmarks with high priority, make sure you have the right permissions.
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 8.0.13 (8.0.1325.6609), X64 RyuJIT AVX2
+// GC=Concurrent Server
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT VectorSize=256
+// Job: DefaultJob
+
+
+System.Reflection.TargetInvocationException: Exception has been thrown by the target of an invocation.
+ ---> System.IO.DirectoryNotFoundException: Could not find a part of the path '/home/arjun/Documents/SearchEngine/SearchEngineProject/1MB.txt'.
+   at Interop.ThrowExceptionForIoErrno(ErrorInfo errorInfo, String path, Boolean isDirError)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String path, OpenFlags flags, Int32 mode, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, UnixFileMode openPermissions, Int64& fileLength, UnixFileMode& filePermissions, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.StreamReader.ValidateArgsAndOpenPath(String path, Encoding encoding, Int32 bufferSize)
+   at System.IO.StreamReader..ctor(String path, Encoding encoding)
+   at SearchEngineProject.Index..ctor(String filename) in /zhome/6b/1/188023/search-engine-project/Index.cs:line 45
+   at SearchEngineProject.QueryBenchmark.Setup() in /zhome/6b/1/188023/search-engine-project/Program.cs:line 60
+   at BenchmarkDotNet.Engines.EngineFactory.CreateReadyToRun(EngineParameters engineParameters)
+   at BenchmarkDotNet.Autogenerated.Runnable_19.Run(IHost host, String benchmarkName) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 3824
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   --- End of inner exception stack trace ---
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at BenchmarkDotNet.Autogenerated.UniqueProgramName.AfterAssemblyLoadingAttached(String[] args) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 57
+// AfterAll
+No Workload Results were obtained from the run.
+// Benchmark Process 1242003 has exited with code 255.
+
+// ** Remained 36 (64.3 %) benchmark(s) to run. Estimated finish 2025-03-11 16:20 (0h 0m from now) **
+// **************************
+// Benchmark: QueryBenchmark.BenchmarkPrefixSearch: DefaultJob [FileName=1MB.txt, Query=cat]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 03fbffc4-9e43-4b25-b159-aca38511c455.dll --anonymousPipes 115 116 --benchmarkName "SearchEngineProject.QueryBenchmark.BenchmarkPrefixSearch(FileName: \"1MB.txt\", Query: \"cat\")" --job Default --benchmarkId 20 in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/bin/Release/net8.0
+// Failed to set up high priority (Permission denied). In order to run benchmarks with high priority, make sure you have the right permissions.
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 8.0.13 (8.0.1325.6609), X64 RyuJIT AVX2
+// GC=Concurrent Server
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT VectorSize=256
+// Job: DefaultJob
+
+
+System.Reflection.TargetInvocationException: Exception has been thrown by the target of an invocation.
+ ---> System.IO.DirectoryNotFoundException: Could not find a part of the path '/home/arjun/Documents/SearchEngine/SearchEngineProject/1MB.txt'.
+   at Interop.ThrowExceptionForIoErrno(ErrorInfo errorInfo, String path, Boolean isDirError)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String path, OpenFlags flags, Int32 mode, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, UnixFileMode openPermissions, Int64& fileLength, UnixFileMode& filePermissions, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.StreamReader.ValidateArgsAndOpenPath(String path, Encoding encoding, Int32 bufferSize)
+   at System.IO.StreamReader..ctor(String path, Encoding encoding)
+   at SearchEngineProject.Index..ctor(String filename) in /zhome/6b/1/188023/search-engine-project/Index.cs:line 45
+   at SearchEngineProject.QueryBenchmark.Setup() in /zhome/6b/1/188023/search-engine-project/Program.cs:line 60
+   at BenchmarkDotNet.Engines.EngineFactory.CreateReadyToRun(EngineParameters engineParameters)
+   at BenchmarkDotNet.Autogenerated.Runnable_20.Run(IHost host, String benchmarkName) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 4016
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   --- End of inner exception stack trace ---
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at BenchmarkDotNet.Autogenerated.UniqueProgramName.AfterAssemblyLoadingAttached(String[] args) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 57
+// AfterAll
+No Workload Results were obtained from the run.
+// Benchmark Process 1242034 has exited with code 255.
+
+// ** Remained 35 (62.5 %) benchmark(s) to run. Estimated finish 2025-03-11 16:20 (0h 0m from now) **
+// **************************
+// Benchmark: QueryBenchmark.BenchmarkPrefixSearchDocuments: DefaultJob [FileName=1MB.txt, Query=cat]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 03fbffc4-9e43-4b25-b159-aca38511c455.dll --anonymousPipes 115 116 --benchmarkName "SearchEngineProject.QueryBenchmark.BenchmarkPrefixSearchDocuments(FileName: \"1MB.txt\", Query: \"cat\")" --job Default --benchmarkId 21 in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/bin/Release/net8.0
+// Failed to set up high priority (Permission denied). In order to run benchmarks with high priority, make sure you have the right permissions.
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 8.0.13 (8.0.1325.6609), X64 RyuJIT AVX2
+// GC=Concurrent Server
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT VectorSize=256
+// Job: DefaultJob
+
+
+System.Reflection.TargetInvocationException: Exception has been thrown by the target of an invocation.
+ ---> System.IO.DirectoryNotFoundException: Could not find a part of the path '/home/arjun/Documents/SearchEngine/SearchEngineProject/1MB.txt'.
+   at Interop.ThrowExceptionForIoErrno(ErrorInfo errorInfo, String path, Boolean isDirError)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String path, OpenFlags flags, Int32 mode, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, UnixFileMode openPermissions, Int64& fileLength, UnixFileMode& filePermissions, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.StreamReader.ValidateArgsAndOpenPath(String path, Encoding encoding, Int32 bufferSize)
+   at System.IO.StreamReader..ctor(String path, Encoding encoding)
+   at SearchEngineProject.Index..ctor(String filename) in /zhome/6b/1/188023/search-engine-project/Index.cs:line 45
+   at SearchEngineProject.QueryBenchmark.Setup() in /zhome/6b/1/188023/search-engine-project/Program.cs:line 60
+   at BenchmarkDotNet.Engines.EngineFactory.CreateReadyToRun(EngineParameters engineParameters)
+   at BenchmarkDotNet.Autogenerated.Runnable_21.Run(IHost host, String benchmarkName) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 4208
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   --- End of inner exception stack trace ---
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at BenchmarkDotNet.Autogenerated.UniqueProgramName.AfterAssemblyLoadingAttached(String[] args) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 57
+// AfterAll
+No Workload Results were obtained from the run.
+// Benchmark Process 1242061 has exited with code 255.
+
+// ** Remained 34 (60.7 %) benchmark(s) to run. Estimated finish 2025-03-11 16:20 (0h 0m from now) **
+// **************************
+// Benchmark: QueryBenchmark.BenchmarkPrefixSearch: DefaultJob [FileName=1MB.txt, Query=or]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 03fbffc4-9e43-4b25-b159-aca38511c455.dll --anonymousPipes 115 116 --benchmarkName "SearchEngineProject.QueryBenchmark.BenchmarkPrefixSearch(FileName: \"1MB.txt\", Query: \"or\")" --job Default --benchmarkId 22 in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/bin/Release/net8.0
+// Failed to set up high priority (Permission denied). In order to run benchmarks with high priority, make sure you have the right permissions.
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 8.0.13 (8.0.1325.6609), X64 RyuJIT AVX2
+// GC=Concurrent Server
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT VectorSize=256
+// Job: DefaultJob
+
+
+System.Reflection.TargetInvocationException: Exception has been thrown by the target of an invocation.
+ ---> System.IO.DirectoryNotFoundException: Could not find a part of the path '/home/arjun/Documents/SearchEngine/SearchEngineProject/1MB.txt'.
+   at Interop.ThrowExceptionForIoErrno(ErrorInfo errorInfo, String path, Boolean isDirError)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String path, OpenFlags flags, Int32 mode, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, UnixFileMode openPermissions, Int64& fileLength, UnixFileMode& filePermissions, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.StreamReader.ValidateArgsAndOpenPath(String path, Encoding encoding, Int32 bufferSize)
+   at System.IO.StreamReader..ctor(String path, Encoding encoding)
+   at SearchEngineProject.Index..ctor(String filename) in /zhome/6b/1/188023/search-engine-project/Index.cs:line 45
+   at SearchEngineProject.QueryBenchmark.Setup() in /zhome/6b/1/188023/search-engine-project/Program.cs:line 60
+   at BenchmarkDotNet.Engines.EngineFactory.CreateReadyToRun(EngineParameters engineParameters)
+   at BenchmarkDotNet.Autogenerated.Runnable_22.Run(IHost host, String benchmarkName) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 4400
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   --- End of inner exception stack trace ---
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at BenchmarkDotNet.Autogenerated.UniqueProgramName.AfterAssemblyLoadingAttached(String[] args) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 57
+// AfterAll
+No Workload Results were obtained from the run.
+// Benchmark Process 1242088 has exited with code 255.
+
+// ** Remained 33 (58.9 %) benchmark(s) to run. Estimated finish 2025-03-11 16:20 (0h 0m from now) **
+// **************************
+// Benchmark: QueryBenchmark.BenchmarkPrefixSearchDocuments: DefaultJob [FileName=1MB.txt, Query=or]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 03fbffc4-9e43-4b25-b159-aca38511c455.dll --anonymousPipes 115 116 --benchmarkName "SearchEngineProject.QueryBenchmark.BenchmarkPrefixSearchDocuments(FileName: \"1MB.txt\", Query: \"or\")" --job Default --benchmarkId 23 in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/bin/Release/net8.0
+// Failed to set up high priority (Permission denied). In order to run benchmarks with high priority, make sure you have the right permissions.
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 8.0.13 (8.0.1325.6609), X64 RyuJIT AVX2
+// GC=Concurrent Server
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT VectorSize=256
+// Job: DefaultJob
+
+
+System.Reflection.TargetInvocationException: Exception has been thrown by the target of an invocation.
+ ---> System.IO.DirectoryNotFoundException: Could not find a part of the path '/home/arjun/Documents/SearchEngine/SearchEngineProject/1MB.txt'.
+   at Interop.ThrowExceptionForIoErrno(ErrorInfo errorInfo, String path, Boolean isDirError)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String path, OpenFlags flags, Int32 mode, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, UnixFileMode openPermissions, Int64& fileLength, UnixFileMode& filePermissions, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.StreamReader.ValidateArgsAndOpenPath(String path, Encoding encoding, Int32 bufferSize)
+   at System.IO.StreamReader..ctor(String path, Encoding encoding)
+   at SearchEngineProject.Index..ctor(String filename) in /zhome/6b/1/188023/search-engine-project/Index.cs:line 45
+   at SearchEngineProject.QueryBenchmark.Setup() in /zhome/6b/1/188023/search-engine-project/Program.cs:line 60
+   at BenchmarkDotNet.Engines.EngineFactory.CreateReadyToRun(EngineParameters engineParameters)
+   at BenchmarkDotNet.Autogenerated.Runnable_23.Run(IHost host, String benchmarkName) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 4592
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   --- End of inner exception stack trace ---
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at BenchmarkDotNet.Autogenerated.UniqueProgramName.AfterAssemblyLoadingAttached(String[] args) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 57
+// AfterAll
+No Workload Results were obtained from the run.
+// Benchmark Process 1242115 has exited with code 255.
+
+// ** Remained 32 (57.1 %) benchmark(s) to run. Estimated finish 2025-03-11 16:20 (0h 0m from now) **
+// **************************
+// Benchmark: QueryBenchmark.BenchmarkPrefixSearch: DefaultJob [FileName=20MB.txt, Query=and]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 03fbffc4-9e43-4b25-b159-aca38511c455.dll --anonymousPipes 115 116 --benchmarkName "SearchEngineProject.QueryBenchmark.BenchmarkPrefixSearch(FileName: \"20MB.txt\", Query: \"and\")" --job Default --benchmarkId 24 in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/bin/Release/net8.0
+// Failed to set up high priority (Permission denied). In order to run benchmarks with high priority, make sure you have the right permissions.
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 8.0.13 (8.0.1325.6609), X64 RyuJIT AVX2
+// GC=Concurrent Server
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT VectorSize=256
+// Job: DefaultJob
+
+
+System.Reflection.TargetInvocationException: Exception has been thrown by the target of an invocation.
+ ---> System.IO.DirectoryNotFoundException: Could not find a part of the path '/home/arjun/Documents/SearchEngine/SearchEngineProject/20MB.txt'.
+   at Interop.ThrowExceptionForIoErrno(ErrorInfo errorInfo, String path, Boolean isDirError)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String path, OpenFlags flags, Int32 mode, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, UnixFileMode openPermissions, Int64& fileLength, UnixFileMode& filePermissions, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.StreamReader.ValidateArgsAndOpenPath(String path, Encoding encoding, Int32 bufferSize)
+   at System.IO.StreamReader..ctor(String path, Encoding encoding)
+   at SearchEngineProject.Index..ctor(String filename) in /zhome/6b/1/188023/search-engine-project/Index.cs:line 45
+   at SearchEngineProject.QueryBenchmark.Setup() in /zhome/6b/1/188023/search-engine-project/Program.cs:line 60
+   at BenchmarkDotNet.Engines.EngineFactory.CreateReadyToRun(EngineParameters engineParameters)
+   at BenchmarkDotNet.Autogenerated.Runnable_24.Run(IHost host, String benchmarkName) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 4784
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   --- End of inner exception stack trace ---
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at BenchmarkDotNet.Autogenerated.UniqueProgramName.AfterAssemblyLoadingAttached(String[] args) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 57
+// AfterAll
+No Workload Results were obtained from the run.
+// Benchmark Process 1242142 has exited with code 255.
+
+// ** Remained 31 (55.4 %) benchmark(s) to run. Estimated finish 2025-03-11 16:20 (0h 0m from now) **
+// **************************
+// Benchmark: QueryBenchmark.BenchmarkPrefixSearchDocuments: DefaultJob [FileName=20MB.txt, Query=and]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 03fbffc4-9e43-4b25-b159-aca38511c455.dll --anonymousPipes 115 116 --benchmarkName "SearchEngineProject.QueryBenchmark.BenchmarkPrefixSearchDocuments(FileName: \"20MB.txt\", Query: \"and\")" --job Default --benchmarkId 25 in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/bin/Release/net8.0
+// Failed to set up high priority (Permission denied). In order to run benchmarks with high priority, make sure you have the right permissions.
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 8.0.13 (8.0.1325.6609), X64 RyuJIT AVX2
+// GC=Concurrent Server
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT VectorSize=256
+// Job: DefaultJob
+
+
+System.Reflection.TargetInvocationException: Exception has been thrown by the target of an invocation.
+ ---> System.IO.DirectoryNotFoundException: Could not find a part of the path '/home/arjun/Documents/SearchEngine/SearchEngineProject/20MB.txt'.
+   at Interop.ThrowExceptionForIoErrno(ErrorInfo errorInfo, String path, Boolean isDirError)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String path, OpenFlags flags, Int32 mode, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, UnixFileMode openPermissions, Int64& fileLength, UnixFileMode& filePermissions, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.StreamReader.ValidateArgsAndOpenPath(String path, Encoding encoding, Int32 bufferSize)
+   at System.IO.StreamReader..ctor(String path, Encoding encoding)
+   at SearchEngineProject.Index..ctor(String filename) in /zhome/6b/1/188023/search-engine-project/Index.cs:line 45
+   at SearchEngineProject.QueryBenchmark.Setup() in /zhome/6b/1/188023/search-engine-project/Program.cs:line 60
+   at BenchmarkDotNet.Engines.EngineFactory.CreateReadyToRun(EngineParameters engineParameters)
+   at BenchmarkDotNet.Autogenerated.Runnable_25.Run(IHost host, String benchmarkName) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 4976
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   --- End of inner exception stack trace ---
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at BenchmarkDotNet.Autogenerated.UniqueProgramName.AfterAssemblyLoadingAttached(String[] args) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 57
+// AfterAll
+No Workload Results were obtained from the run.
+// Benchmark Process 1242169 has exited with code 255.
+
+// ** Remained 30 (53.6 %) benchmark(s) to run. Estimated finish 2025-03-11 16:20 (0h 0m from now) **
+// **************************
+// Benchmark: QueryBenchmark.BenchmarkPrefixSearch: DefaultJob [FileName=20MB.txt, Query=bread]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 03fbffc4-9e43-4b25-b159-aca38511c455.dll --anonymousPipes 115 116 --benchmarkName "SearchEngineProject.QueryBenchmark.BenchmarkPrefixSearch(FileName: \"20MB.txt\", Query: \"bread\")" --job Default --benchmarkId 26 in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/bin/Release/net8.0
+// Failed to set up high priority (Permission denied). In order to run benchmarks with high priority, make sure you have the right permissions.
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 8.0.13 (8.0.1325.6609), X64 RyuJIT AVX2
+// GC=Concurrent Server
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT VectorSize=256
+// Job: DefaultJob
+
+
+System.Reflection.TargetInvocationException: Exception has been thrown by the target of an invocation.
+ ---> System.IO.DirectoryNotFoundException: Could not find a part of the path '/home/arjun/Documents/SearchEngine/SearchEngineProject/20MB.txt'.
+   at Interop.ThrowExceptionForIoErrno(ErrorInfo errorInfo, String path, Boolean isDirError)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String path, OpenFlags flags, Int32 mode, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, UnixFileMode openPermissions, Int64& fileLength, UnixFileMode& filePermissions, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.StreamReader.ValidateArgsAndOpenPath(String path, Encoding encoding, Int32 bufferSize)
+   at System.IO.StreamReader..ctor(String path, Encoding encoding)
+   at SearchEngineProject.Index..ctor(String filename) in /zhome/6b/1/188023/search-engine-project/Index.cs:line 45
+   at SearchEngineProject.QueryBenchmark.Setup() in /zhome/6b/1/188023/search-engine-project/Program.cs:line 60
+   at BenchmarkDotNet.Engines.EngineFactory.CreateReadyToRun(EngineParameters engineParameters)
+   at BenchmarkDotNet.Autogenerated.Runnable_26.Run(IHost host, String benchmarkName) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 5168
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   --- End of inner exception stack trace ---
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at BenchmarkDotNet.Autogenerated.UniqueProgramName.AfterAssemblyLoadingAttached(String[] args) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 57
+// AfterAll
+No Workload Results were obtained from the run.
+// Benchmark Process 1242196 has exited with code 255.
+
+// ** Remained 29 (51.8 %) benchmark(s) to run. Estimated finish 2025-03-11 16:20 (0h 0m from now) **
+// **************************
+// Benchmark: QueryBenchmark.BenchmarkPrefixSearchDocuments: DefaultJob [FileName=20MB.txt, Query=bread]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 03fbffc4-9e43-4b25-b159-aca38511c455.dll --anonymousPipes 115 116 --benchmarkName "SearchEngineProject.QueryBenchmark.BenchmarkPrefixSearchDocuments(FileName: \"20MB.txt\", Query: \"bread\")" --job Default --benchmarkId 27 in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/bin/Release/net8.0
+// Failed to set up high priority (Permission denied). In order to run benchmarks with high priority, make sure you have the right permissions.
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 8.0.13 (8.0.1325.6609), X64 RyuJIT AVX2
+// GC=Concurrent Server
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT VectorSize=256
+// Job: DefaultJob
+
+
+System.Reflection.TargetInvocationException: Exception has been thrown by the target of an invocation.
+ ---> System.IO.DirectoryNotFoundException: Could not find a part of the path '/home/arjun/Documents/SearchEngine/SearchEngineProject/20MB.txt'.
+   at Interop.ThrowExceptionForIoErrno(ErrorInfo errorInfo, String path, Boolean isDirError)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String path, OpenFlags flags, Int32 mode, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, UnixFileMode openPermissions, Int64& fileLength, UnixFileMode& filePermissions, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.StreamReader.ValidateArgsAndOpenPath(String path, Encoding encoding, Int32 bufferSize)
+   at System.IO.StreamReader..ctor(String path, Encoding encoding)
+   at SearchEngineProject.Index..ctor(String filename) in /zhome/6b/1/188023/search-engine-project/Index.cs:line 45
+   at SearchEngineProject.QueryBenchmark.Setup() in /zhome/6b/1/188023/search-engine-project/Program.cs:line 60
+   at BenchmarkDotNet.Engines.EngineFactory.CreateReadyToRun(EngineParameters engineParameters)
+   at BenchmarkDotNet.Autogenerated.Runnable_27.Run(IHost host, String benchmarkName) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 5360
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   --- End of inner exception stack trace ---
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at BenchmarkDotNet.Autogenerated.UniqueProgramName.AfterAssemblyLoadingAttached(String[] args) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 57
+// AfterAll
+No Workload Results were obtained from the run.
+// Benchmark Process 1242223 has exited with code 255.
+
+// ** Remained 28 (50.0 %) benchmark(s) to run. Estimated finish 2025-03-11 16:20 (0h 0m from now) **
+// **************************
+// Benchmark: QueryBenchmark.BenchmarkPrefixSearch: DefaultJob [FileName=20MB.txt, Query=cat]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 03fbffc4-9e43-4b25-b159-aca38511c455.dll --anonymousPipes 115 116 --benchmarkName "SearchEngineProject.QueryBenchmark.BenchmarkPrefixSearch(FileName: \"20MB.txt\", Query: \"cat\")" --job Default --benchmarkId 28 in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/bin/Release/net8.0
+// Failed to set up high priority (Permission denied). In order to run benchmarks with high priority, make sure you have the right permissions.
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 8.0.13 (8.0.1325.6609), X64 RyuJIT AVX2
+// GC=Concurrent Server
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT VectorSize=256
+// Job: DefaultJob
+
+
+System.Reflection.TargetInvocationException: Exception has been thrown by the target of an invocation.
+ ---> System.IO.DirectoryNotFoundException: Could not find a part of the path '/home/arjun/Documents/SearchEngine/SearchEngineProject/20MB.txt'.
+   at Interop.ThrowExceptionForIoErrno(ErrorInfo errorInfo, String path, Boolean isDirError)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String path, OpenFlags flags, Int32 mode, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, UnixFileMode openPermissions, Int64& fileLength, UnixFileMode& filePermissions, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.StreamReader.ValidateArgsAndOpenPath(String path, Encoding encoding, Int32 bufferSize)
+   at System.IO.StreamReader..ctor(String path, Encoding encoding)
+   at SearchEngineProject.Index..ctor(String filename) in /zhome/6b/1/188023/search-engine-project/Index.cs:line 45
+   at SearchEngineProject.QueryBenchmark.Setup() in /zhome/6b/1/188023/search-engine-project/Program.cs:line 60
+   at BenchmarkDotNet.Engines.EngineFactory.CreateReadyToRun(EngineParameters engineParameters)
+   at BenchmarkDotNet.Autogenerated.Runnable_28.Run(IHost host, String benchmarkName) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 5552
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   --- End of inner exception stack trace ---
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at BenchmarkDotNet.Autogenerated.UniqueProgramName.AfterAssemblyLoadingAttached(String[] args) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 57
+// AfterAll
+No Workload Results were obtained from the run.
+// Benchmark Process 1242250 has exited with code 255.
+
+// ** Remained 27 (48.2 %) benchmark(s) to run. Estimated finish 2025-03-11 16:20 (0h 0m from now) **
+// **************************
+// Benchmark: QueryBenchmark.BenchmarkPrefixSearchDocuments: DefaultJob [FileName=20MB.txt, Query=cat]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 03fbffc4-9e43-4b25-b159-aca38511c455.dll --anonymousPipes 115 116 --benchmarkName "SearchEngineProject.QueryBenchmark.BenchmarkPrefixSearchDocuments(FileName: \"20MB.txt\", Query: \"cat\")" --job Default --benchmarkId 29 in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/bin/Release/net8.0
+// Failed to set up high priority (Permission denied). In order to run benchmarks with high priority, make sure you have the right permissions.
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 8.0.13 (8.0.1325.6609), X64 RyuJIT AVX2
+// GC=Concurrent Server
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT VectorSize=256
+// Job: DefaultJob
+
+
+System.Reflection.TargetInvocationException: Exception has been thrown by the target of an invocation.
+ ---> System.IO.DirectoryNotFoundException: Could not find a part of the path '/home/arjun/Documents/SearchEngine/SearchEngineProject/20MB.txt'.
+   at Interop.ThrowExceptionForIoErrno(ErrorInfo errorInfo, String path, Boolean isDirError)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String path, OpenFlags flags, Int32 mode, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, UnixFileMode openPermissions, Int64& fileLength, UnixFileMode& filePermissions, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.StreamReader.ValidateArgsAndOpenPath(String path, Encoding encoding, Int32 bufferSize)
+   at System.IO.StreamReader..ctor(String path, Encoding encoding)
+   at SearchEngineProject.Index..ctor(String filename) in /zhome/6b/1/188023/search-engine-project/Index.cs:line 45
+   at SearchEngineProject.QueryBenchmark.Setup() in /zhome/6b/1/188023/search-engine-project/Program.cs:line 60
+   at BenchmarkDotNet.Engines.EngineFactory.CreateReadyToRun(EngineParameters engineParameters)
+   at BenchmarkDotNet.Autogenerated.Runnable_29.Run(IHost host, String benchmarkName) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 5744
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   --- End of inner exception stack trace ---
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at BenchmarkDotNet.Autogenerated.UniqueProgramName.AfterAssemblyLoadingAttached(String[] args) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 57
+// AfterAll
+No Workload Results were obtained from the run.
+// Benchmark Process 1242277 has exited with code 255.
+
+// ** Remained 26 (46.4 %) benchmark(s) to run. Estimated finish 2025-03-11 16:20 (0h 0m from now) **
+// **************************
+// Benchmark: QueryBenchmark.BenchmarkPrefixSearch: DefaultJob [FileName=20MB.txt, Query=or]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 03fbffc4-9e43-4b25-b159-aca38511c455.dll --anonymousPipes 115 116 --benchmarkName "SearchEngineProject.QueryBenchmark.BenchmarkPrefixSearch(FileName: \"20MB.txt\", Query: \"or\")" --job Default --benchmarkId 30 in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/bin/Release/net8.0
+// Failed to set up high priority (Permission denied). In order to run benchmarks with high priority, make sure you have the right permissions.
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 8.0.13 (8.0.1325.6609), X64 RyuJIT AVX2
+// GC=Concurrent Server
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT VectorSize=256
+// Job: DefaultJob
+
+
+System.Reflection.TargetInvocationException: Exception has been thrown by the target of an invocation.
+ ---> System.IO.DirectoryNotFoundException: Could not find a part of the path '/home/arjun/Documents/SearchEngine/SearchEngineProject/20MB.txt'.
+   at Interop.ThrowExceptionForIoErrno(ErrorInfo errorInfo, String path, Boolean isDirError)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String path, OpenFlags flags, Int32 mode, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, UnixFileMode openPermissions, Int64& fileLength, UnixFileMode& filePermissions, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.StreamReader.ValidateArgsAndOpenPath(String path, Encoding encoding, Int32 bufferSize)
+   at System.IO.StreamReader..ctor(String path, Encoding encoding)
+   at SearchEngineProject.Index..ctor(String filename) in /zhome/6b/1/188023/search-engine-project/Index.cs:line 45
+   at SearchEngineProject.QueryBenchmark.Setup() in /zhome/6b/1/188023/search-engine-project/Program.cs:line 60
+   at BenchmarkDotNet.Engines.EngineFactory.CreateReadyToRun(EngineParameters engineParameters)
+   at BenchmarkDotNet.Autogenerated.Runnable_30.Run(IHost host, String benchmarkName) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 5936
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   --- End of inner exception stack trace ---
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at BenchmarkDotNet.Autogenerated.UniqueProgramName.AfterAssemblyLoadingAttached(String[] args) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 57
+// AfterAll
+No Workload Results were obtained from the run.
+// Benchmark Process 1242304 has exited with code 255.
+
+// ** Remained 25 (44.6 %) benchmark(s) to run. Estimated finish 2025-03-11 16:20 (0h 0m from now) **
+// **************************
+// Benchmark: QueryBenchmark.BenchmarkPrefixSearchDocuments: DefaultJob [FileName=20MB.txt, Query=or]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 03fbffc4-9e43-4b25-b159-aca38511c455.dll --anonymousPipes 115 116 --benchmarkName "SearchEngineProject.QueryBenchmark.BenchmarkPrefixSearchDocuments(FileName: \"20MB.txt\", Query: \"or\")" --job Default --benchmarkId 31 in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/bin/Release/net8.0
+// Failed to set up high priority (Permission denied). In order to run benchmarks with high priority, make sure you have the right permissions.
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 8.0.13 (8.0.1325.6609), X64 RyuJIT AVX2
+// GC=Concurrent Server
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT VectorSize=256
+// Job: DefaultJob
+
+
+System.Reflection.TargetInvocationException: Exception has been thrown by the target of an invocation.
+ ---> System.IO.DirectoryNotFoundException: Could not find a part of the path '/home/arjun/Documents/SearchEngine/SearchEngineProject/20MB.txt'.
+   at Interop.ThrowExceptionForIoErrno(ErrorInfo errorInfo, String path, Boolean isDirError)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String path, OpenFlags flags, Int32 mode, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, UnixFileMode openPermissions, Int64& fileLength, UnixFileMode& filePermissions, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.StreamReader.ValidateArgsAndOpenPath(String path, Encoding encoding, Int32 bufferSize)
+   at System.IO.StreamReader..ctor(String path, Encoding encoding)
+   at SearchEngineProject.Index..ctor(String filename) in /zhome/6b/1/188023/search-engine-project/Index.cs:line 45
+   at SearchEngineProject.QueryBenchmark.Setup() in /zhome/6b/1/188023/search-engine-project/Program.cs:line 60
+   at BenchmarkDotNet.Engines.EngineFactory.CreateReadyToRun(EngineParameters engineParameters)
+   at BenchmarkDotNet.Autogenerated.Runnable_31.Run(IHost host, String benchmarkName) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 6128
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   --- End of inner exception stack trace ---
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at BenchmarkDotNet.Autogenerated.UniqueProgramName.AfterAssemblyLoadingAttached(String[] args) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 57
+// AfterAll
+No Workload Results were obtained from the run.
+// Benchmark Process 1242331 has exited with code 255.
+
+// ** Remained 24 (42.9 %) benchmark(s) to run. Estimated finish 2025-03-11 16:20 (0h 0m from now) **
+// **************************
+// Benchmark: QueryBenchmark.BenchmarkPrefixSearch: DefaultJob [FileName=2MB.txt, Query=and]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 03fbffc4-9e43-4b25-b159-aca38511c455.dll --anonymousPipes 115 116 --benchmarkName "SearchEngineProject.QueryBenchmark.BenchmarkPrefixSearch(FileName: \"2MB.txt\", Query: \"and\")" --job Default --benchmarkId 32 in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/bin/Release/net8.0
+// Failed to set up high priority (Permission denied). In order to run benchmarks with high priority, make sure you have the right permissions.
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 8.0.13 (8.0.1325.6609), X64 RyuJIT AVX2
+// GC=Concurrent Server
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT VectorSize=256
+// Job: DefaultJob
+
+
+System.Reflection.TargetInvocationException: Exception has been thrown by the target of an invocation.
+ ---> System.IO.DirectoryNotFoundException: Could not find a part of the path '/home/arjun/Documents/SearchEngine/SearchEngineProject/2MB.txt'.
+   at Interop.ThrowExceptionForIoErrno(ErrorInfo errorInfo, String path, Boolean isDirError)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String path, OpenFlags flags, Int32 mode, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, UnixFileMode openPermissions, Int64& fileLength, UnixFileMode& filePermissions, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.StreamReader.ValidateArgsAndOpenPath(String path, Encoding encoding, Int32 bufferSize)
+   at System.IO.StreamReader..ctor(String path, Encoding encoding)
+   at SearchEngineProject.Index..ctor(String filename) in /zhome/6b/1/188023/search-engine-project/Index.cs:line 45
+   at SearchEngineProject.QueryBenchmark.Setup() in /zhome/6b/1/188023/search-engine-project/Program.cs:line 60
+   at BenchmarkDotNet.Engines.EngineFactory.CreateReadyToRun(EngineParameters engineParameters)
+   at BenchmarkDotNet.Autogenerated.Runnable_32.Run(IHost host, String benchmarkName) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 6320
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   --- End of inner exception stack trace ---
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at BenchmarkDotNet.Autogenerated.UniqueProgramName.AfterAssemblyLoadingAttached(String[] args) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 57
+// AfterAll
+No Workload Results were obtained from the run.
+// Benchmark Process 1242358 has exited with code 255.
+
+// ** Remained 23 (41.1 %) benchmark(s) to run. Estimated finish 2025-03-11 16:20 (0h 0m from now) **
+// **************************
+// Benchmark: QueryBenchmark.BenchmarkPrefixSearchDocuments: DefaultJob [FileName=2MB.txt, Query=and]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 03fbffc4-9e43-4b25-b159-aca38511c455.dll --anonymousPipes 115 116 --benchmarkName "SearchEngineProject.QueryBenchmark.BenchmarkPrefixSearchDocuments(FileName: \"2MB.txt\", Query: \"and\")" --job Default --benchmarkId 33 in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/bin/Release/net8.0
+// Failed to set up high priority (Permission denied). In order to run benchmarks with high priority, make sure you have the right permissions.
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 8.0.13 (8.0.1325.6609), X64 RyuJIT AVX2
+// GC=Concurrent Server
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT VectorSize=256
+// Job: DefaultJob
+
+
+System.Reflection.TargetInvocationException: Exception has been thrown by the target of an invocation.
+ ---> System.IO.DirectoryNotFoundException: Could not find a part of the path '/home/arjun/Documents/SearchEngine/SearchEngineProject/2MB.txt'.
+   at Interop.ThrowExceptionForIoErrno(ErrorInfo errorInfo, String path, Boolean isDirError)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String path, OpenFlags flags, Int32 mode, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, UnixFileMode openPermissions, Int64& fileLength, UnixFileMode& filePermissions, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.StreamReader.ValidateArgsAndOpenPath(String path, Encoding encoding, Int32 bufferSize)
+   at System.IO.StreamReader..ctor(String path, Encoding encoding)
+   at SearchEngineProject.Index..ctor(String filename) in /zhome/6b/1/188023/search-engine-project/Index.cs:line 45
+   at SearchEngineProject.QueryBenchmark.Setup() in /zhome/6b/1/188023/search-engine-project/Program.cs:line 60
+   at BenchmarkDotNet.Engines.EngineFactory.CreateReadyToRun(EngineParameters engineParameters)
+   at BenchmarkDotNet.Autogenerated.Runnable_33.Run(IHost host, String benchmarkName) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 6512
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   --- End of inner exception stack trace ---
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at BenchmarkDotNet.Autogenerated.UniqueProgramName.AfterAssemblyLoadingAttached(String[] args) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 57
+// AfterAll
+No Workload Results were obtained from the run.
+// Benchmark Process 1242385 has exited with code 255.
+
+// ** Remained 22 (39.3 %) benchmark(s) to run. Estimated finish 2025-03-11 16:20 (0h 0m from now) **
+// **************************
+// Benchmark: QueryBenchmark.BenchmarkPrefixSearch: DefaultJob [FileName=2MB.txt, Query=bread]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 03fbffc4-9e43-4b25-b159-aca38511c455.dll --anonymousPipes 115 116 --benchmarkName "SearchEngineProject.QueryBenchmark.BenchmarkPrefixSearch(FileName: \"2MB.txt\", Query: \"bread\")" --job Default --benchmarkId 34 in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/bin/Release/net8.0
+// Failed to set up high priority (Permission denied). In order to run benchmarks with high priority, make sure you have the right permissions.
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 8.0.13 (8.0.1325.6609), X64 RyuJIT AVX2
+// GC=Concurrent Server
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT VectorSize=256
+// Job: DefaultJob
+
+
+System.Reflection.TargetInvocationException: Exception has been thrown by the target of an invocation.
+ ---> System.IO.DirectoryNotFoundException: Could not find a part of the path '/home/arjun/Documents/SearchEngine/SearchEngineProject/2MB.txt'.
+   at Interop.ThrowExceptionForIoErrno(ErrorInfo errorInfo, String path, Boolean isDirError)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String path, OpenFlags flags, Int32 mode, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, UnixFileMode openPermissions, Int64& fileLength, UnixFileMode& filePermissions, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.StreamReader.ValidateArgsAndOpenPath(String path, Encoding encoding, Int32 bufferSize)
+   at System.IO.StreamReader..ctor(String path, Encoding encoding)
+   at SearchEngineProject.Index..ctor(String filename) in /zhome/6b/1/188023/search-engine-project/Index.cs:line 45
+   at SearchEngineProject.QueryBenchmark.Setup() in /zhome/6b/1/188023/search-engine-project/Program.cs:line 60
+   at BenchmarkDotNet.Engines.EngineFactory.CreateReadyToRun(EngineParameters engineParameters)
+   at BenchmarkDotNet.Autogenerated.Runnable_34.Run(IHost host, String benchmarkName) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 6704
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   --- End of inner exception stack trace ---
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at BenchmarkDotNet.Autogenerated.UniqueProgramName.AfterAssemblyLoadingAttached(String[] args) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 57
+// AfterAll
+No Workload Results were obtained from the run.
+// Benchmark Process 1242412 has exited with code 255.
+
+// ** Remained 21 (37.5 %) benchmark(s) to run. Estimated finish 2025-03-11 16:20 (0h 0m from now) **
+// **************************
+// Benchmark: QueryBenchmark.BenchmarkPrefixSearchDocuments: DefaultJob [FileName=2MB.txt, Query=bread]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 03fbffc4-9e43-4b25-b159-aca38511c455.dll --anonymousPipes 115 116 --benchmarkName "SearchEngineProject.QueryBenchmark.BenchmarkPrefixSearchDocuments(FileName: \"2MB.txt\", Query: \"bread\")" --job Default --benchmarkId 35 in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/bin/Release/net8.0
+// Failed to set up high priority (Permission denied). In order to run benchmarks with high priority, make sure you have the right permissions.
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 8.0.13 (8.0.1325.6609), X64 RyuJIT AVX2
+// GC=Concurrent Server
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT VectorSize=256
+// Job: DefaultJob
+
+
+System.Reflection.TargetInvocationException: Exception has been thrown by the target of an invocation.
+ ---> System.IO.DirectoryNotFoundException: Could not find a part of the path '/home/arjun/Documents/SearchEngine/SearchEngineProject/2MB.txt'.
+   at Interop.ThrowExceptionForIoErrno(ErrorInfo errorInfo, String path, Boolean isDirError)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String path, OpenFlags flags, Int32 mode, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, UnixFileMode openPermissions, Int64& fileLength, UnixFileMode& filePermissions, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.StreamReader.ValidateArgsAndOpenPath(String path, Encoding encoding, Int32 bufferSize)
+   at System.IO.StreamReader..ctor(String path, Encoding encoding)
+   at SearchEngineProject.Index..ctor(String filename) in /zhome/6b/1/188023/search-engine-project/Index.cs:line 45
+   at SearchEngineProject.QueryBenchmark.Setup() in /zhome/6b/1/188023/search-engine-project/Program.cs:line 60
+   at BenchmarkDotNet.Engines.EngineFactory.CreateReadyToRun(EngineParameters engineParameters)
+   at BenchmarkDotNet.Autogenerated.Runnable_35.Run(IHost host, String benchmarkName) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 6896
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   --- End of inner exception stack trace ---
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at BenchmarkDotNet.Autogenerated.UniqueProgramName.AfterAssemblyLoadingAttached(String[] args) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 57
+// AfterAll
+No Workload Results were obtained from the run.
+// Benchmark Process 1242439 has exited with code 255.
+
+// ** Remained 20 (35.7 %) benchmark(s) to run. Estimated finish 2025-03-11 16:20 (0h 0m from now) **
+// **************************
+// Benchmark: QueryBenchmark.BenchmarkPrefixSearch: DefaultJob [FileName=2MB.txt, Query=cat]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 03fbffc4-9e43-4b25-b159-aca38511c455.dll --anonymousPipes 115 116 --benchmarkName "SearchEngineProject.QueryBenchmark.BenchmarkPrefixSearch(FileName: \"2MB.txt\", Query: \"cat\")" --job Default --benchmarkId 36 in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/bin/Release/net8.0
+// Failed to set up high priority (Permission denied). In order to run benchmarks with high priority, make sure you have the right permissions.
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 8.0.13 (8.0.1325.6609), X64 RyuJIT AVX2
+// GC=Concurrent Server
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT VectorSize=256
+// Job: DefaultJob
+
+
+System.Reflection.TargetInvocationException: Exception has been thrown by the target of an invocation.
+ ---> System.IO.DirectoryNotFoundException: Could not find a part of the path '/home/arjun/Documents/SearchEngine/SearchEngineProject/2MB.txt'.
+   at Interop.ThrowExceptionForIoErrno(ErrorInfo errorInfo, String path, Boolean isDirError)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String path, OpenFlags flags, Int32 mode, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, UnixFileMode openPermissions, Int64& fileLength, UnixFileMode& filePermissions, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.StreamReader.ValidateArgsAndOpenPath(String path, Encoding encoding, Int32 bufferSize)
+   at System.IO.StreamReader..ctor(String path, Encoding encoding)
+   at SearchEngineProject.Index..ctor(String filename) in /zhome/6b/1/188023/search-engine-project/Index.cs:line 45
+   at SearchEngineProject.QueryBenchmark.Setup() in /zhome/6b/1/188023/search-engine-project/Program.cs:line 60
+   at BenchmarkDotNet.Engines.EngineFactory.CreateReadyToRun(EngineParameters engineParameters)
+   at BenchmarkDotNet.Autogenerated.Runnable_36.Run(IHost host, String benchmarkName) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 7088
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   --- End of inner exception stack trace ---
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at BenchmarkDotNet.Autogenerated.UniqueProgramName.AfterAssemblyLoadingAttached(String[] args) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 57
+// AfterAll
+No Workload Results were obtained from the run.
+// Benchmark Process 1242466 has exited with code 255.
+
+// ** Remained 19 (33.9 %) benchmark(s) to run. Estimated finish 2025-03-11 16:20 (0h 0m from now) **
+// **************************
+// Benchmark: QueryBenchmark.BenchmarkPrefixSearchDocuments: DefaultJob [FileName=2MB.txt, Query=cat]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 03fbffc4-9e43-4b25-b159-aca38511c455.dll --anonymousPipes 115 116 --benchmarkName "SearchEngineProject.QueryBenchmark.BenchmarkPrefixSearchDocuments(FileName: \"2MB.txt\", Query: \"cat\")" --job Default --benchmarkId 37 in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/bin/Release/net8.0
+// Failed to set up high priority (Permission denied). In order to run benchmarks with high priority, make sure you have the right permissions.
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 8.0.13 (8.0.1325.6609), X64 RyuJIT AVX2
+// GC=Concurrent Server
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT VectorSize=256
+// Job: DefaultJob
+
+
+System.Reflection.TargetInvocationException: Exception has been thrown by the target of an invocation.
+ ---> System.IO.DirectoryNotFoundException: Could not find a part of the path '/home/arjun/Documents/SearchEngine/SearchEngineProject/2MB.txt'.
+   at Interop.ThrowExceptionForIoErrno(ErrorInfo errorInfo, String path, Boolean isDirError)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String path, OpenFlags flags, Int32 mode, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, UnixFileMode openPermissions, Int64& fileLength, UnixFileMode& filePermissions, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.StreamReader.ValidateArgsAndOpenPath(String path, Encoding encoding, Int32 bufferSize)
+   at System.IO.StreamReader..ctor(String path, Encoding encoding)
+   at SearchEngineProject.Index..ctor(String filename) in /zhome/6b/1/188023/search-engine-project/Index.cs:line 45
+   at SearchEngineProject.QueryBenchmark.Setup() in /zhome/6b/1/188023/search-engine-project/Program.cs:line 60
+   at BenchmarkDotNet.Engines.EngineFactory.CreateReadyToRun(EngineParameters engineParameters)
+   at BenchmarkDotNet.Autogenerated.Runnable_37.Run(IHost host, String benchmarkName) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 7280
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   --- End of inner exception stack trace ---
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at BenchmarkDotNet.Autogenerated.UniqueProgramName.AfterAssemblyLoadingAttached(String[] args) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 57
+// AfterAll
+No Workload Results were obtained from the run.
+// Benchmark Process 1242514 has exited with code 255.
+
+// ** Remained 18 (32.1 %) benchmark(s) to run. Estimated finish 2025-03-11 16:20 (0h 0m from now) **
+// **************************
+// Benchmark: QueryBenchmark.BenchmarkPrefixSearch: DefaultJob [FileName=2MB.txt, Query=or]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 03fbffc4-9e43-4b25-b159-aca38511c455.dll --anonymousPipes 115 116 --benchmarkName "SearchEngineProject.QueryBenchmark.BenchmarkPrefixSearch(FileName: \"2MB.txt\", Query: \"or\")" --job Default --benchmarkId 38 in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/bin/Release/net8.0
+// Failed to set up high priority (Permission denied). In order to run benchmarks with high priority, make sure you have the right permissions.
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 8.0.13 (8.0.1325.6609), X64 RyuJIT AVX2
+// GC=Concurrent Server
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT VectorSize=256
+// Job: DefaultJob
+
+
+System.Reflection.TargetInvocationException: Exception has been thrown by the target of an invocation.
+ ---> System.IO.DirectoryNotFoundException: Could not find a part of the path '/home/arjun/Documents/SearchEngine/SearchEngineProject/2MB.txt'.
+   at Interop.ThrowExceptionForIoErrno(ErrorInfo errorInfo, String path, Boolean isDirError)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String path, OpenFlags flags, Int32 mode, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, UnixFileMode openPermissions, Int64& fileLength, UnixFileMode& filePermissions, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.StreamReader.ValidateArgsAndOpenPath(String path, Encoding encoding, Int32 bufferSize)
+   at System.IO.StreamReader..ctor(String path, Encoding encoding)
+   at SearchEngineProject.Index..ctor(String filename) in /zhome/6b/1/188023/search-engine-project/Index.cs:line 45
+   at SearchEngineProject.QueryBenchmark.Setup() in /zhome/6b/1/188023/search-engine-project/Program.cs:line 60
+   at BenchmarkDotNet.Engines.EngineFactory.CreateReadyToRun(EngineParameters engineParameters)
+   at BenchmarkDotNet.Autogenerated.Runnable_38.Run(IHost host, String benchmarkName) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 7472
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   --- End of inner exception stack trace ---
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at BenchmarkDotNet.Autogenerated.UniqueProgramName.AfterAssemblyLoadingAttached(String[] args) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 57
+// AfterAll
+No Workload Results were obtained from the run.
+// Benchmark Process 1242557 has exited with code 255.
+
+// ** Remained 17 (30.4 %) benchmark(s) to run. Estimated finish 2025-03-11 16:20 (0h 0m from now) **
+// **************************
+// Benchmark: QueryBenchmark.BenchmarkPrefixSearchDocuments: DefaultJob [FileName=2MB.txt, Query=or]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 03fbffc4-9e43-4b25-b159-aca38511c455.dll --anonymousPipes 115 116 --benchmarkName "SearchEngineProject.QueryBenchmark.BenchmarkPrefixSearchDocuments(FileName: \"2MB.txt\", Query: \"or\")" --job Default --benchmarkId 39 in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/bin/Release/net8.0
+// Failed to set up high priority (Permission denied). In order to run benchmarks with high priority, make sure you have the right permissions.
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 8.0.13 (8.0.1325.6609), X64 RyuJIT AVX2
+// GC=Concurrent Server
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT VectorSize=256
+// Job: DefaultJob
+
+
+System.Reflection.TargetInvocationException: Exception has been thrown by the target of an invocation.
+ ---> System.IO.DirectoryNotFoundException: Could not find a part of the path '/home/arjun/Documents/SearchEngine/SearchEngineProject/2MB.txt'.
+   at Interop.ThrowExceptionForIoErrno(ErrorInfo errorInfo, String path, Boolean isDirError)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String path, OpenFlags flags, Int32 mode, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, UnixFileMode openPermissions, Int64& fileLength, UnixFileMode& filePermissions, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.StreamReader.ValidateArgsAndOpenPath(String path, Encoding encoding, Int32 bufferSize)
+   at System.IO.StreamReader..ctor(String path, Encoding encoding)
+   at SearchEngineProject.Index..ctor(String filename) in /zhome/6b/1/188023/search-engine-project/Index.cs:line 45
+   at SearchEngineProject.QueryBenchmark.Setup() in /zhome/6b/1/188023/search-engine-project/Program.cs:line 60
+   at BenchmarkDotNet.Engines.EngineFactory.CreateReadyToRun(EngineParameters engineParameters)
+   at BenchmarkDotNet.Autogenerated.Runnable_39.Run(IHost host, String benchmarkName) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 7664
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   --- End of inner exception stack trace ---
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at BenchmarkDotNet.Autogenerated.UniqueProgramName.AfterAssemblyLoadingAttached(String[] args) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 57
+// AfterAll
+No Workload Results were obtained from the run.
+// Benchmark Process 1242584 has exited with code 255.
+
+// ** Remained 16 (28.6 %) benchmark(s) to run. Estimated finish 2025-03-11 16:20 (0h 0m from now) **
+// **************************
+// Benchmark: QueryBenchmark.BenchmarkPrefixSearch: DefaultJob [FileName=50MB.txt, Query=and]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 03fbffc4-9e43-4b25-b159-aca38511c455.dll --anonymousPipes 115 116 --benchmarkName "SearchEngineProject.QueryBenchmark.BenchmarkPrefixSearch(FileName: \"50MB.txt\", Query: \"and\")" --job Default --benchmarkId 40 in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/bin/Release/net8.0
+// Failed to set up high priority (Permission denied). In order to run benchmarks with high priority, make sure you have the right permissions.
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 8.0.13 (8.0.1325.6609), X64 RyuJIT AVX2
+// GC=Concurrent Server
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT VectorSize=256
+// Job: DefaultJob
+
+
+System.Reflection.TargetInvocationException: Exception has been thrown by the target of an invocation.
+ ---> System.IO.DirectoryNotFoundException: Could not find a part of the path '/home/arjun/Documents/SearchEngine/SearchEngineProject/50MB.txt'.
+   at Interop.ThrowExceptionForIoErrno(ErrorInfo errorInfo, String path, Boolean isDirError)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String path, OpenFlags flags, Int32 mode, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, UnixFileMode openPermissions, Int64& fileLength, UnixFileMode& filePermissions, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.StreamReader.ValidateArgsAndOpenPath(String path, Encoding encoding, Int32 bufferSize)
+   at System.IO.StreamReader..ctor(String path, Encoding encoding)
+   at SearchEngineProject.Index..ctor(String filename) in /zhome/6b/1/188023/search-engine-project/Index.cs:line 45
+   at SearchEngineProject.QueryBenchmark.Setup() in /zhome/6b/1/188023/search-engine-project/Program.cs:line 60
+   at BenchmarkDotNet.Engines.EngineFactory.CreateReadyToRun(EngineParameters engineParameters)
+   at BenchmarkDotNet.Autogenerated.Runnable_40.Run(IHost host, String benchmarkName) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 7856
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   --- End of inner exception stack trace ---
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at BenchmarkDotNet.Autogenerated.UniqueProgramName.AfterAssemblyLoadingAttached(String[] args) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 57
+// AfterAll
+No Workload Results were obtained from the run.
+// Benchmark Process 1242611 has exited with code 255.
+
+// ** Remained 15 (26.8 %) benchmark(s) to run. Estimated finish 2025-03-11 16:20 (0h 0m from now) **
+// **************************
+// Benchmark: QueryBenchmark.BenchmarkPrefixSearchDocuments: DefaultJob [FileName=50MB.txt, Query=and]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 03fbffc4-9e43-4b25-b159-aca38511c455.dll --anonymousPipes 115 116 --benchmarkName "SearchEngineProject.QueryBenchmark.BenchmarkPrefixSearchDocuments(FileName: \"50MB.txt\", Query: \"and\")" --job Default --benchmarkId 41 in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/bin/Release/net8.0
+// Failed to set up high priority (Permission denied). In order to run benchmarks with high priority, make sure you have the right permissions.
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 8.0.13 (8.0.1325.6609), X64 RyuJIT AVX2
+// GC=Concurrent Server
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT VectorSize=256
+// Job: DefaultJob
+
+
+System.Reflection.TargetInvocationException: Exception has been thrown by the target of an invocation.
+ ---> System.IO.DirectoryNotFoundException: Could not find a part of the path '/home/arjun/Documents/SearchEngine/SearchEngineProject/50MB.txt'.
+   at Interop.ThrowExceptionForIoErrno(ErrorInfo errorInfo, String path, Boolean isDirError)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String path, OpenFlags flags, Int32 mode, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, UnixFileMode openPermissions, Int64& fileLength, UnixFileMode& filePermissions, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.StreamReader.ValidateArgsAndOpenPath(String path, Encoding encoding, Int32 bufferSize)
+   at System.IO.StreamReader..ctor(String path, Encoding encoding)
+   at SearchEngineProject.Index..ctor(String filename) in /zhome/6b/1/188023/search-engine-project/Index.cs:line 45
+   at SearchEngineProject.QueryBenchmark.Setup() in /zhome/6b/1/188023/search-engine-project/Program.cs:line 60
+   at BenchmarkDotNet.Engines.EngineFactory.CreateReadyToRun(EngineParameters engineParameters)
+   at BenchmarkDotNet.Autogenerated.Runnable_41.Run(IHost host, String benchmarkName) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 8048
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   --- End of inner exception stack trace ---
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at BenchmarkDotNet.Autogenerated.UniqueProgramName.AfterAssemblyLoadingAttached(String[] args) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 57
+// AfterAll
+No Workload Results were obtained from the run.
+// Benchmark Process 1242638 has exited with code 255.
+
+// ** Remained 14 (25.0 %) benchmark(s) to run. Estimated finish 2025-03-11 16:20 (0h 0m from now) **
+// **************************
+// Benchmark: QueryBenchmark.BenchmarkPrefixSearch: DefaultJob [FileName=50MB.txt, Query=bread]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 03fbffc4-9e43-4b25-b159-aca38511c455.dll --anonymousPipes 115 116 --benchmarkName "SearchEngineProject.QueryBenchmark.BenchmarkPrefixSearch(FileName: \"50MB.txt\", Query: \"bread\")" --job Default --benchmarkId 42 in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/bin/Release/net8.0
+// Failed to set up high priority (Permission denied). In order to run benchmarks with high priority, make sure you have the right permissions.
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 8.0.13 (8.0.1325.6609), X64 RyuJIT AVX2
+// GC=Concurrent Server
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT VectorSize=256
+// Job: DefaultJob
+
+
+System.Reflection.TargetInvocationException: Exception has been thrown by the target of an invocation.
+ ---> System.IO.DirectoryNotFoundException: Could not find a part of the path '/home/arjun/Documents/SearchEngine/SearchEngineProject/50MB.txt'.
+   at Interop.ThrowExceptionForIoErrno(ErrorInfo errorInfo, String path, Boolean isDirError)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String path, OpenFlags flags, Int32 mode, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, UnixFileMode openPermissions, Int64& fileLength, UnixFileMode& filePermissions, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.StreamReader.ValidateArgsAndOpenPath(String path, Encoding encoding, Int32 bufferSize)
+   at System.IO.StreamReader..ctor(String path, Encoding encoding)
+   at SearchEngineProject.Index..ctor(String filename) in /zhome/6b/1/188023/search-engine-project/Index.cs:line 45
+   at SearchEngineProject.QueryBenchmark.Setup() in /zhome/6b/1/188023/search-engine-project/Program.cs:line 60
+   at BenchmarkDotNet.Engines.EngineFactory.CreateReadyToRun(EngineParameters engineParameters)
+   at BenchmarkDotNet.Autogenerated.Runnable_42.Run(IHost host, String benchmarkName) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 8240
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   --- End of inner exception stack trace ---
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at BenchmarkDotNet.Autogenerated.UniqueProgramName.AfterAssemblyLoadingAttached(String[] args) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 57
+// AfterAll
+No Workload Results were obtained from the run.
+// Benchmark Process 1242665 has exited with code 255.
+
+// ** Remained 13 (23.2 %) benchmark(s) to run. Estimated finish 2025-03-11 16:20 (0h 0m from now) **
+// **************************
+// Benchmark: QueryBenchmark.BenchmarkPrefixSearchDocuments: DefaultJob [FileName=50MB.txt, Query=bread]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 03fbffc4-9e43-4b25-b159-aca38511c455.dll --anonymousPipes 115 116 --benchmarkName "SearchEngineProject.QueryBenchmark.BenchmarkPrefixSearchDocuments(FileName: \"50MB.txt\", Query: \"bread\")" --job Default --benchmarkId 43 in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/bin/Release/net8.0
+// Failed to set up high priority (Permission denied). In order to run benchmarks with high priority, make sure you have the right permissions.
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 8.0.13 (8.0.1325.6609), X64 RyuJIT AVX2
+// GC=Concurrent Server
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT VectorSize=256
+// Job: DefaultJob
+
+
+System.Reflection.TargetInvocationException: Exception has been thrown by the target of an invocation.
+ ---> System.IO.DirectoryNotFoundException: Could not find a part of the path '/home/arjun/Documents/SearchEngine/SearchEngineProject/50MB.txt'.
+   at Interop.ThrowExceptionForIoErrno(ErrorInfo errorInfo, String path, Boolean isDirError)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String path, OpenFlags flags, Int32 mode, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, UnixFileMode openPermissions, Int64& fileLength, UnixFileMode& filePermissions, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.StreamReader.ValidateArgsAndOpenPath(String path, Encoding encoding, Int32 bufferSize)
+   at System.IO.StreamReader..ctor(String path, Encoding encoding)
+   at SearchEngineProject.Index..ctor(String filename) in /zhome/6b/1/188023/search-engine-project/Index.cs:line 45
+   at SearchEngineProject.QueryBenchmark.Setup() in /zhome/6b/1/188023/search-engine-project/Program.cs:line 60
+   at BenchmarkDotNet.Engines.EngineFactory.CreateReadyToRun(EngineParameters engineParameters)
+   at BenchmarkDotNet.Autogenerated.Runnable_43.Run(IHost host, String benchmarkName) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 8432
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   --- End of inner exception stack trace ---
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at BenchmarkDotNet.Autogenerated.UniqueProgramName.AfterAssemblyLoadingAttached(String[] args) in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/03fbffc4-9e43-4b25-b159-aca38511c455.notcs:line 57
+// AfterAll
+No Workload Results were obtained from the run.
+// Benchmark Process 1242692 has exited with code 255.
+
+// ** Remained 12 (21.4 %) benchmark(s) to run. Estimated finish 2025-03-11 16:20 (0h 0m from now) **
+// **************************
+// Benchmark: QueryBenchmark.BenchmarkPrefixSearch: DefaultJob [FileName=50MB.txt, Query=cat]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 03fbffc4-9e43-4b25-b159-aca38511c455.dll --anonymousPipes 115 116 --benchmarkName "SearchEngineProject.QueryBenchmark.BenchmarkPrefixSearch(FileName: \"50MB.txt\", Query: \"cat\")" --job Default --benchmarkId 44 in /zhome/6b/1/188023/search-engine-project/bin/Release/net8.0/03fbffc4-9e43-4b25-b159-aca38511c455/bin/Release/net8.0
+// Failed to set up high priority (Permission denied). In order to run benchmarks with high priority, make sure you have the right permissions.
