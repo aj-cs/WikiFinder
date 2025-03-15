@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.IO;
 namespace SearchEngineProject;
 
-internal class Index1
+public class Index
 {
     private int TableCapacity = 1213; // Use a prime num. 11831 
     private const double LoadFactor =  0.75;
@@ -35,7 +35,7 @@ internal class Index1
         }
     }
 
-    public Index1(string filename)
+    public Index(string filename)
     {
         Stopwatch sw = new Stopwatch();
         sw.Start();
