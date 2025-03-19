@@ -7,6 +7,7 @@ using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Jobs;
 
 namespace SearchEngineProject;
+
 /*
  * 100KB.txt
 100MB.txt
@@ -55,36 +56,46 @@ public class QueryBenchmark
     // Parameterized query so that each query ("and", "or", "cat", "bread") is benchmarked separately.
     [Params("and", "or", "cat", "bread")]
     public string Query { get; set; }
+    
+    [Params("and they", "and they were", "it was not", "they could not" )]
+    
+    public string QueryPhrase { get; set; }
 
     private Index index;
 
     [GlobalSetup]
     public void Setup()
     {
-        string projectDir = "/home/arjun/Documents/SearchEngine/SearchEngineProject";
+        string projectDir = "/zhome/6b/1/188023/search-engine-project";
         string fullPath = System.IO.Path.Combine(projectDir, FileName);
         index = new Index(fullPath);
     }
 
-    // Measures the time for the PrefixSearch method for a single query.
+    // Measures the time for the PrefixSearchIndex method for a single query.
     [Benchmark]
-    public void BenchmarkPrefixSearch()
+    public void BenchmarkPrefixSearchIndex()
     {
-        index.AutoComplete(Query);
+        index.PrefixSearchIndex(Query);
     }
 
-    // Measures the time for the PrefixSearchDocuments method for a single query.
-    [Benchmark]
-    public void BenchmarkPrefixSearchDocuments()
-    {
-        index.PrefixSearchTrie(Query);
-    }
 
     //Measures the time for the Normal Search
     [Benchmark]
     public void BenchmarkNormalSearchDocuments()
     {
-        index.SearchTrie(Query);
+        index.SearchIndex(Query);
+    }
+    //Measures the time for the RankedSearchIndex
+    [Benchmark]
+    public void BenchmarkRankingSearch()
+    {
+        index.SearchRankedIndex(Query);
+    }
+    //Measures the time for the PhraseSearchIndex
+    [Benchmark]
+    public void BenchmarkPhraseSearch()
+    {
+        index.PhraseSearchIndex(QueryPhrase);
     }
 }
 
@@ -101,7 +112,10 @@ public class Program
 
     }
 }
-/*class Program
+
+
+/*
+class Program
 {
     static void Main(string[] args)
     {
@@ -124,11 +138,9 @@ public class Program
                 break;
             }
 
-            index.PrefixSearchDocuments(searchStr);
-            Console.WriteLine($"\nAuto-completion of words starting with '{searchStr}': ");
-            index.PrefixSearch(searchStr);
+            index.PhraseSearchIndex(searchStr);
         }
     }
     
-}*/
-
+}
+*/

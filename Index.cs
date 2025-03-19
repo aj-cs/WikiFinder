@@ -114,7 +114,7 @@ public class Index
         if (filtered.Length == 0)
             return;
             
-        InsertIntoTrie(root, filtered, title, position);
+        //InsertIntoTrie(root, filtered, title, position);
         InsertIntoInvertedIndex(filtered, title, position);
     }
     private void InsertIntoInvertedIndex(string word, string title, int position)
@@ -611,7 +611,7 @@ public class Index
     }
 
     // Phrase search using inverted index
-    public bool PhraseSearchInvertedIndex(string phrase)
+    public bool PhraseSearchIndex(string phrase)
     {
         string[] words = phrase.Split(' ', StringSplitOptions.RemoveEmptyEntries);
         if (words.Length == 0)

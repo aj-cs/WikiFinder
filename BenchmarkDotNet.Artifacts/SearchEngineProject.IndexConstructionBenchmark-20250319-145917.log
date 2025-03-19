@@ -1,0 +1,419 @@
+// Validating benchmarks:
+// ***** BenchmarkRunner: Start   *****
+// ***** Found 7 benchmark(s) in total *****
+// ***** Building 1 exe(s) in Parallel: Start   *****
+// start dotnet  restore /p:UseSharedCompilation=false /p:BuildInParallel=false /m:1 /p:Deterministic=true /p:Optimize=true /p:IntermediateOutputPath="/home/shierfall/RiderProjects/search-engine-project/bin/RELEASE/net8.0/a44fc220-b33e-4640-a8e0-2bcab56a5e3c/obj/Release/net8.0/" /p:OutDir="/home/shierfall/RiderProjects/search-engine-project/bin/RELEASE/net8.0/a44fc220-b33e-4640-a8e0-2bcab56a5e3c/bin/Release/net8.0/" /p:OutputPath="/home/shierfall/RiderProjects/search-engine-project/bin/RELEASE/net8.0/a44fc220-b33e-4640-a8e0-2bcab56a5e3c/bin/Release/net8.0/" in /home/shierfall/RiderProjects/search-engine-project/bin/RELEASE/net8.0/a44fc220-b33e-4640-a8e0-2bcab56a5e3c
+// command took 3.8 sec and exited with 0
+// start dotnet  build -c Release --no-restore /p:UseSharedCompilation=false /p:BuildInParallel=false /m:1 /p:Deterministic=true /p:Optimize=true /p:IntermediateOutputPath="/home/shierfall/RiderProjects/search-engine-project/bin/RELEASE/net8.0/a44fc220-b33e-4640-a8e0-2bcab56a5e3c/obj/Release/net8.0/" /p:OutDir="/home/shierfall/RiderProjects/search-engine-project/bin/RELEASE/net8.0/a44fc220-b33e-4640-a8e0-2bcab56a5e3c/bin/Release/net8.0/" /p:OutputPath="/home/shierfall/RiderProjects/search-engine-project/bin/RELEASE/net8.0/a44fc220-b33e-4640-a8e0-2bcab56a5e3c/bin/Release/net8.0/" --output "/home/shierfall/RiderProjects/search-engine-project/bin/RELEASE/net8.0/a44fc220-b33e-4640-a8e0-2bcab56a5e3c/bin/Release/net8.0/" in /home/shierfall/RiderProjects/search-engine-project/bin/RELEASE/net8.0/a44fc220-b33e-4640-a8e0-2bcab56a5e3c
+// command took 15.93 sec and exited with 0
+// ***** Done, took 00:00:19 (19.97 sec)   *****
+// Found 7 benchmarks:
+//   IndexConstructionBenchmark.BenchmarkIndexConstruction: Job-CPKJQY(InvocationCount=1, IterationCount=1, UnrollFactor=1, WarmupCount=1) [FileName=100KB.txt]
+//   IndexConstructionBenchmark.BenchmarkIndexConstruction: Job-CPKJQY(InvocationCount=1, IterationCount=1, UnrollFactor=1, WarmupCount=1) [FileName=10MB.txt]
+//   IndexConstructionBenchmark.BenchmarkIndexConstruction: Job-CPKJQY(InvocationCount=1, IterationCount=1, UnrollFactor=1, WarmupCount=1) [FileName=1MB.txt]
+//   IndexConstructionBenchmark.BenchmarkIndexConstruction: Job-CPKJQY(InvocationCount=1, IterationCount=1, UnrollFactor=1, WarmupCount=1) [FileName=20MB.txt]
+//   IndexConstructionBenchmark.BenchmarkIndexConstruction: Job-CPKJQY(InvocationCount=1, IterationCount=1, UnrollFactor=1, WarmupCount=1) [FileName=2MB.txt]
+//   IndexConstructionBenchmark.BenchmarkIndexConstruction: Job-CPKJQY(InvocationCount=1, IterationCount=1, UnrollFactor=1, WarmupCount=1) [FileName=50MB.txt]
+//   IndexConstructionBenchmark.BenchmarkIndexConstruction: Job-CPKJQY(InvocationCount=1, IterationCount=1, UnrollFactor=1, WarmupCount=1) [FileName=5MB.txt]
+
+// **************************
+// Benchmark: IndexConstructionBenchmark.BenchmarkIndexConstruction: Job-CPKJQY(InvocationCount=1, IterationCount=1, UnrollFactor=1, WarmupCount=1) [FileName=100KB.txt]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet a44fc220-b33e-4640-a8e0-2bcab56a5e3c.dll --anonymousPipes 109 110 --benchmarkName "SearchEngineProject.IndexConstructionBenchmark.BenchmarkIndexConstruction(FileName: \"100KB.txt\")" --job "InvocationCount=1, IterationCount=1, UnrollFactor=1, WarmupCount=1" --benchmarkId 0 in /home/shierfall/RiderProjects/search-engine-project/bin/RELEASE/net8.0/a44fc220-b33e-4640-a8e0-2bcab56a5e3c/bin/Release/net8.0
+// Failed to set up high priority (Permission denied). In order to run benchmarks with high priority, make sure you have the right permissions.
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 8.0.14 (8.0.1425.11118), X64 RyuJIT AVX2
+// GC=Concurrent Server
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT VectorSize=256
+// Job: Job-RYLTNI(InvocationCount=1, IterationCount=1, UnrollFactor=1, WarmupCount=1)
+
+OverheadJitting  1: 1 op, 753843.00 ns, 753.8430 us/op
+
+System.Reflection.TargetInvocationException: Exception has been thrown by the target of an invocation.
+ ---> System.IO.DirectoryNotFoundException: Could not find a part of the path '/home/arjun/Documents/SearchEngine/SearchEngineProject/100KB.txt'.
+   at Interop.ThrowExceptionForIoErrno(ErrorInfo errorInfo, String path, Boolean isDirError)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String path, OpenFlags flags, Int32 mode, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, UnixFileMode openPermissions, Int64& fileLength, UnixFileMode& filePermissions, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.FileStream..ctor(String path, FileMode mode, FileAccess access, FileShare share, Int32 bufferSize, FileOptions options, Int64 preallocationSize)
+   at System.IO.StreamReader.ValidateArgsAndOpenPath(String path, Encoding encoding, Int32 bufferSize)
+   at System.IO.StreamReader..ctor(String path, Encoding encoding)
+   at SearchEngineProject.Index..ctor(String filename) in /home/shierfall/RiderProjects/search-engine-project/Index.cs:line 61
+   at SearchEngineProject.IndexConstructionBenchmark.BenchmarkIndexConstruction() in /home/shierfall/RiderProjects/search-engine-project/Program.cs:line 42
+   at BenchmarkDotNet.Autogenerated.Runnable_0.WorkloadActionUnroll(Int64 invokeCount) in /home/shierfall/RiderProjects/search-engine-project/bin/RELEASE/net8.0/a44fc220-b33e-4640-a8e0-2bcab56a5e3c/a44fc220-b33e-4640-a8e0-2bcab56a5e3c.notcs:line 276
+   at BenchmarkDotNet.Engines.Engine.Measure(Action`1 action, Int64 invokeCount)
+   at BenchmarkDotNet.Engines.Engine.RunIteration(IterationData data)
+   at BenchmarkDotNet.Engines.EngineFactory.Jit(Engine engine, Int32 jitIndex, Int32 invokeCount, Int32 unrollFactor)
+   at BenchmarkDotNet.Engines.EngineFactory.CreateReadyToRun(EngineParameters engineParameters)
+   at BenchmarkDotNet.Autogenerated.Runnable_0.Run(IHost host, String benchmarkName) in /home/shierfall/RiderProjects/search-engine-project/bin/RELEASE/net8.0/a44fc220-b33e-4640-a8e0-2bcab56a5e3c/a44fc220-b33e-4640-a8e0-2bcab56a5e3c.notcs:line 179
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   --- End of inner exception stack trace ---
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at BenchmarkDotNet.Autogenerated.UniqueProgramName.AfterAssemblyLoadingAttached(String[] args) in /home/shierfall/RiderProjects/search-engine-project/bin/RELEASE/net8.0/a44fc220-b33e-4640-a8e0-2bcab56a5e3c/a44fc220-b33e-4640-a8e0-2bcab56a5e3c.notcs:line 57
+// AfterAll
+No Workload Results were obtained from the run.
+// Benchmark Process 62607 has exited with code 255.
+
+// ** Remained 6 (85.7%) benchmark(s) to run. Estimated finish 2025-03-19 14:59 (0h 0m from now) **
+// **************************
+// Benchmark: IndexConstructionBenchmark.BenchmarkIndexConstruction: Job-CPKJQY(InvocationCount=1, IterationCount=1, UnrollFactor=1, WarmupCount=1) [FileName=10MB.txt]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet a44fc220-b33e-4640-a8e0-2bcab56a5e3c.dll --anonymousPipes 109 110 --benchmarkName "SearchEngineProject.IndexConstructionBenchmark.BenchmarkIndexConstruction(FileName: \"10MB.txt\")" --job "InvocationCount=1, IterationCount=1, UnrollFactor=1, WarmupCount=1" --benchmarkId 1 in /home/shierfall/RiderProjects/search-engine-project/bin/RELEASE/net8.0/a44fc220-b33e-4640-a8e0-2bcab56a5e3c/bin/Release/net8.0
+// Failed to set up high priority (Permission denied). In order to run benchmarks with high priority, make sure you have the right permissions.
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 8.0.14 (8.0.1425.11118), X64 RyuJIT AVX2
+// GC=Concurrent Server
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT VectorSize=256
+// Job: Job-RQMPZV(InvocationCount=1, IterationCount=1, UnrollFactor=1, WarmupCount=1)
+
+OverheadJitting  1: 1 op, 793911.00 ns, 793.9110 us/op
+
+System.Reflection.TargetInvocationException: Exception has been thrown by the target of an invocation.
+ ---> System.IO.DirectoryNotFoundException: Could not find a part of the path '/home/arjun/Documents/SearchEngine/SearchEngineProject/10MB.txt'.
+   at Interop.ThrowExceptionForIoErrno(ErrorInfo errorInfo, String path, Boolean isDirError)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String path, OpenFlags flags, Int32 mode, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, UnixFileMode openPermissions, Int64& fileLength, UnixFileMode& filePermissions, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.FileStream..ctor(String path, FileMode mode, FileAccess access, FileShare share, Int32 bufferSize, FileOptions options, Int64 preallocationSize)
+   at System.IO.StreamReader.ValidateArgsAndOpenPath(String path, Encoding encoding, Int32 bufferSize)
+   at System.IO.StreamReader..ctor(String path, Encoding encoding)
+   at SearchEngineProject.Index..ctor(String filename) in /home/shierfall/RiderProjects/search-engine-project/Index.cs:line 61
+   at SearchEngineProject.IndexConstructionBenchmark.BenchmarkIndexConstruction() in /home/shierfall/RiderProjects/search-engine-project/Program.cs:line 42
+   at BenchmarkDotNet.Autogenerated.Runnable_1.WorkloadActionUnroll(Int64 invokeCount) in /home/shierfall/RiderProjects/search-engine-project/bin/RELEASE/net8.0/a44fc220-b33e-4640-a8e0-2bcab56a5e3c/a44fc220-b33e-4640-a8e0-2bcab56a5e3c.notcs:line 446
+   at BenchmarkDotNet.Engines.Engine.Measure(Action`1 action, Int64 invokeCount)
+   at BenchmarkDotNet.Engines.Engine.RunIteration(IterationData data)
+   at BenchmarkDotNet.Engines.EngineFactory.Jit(Engine engine, Int32 jitIndex, Int32 invokeCount, Int32 unrollFactor)
+   at BenchmarkDotNet.Engines.EngineFactory.CreateReadyToRun(EngineParameters engineParameters)
+   at BenchmarkDotNet.Autogenerated.Runnable_1.Run(IHost host, String benchmarkName) in /home/shierfall/RiderProjects/search-engine-project/bin/RELEASE/net8.0/a44fc220-b33e-4640-a8e0-2bcab56a5e3c/a44fc220-b33e-4640-a8e0-2bcab56a5e3c.notcs:line 349
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   --- End of inner exception stack trace ---
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at BenchmarkDotNet.Autogenerated.UniqueProgramName.AfterAssemblyLoadingAttached(String[] args) in /home/shierfall/RiderProjects/search-engine-project/bin/RELEASE/net8.0/a44fc220-b33e-4640-a8e0-2bcab56a5e3c/a44fc220-b33e-4640-a8e0-2bcab56a5e3c.notcs:line 57
+// AfterAll
+No Workload Results were obtained from the run.
+// Benchmark Process 62625 has exited with code 255.
+
+// ** Remained 5 (71.4%) benchmark(s) to run. Estimated finish 2025-03-19 14:59 (0h 0m from now) **
+// **************************
+// Benchmark: IndexConstructionBenchmark.BenchmarkIndexConstruction: Job-CPKJQY(InvocationCount=1, IterationCount=1, UnrollFactor=1, WarmupCount=1) [FileName=1MB.txt]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet a44fc220-b33e-4640-a8e0-2bcab56a5e3c.dll --anonymousPipes 109 110 --benchmarkName "SearchEngineProject.IndexConstructionBenchmark.BenchmarkIndexConstruction(FileName: \"1MB.txt\")" --job "InvocationCount=1, IterationCount=1, UnrollFactor=1, WarmupCount=1" --benchmarkId 2 in /home/shierfall/RiderProjects/search-engine-project/bin/RELEASE/net8.0/a44fc220-b33e-4640-a8e0-2bcab56a5e3c/bin/Release/net8.0
+// Failed to set up high priority (Permission denied). In order to run benchmarks with high priority, make sure you have the right permissions.
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 8.0.14 (8.0.1425.11118), X64 RyuJIT AVX2
+// GC=Concurrent Server
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT VectorSize=256
+// Job: Job-DAJYUO(InvocationCount=1, IterationCount=1, UnrollFactor=1, WarmupCount=1)
+
+OverheadJitting  1: 1 op, 719607.00 ns, 719.6070 us/op
+
+System.Reflection.TargetInvocationException: Exception has been thrown by the target of an invocation.
+ ---> System.IO.DirectoryNotFoundException: Could not find a part of the path '/home/arjun/Documents/SearchEngine/SearchEngineProject/1MB.txt'.
+   at Interop.ThrowExceptionForIoErrno(ErrorInfo errorInfo, String path, Boolean isDirError)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String path, OpenFlags flags, Int32 mode, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, UnixFileMode openPermissions, Int64& fileLength, UnixFileMode& filePermissions, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.FileStream..ctor(String path, FileMode mode, FileAccess access, FileShare share, Int32 bufferSize, FileOptions options, Int64 preallocationSize)
+   at System.IO.StreamReader.ValidateArgsAndOpenPath(String path, Encoding encoding, Int32 bufferSize)
+   at System.IO.StreamReader..ctor(String path, Encoding encoding)
+   at SearchEngineProject.Index..ctor(String filename) in /home/shierfall/RiderProjects/search-engine-project/Index.cs:line 61
+   at SearchEngineProject.IndexConstructionBenchmark.BenchmarkIndexConstruction() in /home/shierfall/RiderProjects/search-engine-project/Program.cs:line 42
+   at BenchmarkDotNet.Autogenerated.Runnable_2.WorkloadActionUnroll(Int64 invokeCount) in /home/shierfall/RiderProjects/search-engine-project/bin/RELEASE/net8.0/a44fc220-b33e-4640-a8e0-2bcab56a5e3c/a44fc220-b33e-4640-a8e0-2bcab56a5e3c.notcs:line 616
+   at BenchmarkDotNet.Engines.Engine.Measure(Action`1 action, Int64 invokeCount)
+   at BenchmarkDotNet.Engines.Engine.RunIteration(IterationData data)
+   at BenchmarkDotNet.Engines.EngineFactory.Jit(Engine engine, Int32 jitIndex, Int32 invokeCount, Int32 unrollFactor)
+   at BenchmarkDotNet.Engines.EngineFactory.CreateReadyToRun(EngineParameters engineParameters)
+   at BenchmarkDotNet.Autogenerated.Runnable_2.Run(IHost host, String benchmarkName) in /home/shierfall/RiderProjects/search-engine-project/bin/RELEASE/net8.0/a44fc220-b33e-4640-a8e0-2bcab56a5e3c/a44fc220-b33e-4640-a8e0-2bcab56a5e3c.notcs:line 519
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   --- End of inner exception stack trace ---
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at BenchmarkDotNet.Autogenerated.UniqueProgramName.AfterAssemblyLoadingAttached(String[] args) in /home/shierfall/RiderProjects/search-engine-project/bin/RELEASE/net8.0/a44fc220-b33e-4640-a8e0-2bcab56a5e3c/a44fc220-b33e-4640-a8e0-2bcab56a5e3c.notcs:line 57
+// AfterAll
+No Workload Results were obtained from the run.
+// Benchmark Process 62642 has exited with code 255.
+
+// ** Remained 4 (57.1%) benchmark(s) to run. Estimated finish 2025-03-19 14:59 (0h 0m from now) **
+// **************************
+// Benchmark: IndexConstructionBenchmark.BenchmarkIndexConstruction: Job-CPKJQY(InvocationCount=1, IterationCount=1, UnrollFactor=1, WarmupCount=1) [FileName=20MB.txt]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet a44fc220-b33e-4640-a8e0-2bcab56a5e3c.dll --anonymousPipes 109 110 --benchmarkName "SearchEngineProject.IndexConstructionBenchmark.BenchmarkIndexConstruction(FileName: \"20MB.txt\")" --job "InvocationCount=1, IterationCount=1, UnrollFactor=1, WarmupCount=1" --benchmarkId 3 in /home/shierfall/RiderProjects/search-engine-project/bin/RELEASE/net8.0/a44fc220-b33e-4640-a8e0-2bcab56a5e3c/bin/Release/net8.0
+// Failed to set up high priority (Permission denied). In order to run benchmarks with high priority, make sure you have the right permissions.
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 8.0.14 (8.0.1425.11118), X64 RyuJIT AVX2
+// GC=Concurrent Server
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT VectorSize=256
+// Job: Job-KZAFLB(InvocationCount=1, IterationCount=1, UnrollFactor=1, WarmupCount=1)
+
+OverheadJitting  1: 1 op, 760588.00 ns, 760.5880 us/op
+
+System.Reflection.TargetInvocationException: Exception has been thrown by the target of an invocation.
+ ---> System.IO.DirectoryNotFoundException: Could not find a part of the path '/home/arjun/Documents/SearchEngine/SearchEngineProject/20MB.txt'.
+   at Interop.ThrowExceptionForIoErrno(ErrorInfo errorInfo, String path, Boolean isDirError)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String path, OpenFlags flags, Int32 mode, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, UnixFileMode openPermissions, Int64& fileLength, UnixFileMode& filePermissions, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.FileStream..ctor(String path, FileMode mode, FileAccess access, FileShare share, Int32 bufferSize, FileOptions options, Int64 preallocationSize)
+   at System.IO.StreamReader.ValidateArgsAndOpenPath(String path, Encoding encoding, Int32 bufferSize)
+   at System.IO.StreamReader..ctor(String path, Encoding encoding)
+   at SearchEngineProject.Index..ctor(String filename) in /home/shierfall/RiderProjects/search-engine-project/Index.cs:line 61
+   at SearchEngineProject.IndexConstructionBenchmark.BenchmarkIndexConstruction() in /home/shierfall/RiderProjects/search-engine-project/Program.cs:line 42
+   at BenchmarkDotNet.Autogenerated.Runnable_3.WorkloadActionUnroll(Int64 invokeCount) in /home/shierfall/RiderProjects/search-engine-project/bin/RELEASE/net8.0/a44fc220-b33e-4640-a8e0-2bcab56a5e3c/a44fc220-b33e-4640-a8e0-2bcab56a5e3c.notcs:line 786
+   at BenchmarkDotNet.Engines.Engine.Measure(Action`1 action, Int64 invokeCount)
+   at BenchmarkDotNet.Engines.Engine.RunIteration(IterationData data)
+   at BenchmarkDotNet.Engines.EngineFactory.Jit(Engine engine, Int32 jitIndex, Int32 invokeCount, Int32 unrollFactor)
+   at BenchmarkDotNet.Engines.EngineFactory.CreateReadyToRun(EngineParameters engineParameters)
+   at BenchmarkDotNet.Autogenerated.Runnable_3.Run(IHost host, String benchmarkName) in /home/shierfall/RiderProjects/search-engine-project/bin/RELEASE/net8.0/a44fc220-b33e-4640-a8e0-2bcab56a5e3c/a44fc220-b33e-4640-a8e0-2bcab56a5e3c.notcs:line 689
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   --- End of inner exception stack trace ---
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at BenchmarkDotNet.Autogenerated.UniqueProgramName.AfterAssemblyLoadingAttached(String[] args) in /home/shierfall/RiderProjects/search-engine-project/bin/RELEASE/net8.0/a44fc220-b33e-4640-a8e0-2bcab56a5e3c/a44fc220-b33e-4640-a8e0-2bcab56a5e3c.notcs:line 57
+// AfterAll
+No Workload Results were obtained from the run.
+// Benchmark Process 62660 has exited with code 255.
+
+// ** Remained 3 (42.9%) benchmark(s) to run. Estimated finish 2025-03-19 14:59 (0h 0m from now) **
+// **************************
+// Benchmark: IndexConstructionBenchmark.BenchmarkIndexConstruction: Job-CPKJQY(InvocationCount=1, IterationCount=1, UnrollFactor=1, WarmupCount=1) [FileName=2MB.txt]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet a44fc220-b33e-4640-a8e0-2bcab56a5e3c.dll --anonymousPipes 109 110 --benchmarkName "SearchEngineProject.IndexConstructionBenchmark.BenchmarkIndexConstruction(FileName: \"2MB.txt\")" --job "InvocationCount=1, IterationCount=1, UnrollFactor=1, WarmupCount=1" --benchmarkId 4 in /home/shierfall/RiderProjects/search-engine-project/bin/RELEASE/net8.0/a44fc220-b33e-4640-a8e0-2bcab56a5e3c/bin/Release/net8.0
+// Failed to set up high priority (Permission denied). In order to run benchmarks with high priority, make sure you have the right permissions.
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 8.0.14 (8.0.1425.11118), X64 RyuJIT AVX2
+// GC=Concurrent Server
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT VectorSize=256
+// Job: Job-LXMEZJ(InvocationCount=1, IterationCount=1, UnrollFactor=1, WarmupCount=1)
+
+OverheadJitting  1: 1 op, 744358.00 ns, 744.3580 us/op
+
+System.Reflection.TargetInvocationException: Exception has been thrown by the target of an invocation.
+ ---> System.IO.DirectoryNotFoundException: Could not find a part of the path '/home/arjun/Documents/SearchEngine/SearchEngineProject/2MB.txt'.
+   at Interop.ThrowExceptionForIoErrno(ErrorInfo errorInfo, String path, Boolean isDirError)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String path, OpenFlags flags, Int32 mode, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, UnixFileMode openPermissions, Int64& fileLength, UnixFileMode& filePermissions, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.FileStream..ctor(String path, FileMode mode, FileAccess access, FileShare share, Int32 bufferSize, FileOptions options, Int64 preallocationSize)
+   at System.IO.StreamReader.ValidateArgsAndOpenPath(String path, Encoding encoding, Int32 bufferSize)
+   at System.IO.StreamReader..ctor(String path, Encoding encoding)
+   at SearchEngineProject.Index..ctor(String filename) in /home/shierfall/RiderProjects/search-engine-project/Index.cs:line 61
+   at SearchEngineProject.IndexConstructionBenchmark.BenchmarkIndexConstruction() in /home/shierfall/RiderProjects/search-engine-project/Program.cs:line 42
+   at BenchmarkDotNet.Autogenerated.Runnable_4.WorkloadActionUnroll(Int64 invokeCount) in /home/shierfall/RiderProjects/search-engine-project/bin/RELEASE/net8.0/a44fc220-b33e-4640-a8e0-2bcab56a5e3c/a44fc220-b33e-4640-a8e0-2bcab56a5e3c.notcs:line 956
+   at BenchmarkDotNet.Engines.Engine.Measure(Action`1 action, Int64 invokeCount)
+   at BenchmarkDotNet.Engines.Engine.RunIteration(IterationData data)
+   at BenchmarkDotNet.Engines.EngineFactory.Jit(Engine engine, Int32 jitIndex, Int32 invokeCount, Int32 unrollFactor)
+   at BenchmarkDotNet.Engines.EngineFactory.CreateReadyToRun(EngineParameters engineParameters)
+   at BenchmarkDotNet.Autogenerated.Runnable_4.Run(IHost host, String benchmarkName) in /home/shierfall/RiderProjects/search-engine-project/bin/RELEASE/net8.0/a44fc220-b33e-4640-a8e0-2bcab56a5e3c/a44fc220-b33e-4640-a8e0-2bcab56a5e3c.notcs:line 859
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   --- End of inner exception stack trace ---
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at BenchmarkDotNet.Autogenerated.UniqueProgramName.AfterAssemblyLoadingAttached(String[] args) in /home/shierfall/RiderProjects/search-engine-project/bin/RELEASE/net8.0/a44fc220-b33e-4640-a8e0-2bcab56a5e3c/a44fc220-b33e-4640-a8e0-2bcab56a5e3c.notcs:line 57
+// AfterAll
+No Workload Results were obtained from the run.
+// Benchmark Process 62677 has exited with code 255.
+
+// ** Remained 2 (28.6%) benchmark(s) to run. Estimated finish 2025-03-19 14:59 (0h 0m from now) **
+// **************************
+// Benchmark: IndexConstructionBenchmark.BenchmarkIndexConstruction: Job-CPKJQY(InvocationCount=1, IterationCount=1, UnrollFactor=1, WarmupCount=1) [FileName=50MB.txt]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet a44fc220-b33e-4640-a8e0-2bcab56a5e3c.dll --anonymousPipes 109 110 --benchmarkName "SearchEngineProject.IndexConstructionBenchmark.BenchmarkIndexConstruction(FileName: \"50MB.txt\")" --job "InvocationCount=1, IterationCount=1, UnrollFactor=1, WarmupCount=1" --benchmarkId 5 in /home/shierfall/RiderProjects/search-engine-project/bin/RELEASE/net8.0/a44fc220-b33e-4640-a8e0-2bcab56a5e3c/bin/Release/net8.0
+// Failed to set up high priority (Permission denied). In order to run benchmarks with high priority, make sure you have the right permissions.
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 8.0.14 (8.0.1425.11118), X64 RyuJIT AVX2
+// GC=Concurrent Server
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT VectorSize=256
+// Job: Job-PJBSUA(InvocationCount=1, IterationCount=1, UnrollFactor=1, WarmupCount=1)
+
+OverheadJitting  1: 1 op, 773328.00 ns, 773.3280 us/op
+
+System.Reflection.TargetInvocationException: Exception has been thrown by the target of an invocation.
+ ---> System.IO.DirectoryNotFoundException: Could not find a part of the path '/home/arjun/Documents/SearchEngine/SearchEngineProject/50MB.txt'.
+   at Interop.ThrowExceptionForIoErrno(ErrorInfo errorInfo, String path, Boolean isDirError)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String path, OpenFlags flags, Int32 mode, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, UnixFileMode openPermissions, Int64& fileLength, UnixFileMode& filePermissions, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.FileStream..ctor(String path, FileMode mode, FileAccess access, FileShare share, Int32 bufferSize, FileOptions options, Int64 preallocationSize)
+   at System.IO.StreamReader.ValidateArgsAndOpenPath(String path, Encoding encoding, Int32 bufferSize)
+   at System.IO.StreamReader..ctor(String path, Encoding encoding)
+   at SearchEngineProject.Index..ctor(String filename) in /home/shierfall/RiderProjects/search-engine-project/Index.cs:line 61
+   at SearchEngineProject.IndexConstructionBenchmark.BenchmarkIndexConstruction() in /home/shierfall/RiderProjects/search-engine-project/Program.cs:line 42
+   at BenchmarkDotNet.Autogenerated.Runnable_5.WorkloadActionUnroll(Int64 invokeCount) in /home/shierfall/RiderProjects/search-engine-project/bin/RELEASE/net8.0/a44fc220-b33e-4640-a8e0-2bcab56a5e3c/a44fc220-b33e-4640-a8e0-2bcab56a5e3c.notcs:line 1126
+   at BenchmarkDotNet.Engines.Engine.Measure(Action`1 action, Int64 invokeCount)
+   at BenchmarkDotNet.Engines.Engine.RunIteration(IterationData data)
+   at BenchmarkDotNet.Engines.EngineFactory.Jit(Engine engine, Int32 jitIndex, Int32 invokeCount, Int32 unrollFactor)
+   at BenchmarkDotNet.Engines.EngineFactory.CreateReadyToRun(EngineParameters engineParameters)
+   at BenchmarkDotNet.Autogenerated.Runnable_5.Run(IHost host, String benchmarkName) in /home/shierfall/RiderProjects/search-engine-project/bin/RELEASE/net8.0/a44fc220-b33e-4640-a8e0-2bcab56a5e3c/a44fc220-b33e-4640-a8e0-2bcab56a5e3c.notcs:line 1029
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   --- End of inner exception stack trace ---
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at BenchmarkDotNet.Autogenerated.UniqueProgramName.AfterAssemblyLoadingAttached(String[] args) in /home/shierfall/RiderProjects/search-engine-project/bin/RELEASE/net8.0/a44fc220-b33e-4640-a8e0-2bcab56a5e3c/a44fc220-b33e-4640-a8e0-2bcab56a5e3c.notcs:line 57
+// AfterAll
+No Workload Results were obtained from the run.
+// Benchmark Process 62694 has exited with code 255.
+
+// ** Remained 1 (14.3%) benchmark(s) to run. Estimated finish 2025-03-19 14:59 (0h 0m from now) **
+// **************************
+// Benchmark: IndexConstructionBenchmark.BenchmarkIndexConstruction: Job-CPKJQY(InvocationCount=1, IterationCount=1, UnrollFactor=1, WarmupCount=1) [FileName=5MB.txt]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet a44fc220-b33e-4640-a8e0-2bcab56a5e3c.dll --anonymousPipes 109 110 --benchmarkName "SearchEngineProject.IndexConstructionBenchmark.BenchmarkIndexConstruction(FileName: \"5MB.txt\")" --job "InvocationCount=1, IterationCount=1, UnrollFactor=1, WarmupCount=1" --benchmarkId 6 in /home/shierfall/RiderProjects/search-engine-project/bin/RELEASE/net8.0/a44fc220-b33e-4640-a8e0-2bcab56a5e3c/bin/Release/net8.0
+// Failed to set up high priority (Permission denied). In order to run benchmarks with high priority, make sure you have the right permissions.
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 8.0.14 (8.0.1425.11118), X64 RyuJIT AVX2
+// GC=Concurrent Server
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT VectorSize=256
+// Job: Job-SHHFYI(InvocationCount=1, IterationCount=1, UnrollFactor=1, WarmupCount=1)
+
+OverheadJitting  1: 1 op, 1057094.00 ns, 1.0571 ms/op
+
+System.Reflection.TargetInvocationException: Exception has been thrown by the target of an invocation.
+ ---> System.IO.DirectoryNotFoundException: Could not find a part of the path '/home/arjun/Documents/SearchEngine/SearchEngineProject/5MB.txt'.
+   at Interop.ThrowExceptionForIoErrno(ErrorInfo errorInfo, String path, Boolean isDirError)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String path, OpenFlags flags, Int32 mode, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, UnixFileMode openPermissions, Int64& fileLength, UnixFileMode& filePermissions, Boolean failForSymlink, Boolean& wasSymlink, Func`4 createOpenException)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.FileStream..ctor(String path, FileMode mode, FileAccess access, FileShare share, Int32 bufferSize, FileOptions options, Int64 preallocationSize)
+   at System.IO.StreamReader.ValidateArgsAndOpenPath(String path, Encoding encoding, Int32 bufferSize)
+   at System.IO.StreamReader..ctor(String path, Encoding encoding)
+   at SearchEngineProject.Index..ctor(String filename) in /home/shierfall/RiderProjects/search-engine-project/Index.cs:line 61
+   at SearchEngineProject.IndexConstructionBenchmark.BenchmarkIndexConstruction() in /home/shierfall/RiderProjects/search-engine-project/Program.cs:line 42
+   at BenchmarkDotNet.Autogenerated.Runnable_6.WorkloadActionUnroll(Int64 invokeCount) in /home/shierfall/RiderProjects/search-engine-project/bin/RELEASE/net8.0/a44fc220-b33e-4640-a8e0-2bcab56a5e3c/a44fc220-b33e-4640-a8e0-2bcab56a5e3c.notcs:line 1296
+   at BenchmarkDotNet.Engines.Engine.Measure(Action`1 action, Int64 invokeCount)
+   at BenchmarkDotNet.Engines.Engine.RunIteration(IterationData data)
+   at BenchmarkDotNet.Engines.EngineFactory.Jit(Engine engine, Int32 jitIndex, Int32 invokeCount, Int32 unrollFactor)
+   at BenchmarkDotNet.Engines.EngineFactory.CreateReadyToRun(EngineParameters engineParameters)
+   at BenchmarkDotNet.Autogenerated.Runnable_6.Run(IHost host, String benchmarkName) in /home/shierfall/RiderProjects/search-engine-project/bin/RELEASE/net8.0/a44fc220-b33e-4640-a8e0-2bcab56a5e3c/a44fc220-b33e-4640-a8e0-2bcab56a5e3c.notcs:line 1199
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   --- End of inner exception stack trace ---
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at BenchmarkDotNet.Autogenerated.UniqueProgramName.AfterAssemblyLoadingAttached(String[] args) in /home/shierfall/RiderProjects/search-engine-project/bin/RELEASE/net8.0/a44fc220-b33e-4640-a8e0-2bcab56a5e3c/a44fc220-b33e-4640-a8e0-2bcab56a5e3c.notcs:line 57
+// AfterAll
+No Workload Results were obtained from the run.
+// Benchmark Process 62711 has exited with code 255.
+
+// ** Remained 0 (0.0%) benchmark(s) to run. Estimated finish 2025-03-19 14:59 (0h 0m from now) **
+// ***** BenchmarkRunner: Finish  *****
+
+// * Export *
+  BenchmarkDotNet.Artifacts/results/SearchEngineProject.IndexConstructionBenchmark-report.csv
+  BenchmarkDotNet.Artifacts/results/SearchEngineProject.IndexConstructionBenchmark-report-github.md
+  BenchmarkDotNet.Artifacts/results/SearchEngineProject.IndexConstructionBenchmark-report.html
+
+// * Detailed results *
+IndexConstructionBenchmark.BenchmarkIndexConstruction: Job-CPKJQY(InvocationCount=1, IterationCount=1, UnrollFactor=1, WarmupCount=1) [FileName=100KB.txt]
+Runtime = .NET 8.0.14 (8.0.1425.11118), X64 RyuJIT AVX2; GC = Concurrent Server
+There are not any results runs
+
+IndexConstructionBenchmark.BenchmarkIndexConstruction: Job-CPKJQY(InvocationCount=1, IterationCount=1, UnrollFactor=1, WarmupCount=1) [FileName=10MB.txt]
+Runtime = .NET 8.0.14 (8.0.1425.11118), X64 RyuJIT AVX2; GC = Concurrent Server
+There are not any results runs
+
+IndexConstructionBenchmark.BenchmarkIndexConstruction: Job-CPKJQY(InvocationCount=1, IterationCount=1, UnrollFactor=1, WarmupCount=1) [FileName=1MB.txt]
+Runtime = .NET 8.0.14 (8.0.1425.11118), X64 RyuJIT AVX2; GC = Concurrent Server
+There are not any results runs
+
+IndexConstructionBenchmark.BenchmarkIndexConstruction: Job-CPKJQY(InvocationCount=1, IterationCount=1, UnrollFactor=1, WarmupCount=1) [FileName=20MB.txt]
+Runtime = .NET 8.0.14 (8.0.1425.11118), X64 RyuJIT AVX2; GC = Concurrent Server
+There are not any results runs
+
+IndexConstructionBenchmark.BenchmarkIndexConstruction: Job-CPKJQY(InvocationCount=1, IterationCount=1, UnrollFactor=1, WarmupCount=1) [FileName=2MB.txt]
+Runtime = .NET 8.0.14 (8.0.1425.11118), X64 RyuJIT AVX2; GC = Concurrent Server
+There are not any results runs
+
+IndexConstructionBenchmark.BenchmarkIndexConstruction: Job-CPKJQY(InvocationCount=1, IterationCount=1, UnrollFactor=1, WarmupCount=1) [FileName=50MB.txt]
+Runtime = .NET 8.0.14 (8.0.1425.11118), X64 RyuJIT AVX2; GC = Concurrent Server
+There are not any results runs
+
+IndexConstructionBenchmark.BenchmarkIndexConstruction: Job-CPKJQY(InvocationCount=1, IterationCount=1, UnrollFactor=1, WarmupCount=1) [FileName=5MB.txt]
+Runtime = .NET 8.0.14 (8.0.1425.11118), X64 RyuJIT AVX2; GC = Concurrent Server
+There are not any results runs
+
+// * Summary *
+
+BenchmarkDotNet v0.14.0, Ubuntu 24.04.2 LTS (Noble Numbat)
+Intel Core i5-8265U CPU 1.60GHz (Whiskey Lake), 1 CPU, 8 logical and 4 physical cores
+.NET SDK 8.0.114
+  [Host]     : .NET 8.0.14 (8.0.1425.11118), X64 RyuJIT AVX2
+  Job-CPKJQY : .NET 8.0.14 (8.0.1425.11118), X64 RyuJIT AVX2
+
+InvocationCount=1  IterationCount=1  UnrollFactor=1  
+WarmupCount=1  
+
+| Method                     | FileName  | Mean | Error |
+|--------------------------- |---------- |-----:|------:|
+| BenchmarkIndexConstruction | 100KB.txt |   NA |    NA |
+| BenchmarkIndexConstruction | 10MB.txt  |   NA |    NA |
+| BenchmarkIndexConstruction | 1MB.txt   |   NA |    NA |
+| BenchmarkIndexConstruction | 20MB.txt  |   NA |    NA |
+| BenchmarkIndexConstruction | 2MB.txt   |   NA |    NA |
+| BenchmarkIndexConstruction | 50MB.txt  |   NA |    NA |
+| BenchmarkIndexConstruction | 5MB.txt   |   NA |    NA |
+
+Benchmarks with issues:
+  IndexConstructionBenchmark.BenchmarkIndexConstruction: Job-CPKJQY(InvocationCount=1, IterationCount=1, UnrollFactor=1, WarmupCount=1) [FileName=100KB.txt]
+  IndexConstructionBenchmark.BenchmarkIndexConstruction: Job-CPKJQY(InvocationCount=1, IterationCount=1, UnrollFactor=1, WarmupCount=1) [FileName=10MB.txt]
+  IndexConstructionBenchmark.BenchmarkIndexConstruction: Job-CPKJQY(InvocationCount=1, IterationCount=1, UnrollFactor=1, WarmupCount=1) [FileName=1MB.txt]
+  IndexConstructionBenchmark.BenchmarkIndexConstruction: Job-CPKJQY(InvocationCount=1, IterationCount=1, UnrollFactor=1, WarmupCount=1) [FileName=20MB.txt]
+  IndexConstructionBenchmark.BenchmarkIndexConstruction: Job-CPKJQY(InvocationCount=1, IterationCount=1, UnrollFactor=1, WarmupCount=1) [FileName=2MB.txt]
+  IndexConstructionBenchmark.BenchmarkIndexConstruction: Job-CPKJQY(InvocationCount=1, IterationCount=1, UnrollFactor=1, WarmupCount=1) [FileName=50MB.txt]
+  IndexConstructionBenchmark.BenchmarkIndexConstruction: Job-CPKJQY(InvocationCount=1, IterationCount=1, UnrollFactor=1, WarmupCount=1) [FileName=5MB.txt]
+// * Config Issues *
+
+// * Warnings *
+Configuration
+  Summary -> The exporter CsvExporter is already present in configuration. There may be unexpected results.
+
+// * Legends *
+  FileName : Value of the 'FileName' parameter
+  Mean     : Arithmetic mean of all measurements
+  Error    : Half of 99.9% confidence interval
+  1 ns     : 1 Nanosecond (0.000000001 sec)
+
+// * Diagnostic Output - MemoryDiagnoser *
+
+
+// ***** BenchmarkRunner: End *****
+Run time: 00:00:02 (2.72 sec), executed benchmarks: 7
+
+Global total time: 00:00:22 (22.99 sec), executed benchmarks: 7
+// * Artifacts cleanup *
+Artifacts cleanup is finished
