@@ -70,21 +70,21 @@ public class QueryBenchmark
     [Benchmark]
     public void BenchmarkPrefixSearch()
     {
-        index.PrefixSearch(Query);
+        index.AutoComplete(Query);
     }
 
     // Measures the time for the PrefixSearchDocuments method for a single query.
     [Benchmark]
     public void BenchmarkPrefixSearchDocuments()
     {
-        index.PrefixSearchDocuments(Query);
+        index.PrefixSearchTrie(Query);
     }
 
     //Measures the time for the Normal Search
     [Benchmark]
     public void BenchmarkNormalSearchDocuments()
     {
-        index.PrefixSearchDocuments(Query);
+        index.SearchTrie(Query);
     }
 }
 

@@ -25,12 +25,14 @@ public class Index
             EndOfWord = false;
         }
     }
+    // Inverted index
+    private Dictionary<string, Dictionary<int, (List<int> Positions, int Count)>> invertedIndex; 
     // variables to keep track of and compress documents 
     private Dictionary<string, int> documentIdMap; // maps document titles to IDs
     private List<string> documentTitles;           // list of document titles
     private int nextDocumentId;                    // assigns IDs to Documents
     private int documentPositionCounter;           // position counter for each document
-
+    
     private class DocumentLog
     {
         public int DocumentId;
@@ -49,6 +51,7 @@ public class Index
     public Index(string filename)
     {
         root = new TrieNode("");
+        invertedIndex = new Dictionary<string, Dictionary<int, (List<int>, int)>>();
         documentIdMap = new Dictionary<string, int>();
         documentTitles = new List<string>();
         nextDocumentId = 0;
@@ -111,12 +114,38 @@ public class Index
         if (filtered.Length == 0)
             return;
             
-        Insert(root, filtered, title, position);
+        InsertIntoTrie(root, filtered, title, position);
+        InsertIntoInvertedIndex(filtered, title, position);
     }
-    
+    private void InsertIntoInvertedIndex(string word, string title, int position)
+    {
+        int documentId;
+        if (!documentIdMap.ContainsKey(title))
+        {
+            documentId = nextDocumentId++;
+            documentIdMap[title] = documentId;
+            documentTitles.Add(title);
+        }
+        else
+        {
+            documentId = documentIdMap[title];
+        }
+        if (!invertedIndex.ContainsKey(word))
+        {
+            invertedIndex[word] = new Dictionary<int, (List<int> Positions, int Count)>();
+        }
+        if (!invertedIndex[word].ContainsKey(documentId))
+        {
+            invertedIndex[word][documentId] = (new List<int>(), 0);
+        }
+        var (positions, count) = invertedIndex[word][documentId];
+        positions.Add(position);
+        invertedIndex[word][documentId] = (positions,count + 1); 
+    }
+
     //recursive insertion into the tree
     // node is the current node and key is the substring that we need to insert
-    private void Insert(TrieNode node, string key, string title, int position)
+    private void InsertIntoTrie(TrieNode node, string key, string title, int position)
     {
         int documentId;
         if (!documentIdMap.ContainsKey(title))
@@ -242,7 +271,7 @@ public class Index
                 return;
             }
             // proceed with insertion of child node
-            Insert(child, keyRemainder, title, position);
+            InsertIntoTrie(child, keyRemainder, title, position);
         }
     }
     
@@ -306,7 +335,7 @@ public class Index
     }
 
     // NOTE: exact match search
-    public bool Search(string searchStr)
+    public bool SearchTrie(string searchStr)
     {
         string word = FilterWord(searchStr);
         TrieNode node = FindWord(word);
@@ -359,7 +388,7 @@ public class Index
     }
     
     // NOTE: auto-completion, lists all words starting with the given prefix and their documents
-    public bool PrefixSearch(string prefix)
+    public bool AutoComplete(string prefix)
     {
         prefix = FilterWord(prefix);
         if (prefix.Length == 0)
@@ -400,7 +429,7 @@ public class Index
     }
 
     // NOTE: returns the (unique) documents where any word starting with the given prefix appears
-    public bool PrefixSearchDocuments(string prefix)
+    public bool PrefixSearchTrie(string prefix)
     {
         prefix = FilterWord(prefix);
         if (prefix.Length == 0)
@@ -458,7 +487,7 @@ public class Index
         }
     }
 
-    public bool PhraseSearch(string phrase)
+    public bool PhraseSearchTrie(string phrase)
     {
         string[] words = phrase.Split(' ', StringSplitOptions.RemoveEmptyEntries);
         if (words.Length == 0)
@@ -468,7 +497,7 @@ public class Index
         }
         if (words.Length == 1)
         {
-            return Search(words[0]);
+            return SearchTrie(words[0]);
         }
 
         for (int i = 0; i < words.Length; i++)
@@ -509,6 +538,7 @@ public class Index
 
                 if (currLog != null)
                 {
+                    
                     List<int> validPositions = MergePositions(prevPositions, currLog.Positions);
                     if (validPositions.Count > 0)
                     {
@@ -532,7 +562,155 @@ public class Index
         }
         return true;
     }
+    
+    //exact match search using inverted index
+    public bool SearchIndex(string searchStr)
+    {
+        string word = FilterWord(searchStr);
+        if (!invertedIndex.ContainsKey(word))
+        {
+            Console.WriteLine("No matches for " + searchStr + " found");
+            return false;
+        }
 
+        Console.WriteLine("Found " + searchStr + " in:");
+        foreach (var docId in invertedIndex[word].Keys)
+        {
+            Console.WriteLine(documentTitles[docId]);
+        }
+        return true;
+    }
+
+    // prefix search using inverted index
+    public bool PrefixSearchIndex(string prefix)
+    {
+        prefix = FilterWord(prefix);
+        if (prefix.Length == 0)
+        {
+            Console.WriteLine("No valid prefix provided.");
+            return false;
+        }
+
+        var matches = invertedIndex.Keys.Where(k => k.StartsWith(prefix)).ToList();
+        if (matches.Count == 0)
+        {
+            Console.WriteLine("No matches for " + prefix + " found");
+            return false;
+        }
+
+        foreach (var word in matches)
+        {
+            Console.WriteLine("Found " + word + " in:");
+            foreach (var docId in invertedIndex[word].Keys)
+            {
+                Console.WriteLine(documentTitles[docId]);
+            }
+        }
+
+        return true;
+    }
+
+    // Phrase search using inverted index
+    public bool PhraseSearchInvertedIndex(string phrase)
+    {
+        string[] words = phrase.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (words.Length == 0)
+        {
+            Console.WriteLine("Invalid search provided.");
+            return false;
+        }
+        
+        if (words.Length == 1)
+        {
+            return SearchIndex(words[0]);
+        }
+
+        for (int i = 0; i < words.Length; i++)
+        {
+            words[i] = FilterWord(words[i]);
+        }
+
+        if (!invertedIndex.ContainsKey(words[0]))
+        {
+            Console.WriteLine($"Phrase '{phrase}' not found - first word doesn't exist");
+            return false;
+        }
+
+        Dictionary<int, List<int>> candidateDocs = new Dictionary<int, List<int>>();
+        foreach (var entry in invertedIndex[words[0]])
+        {
+            candidateDocs[entry.Key] = new List<int>(entry.Value.Positions);
+        }
+
+        for (int wordIndex = 1; wordIndex < words.Length; wordIndex++)
+        {
+            if (!invertedIndex.ContainsKey(words[wordIndex]))
+            {
+                Console.WriteLine($"Phrase '{phrase}' not found - word '{words[wordIndex]}' doesn't exist");
+                return false;
+            }
+
+            Dictionary<int, List<int>> newCandidates = new Dictionary<int, List<int>>();
+            foreach (var docEntry in candidateDocs)
+            {
+                int docId = docEntry.Key;
+                List<int> prevPositions = docEntry.Value;
+
+                if (invertedIndex[words[wordIndex]].TryGetValue(docId, out var currPosition))
+                {
+                    List<int> validPositions = MergePositions(prevPositions, currPosition.Positions);
+                    if (validPositions.Count > 0)
+                    {
+                        newCandidates[docId] = validPositions;
+                    }
+                }
+            }
+
+            candidateDocs = newCandidates;
+            if (candidateDocs.Count == 0)
+            {
+                Console.WriteLine($"Phrase '{phrase}' not found in any document");
+                return false;
+            }
+        }
+
+        Console.WriteLine($"Found phrase '{phrase}' in:");
+        foreach (var docId in candidateDocs.Keys)
+        {
+            Console.WriteLine(documentTitles[docId]);
+        }
+        return true;
+    }
+
+    // ranked search using inverted index
+    public bool SearchRankedIndex(string searchStr)
+    {
+        string word = FilterWord(searchStr);
+        if (!invertedIndex.ContainsKey(word))
+        {
+            Console.WriteLine("No matches for " + searchStr + " found");
+            return false;
+        }
+    
+        // Use the precomputed counts directly
+        var docCounts = invertedIndex[word].ToDictionary(
+            entry => entry.Key, 
+            entry => entry.Value.Count
+        );
+    
+        var sortedDocs = new List<KeyValuePair<int, int>>(docCounts);
+        sortedDocs.Sort((a, b) => b.Value.CompareTo(a.Value));
+
+        Console.WriteLine("Found " + searchStr + " in (ranked by occurrences):");
+        foreach (var docPair in sortedDocs)
+        {
+            Console.WriteLine(documentTitles[docPair.Key] + " (occurrences: " + docPair.Value + ")");
+        }
+        return true;
+    }
+
+    // merge positions of two words in a document 
+    // assumes positions are sorted, which they are by default for the positions within documentlog
     private List<int> MergePositions(List<int> prevPositions, List<int> currPositions)
     {
         List<int> result = new List<int>();
@@ -556,7 +734,7 @@ public class Index
         return result;
     }
 
-    public bool RankedSearch(string searchStr)
+    public bool RankedSearchTrie(string searchStr)
     {
         string word = FilterWord(searchStr);
         TrieNode node = FindWord(word);
@@ -566,7 +744,7 @@ public class Index
             return false;
         }
         
-        // Dictionary to store document frequencies
+        //dictionary to store document frequencies in descending order
         Dictionary<int, int> docCounts = new Dictionary<int, int>();
         DocumentLog log = node.Log;
         
@@ -583,7 +761,7 @@ public class Index
         Console.WriteLine($"Ranked results for '{searchStr}':");
         foreach (var result in rankedResults)
         {
-            Console.WriteLine($"{documentTitles[result.Key]} (relevance score: {result.Value})");
+            Console.WriteLine("{documentTitles[result.Key]} (relevance score: {result.Value})");
         }
         
         return rankedResults.Count > 0;
