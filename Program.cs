@@ -28,13 +28,13 @@ namespace SearchEngineProject;
 [SimpleJob(warmupCount: 1, iterationCount: 1, invocationCount: 1)]
 public class IndexConstructionBenchmark
 {
-    [Params("100KB.txt", "1MB.txt", "2MB.txt", "5MB.txt", "10MB.txt", "20MB.txt", "50MB.txt")]
+    [Params("100KB.txt", "1MB.txt", "2MB.txt", "5MB.txt", "10MB.txt", "20MB.txt", "50MB.txt", "100MB.txt")]
     public string FileName { get; set; }
 
     [Benchmark]
     public Index BenchmarkIndexConstruction()
     {
-        string projectDir = "/home/arjun/Documents/SearchEngine/SearchEngineProject";
+        string projectDir = "/zhome/6b/1/188023/search-engine-project";
         string fullPath = System.IO.Path.Combine(projectDir, FileName);
         return new Index(fullPath);
     }
@@ -45,7 +45,7 @@ public class IndexConstructionBenchmark
 [SimpleJob(warmupCount: 1, iterationCount: 1)]
 public class SingleWordQueryBenchmark
 {
-    [Params("100KB.txt", "1MB.txt", "2MB.txt", "5MB.txt", "10MB.txt", "20MB.txt", "50MB.txt")]
+    [Params("100KB.txt", "1MB.txt", "2MB.txt", "5MB.txt", "10MB.txt", "20MB.txt", "50MB.txt", "100MB.txt")]
     public string FileName { get; set; }
 
     [Params("and", "or", "cat", "bread")]
@@ -85,7 +85,7 @@ public class SingleWordQueryBenchmark
 [SimpleJob(warmupCount: 1, iterationCount: 1)]
 public class PhraseQueryBenchmark
 {
-    [Params("100KB.txt", "1MB.txt", "2MB.txt", "5MB.txt", "10MB.txt", "20MB.txt", "50MB.txt")]
+    [Params("100KB.txt", "1MB.txt", "2MB.txt", "5MB.txt", "10MB.txt", "20MB.txt", "50MB.txt", "100MB.txt")]
     public string FileName { get; set; }
 
     [Params("and they", "and they were", "it was not", "they could not")]
