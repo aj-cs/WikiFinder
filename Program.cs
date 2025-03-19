@@ -28,37 +28,67 @@ namespace SearchEngineProject;
 [SimpleJob(warmupCount: 1, iterationCount: 1, invocationCount: 1)]
 public class IndexConstructionBenchmark
 {
-    // Parameterized list of file names.
-    // (These file names are relative to your project directory.)
     [Params("100KB.txt", "1MB.txt", "2MB.txt", "5MB.txt", "10MB.txt", "20MB.txt", "50MB.txt")]
     public string FileName { get; set; }
 
     [Benchmark]
     public Index BenchmarkIndexConstruction()
     {
-        // Use an absolute path to your project directory
         string projectDir = "/home/arjun/Documents/SearchEngine/SearchEngineProject";
         string fullPath = System.IO.Path.Combine(projectDir, FileName);
         return new Index(fullPath);
     }
 }
 
-// This benchmark class measures the time and memory of search queries individually.
 [CsvExporter]
 [MemoryDiagnoser]
 [SimpleJob(warmupCount: 1, iterationCount: 1)]
-public class QueryBenchmark
+public class SingleWordQueryBenchmark
 {
-    // Parameterized file name for building the index.
     [Params("100KB.txt", "1MB.txt", "2MB.txt", "5MB.txt", "10MB.txt", "20MB.txt", "50MB.txt")]
     public string FileName { get; set; }
 
-    // Parameterized query so that each query ("and", "or", "cat", "bread") is benchmarked separately.
     [Params("and", "or", "cat", "bread")]
     public string Query { get; set; }
-    
-    [Params("and they", "and they were", "it was not", "they could not" )]
-    
+
+    private Index index;
+
+    [GlobalSetup]
+    public void Setup()
+    {
+        string projectDir = "/zhome/6b/1/188023/search-engine-project";
+        string fullPath = System.IO.Path.Combine(projectDir, FileName);
+        index = new Index(fullPath);
+    }
+
+    [Benchmark]
+    public void BenchmarkPrefixSearchIndex()
+    {
+        index.PrefixSearchIndex(Query);
+    }
+
+    [Benchmark]
+    public void BenchmarkNormalSearchDocuments()
+    {
+        index.SearchIndex(Query);
+    }
+
+    [Benchmark]
+    public void BenchmarkRankingSearch()
+    {
+        index.SearchRankedIndex(Query);
+    }
+}
+
+[CsvExporter]
+[MemoryDiagnoser]
+[SimpleJob(warmupCount: 1, iterationCount: 1)]
+public class PhraseQueryBenchmark
+{
+    [Params("100KB.txt", "1MB.txt", "2MB.txt", "5MB.txt", "10MB.txt", "20MB.txt", "50MB.txt")]
+    public string FileName { get; set; }
+
+    [Params("and they", "and they were", "it was not", "they could not")]
     public string QueryPhrase { get; set; }
 
     private Index index;
@@ -71,27 +101,6 @@ public class QueryBenchmark
         index = new Index(fullPath);
     }
 
-    // Measures the time for the PrefixSearchIndex method for a single query.
-    [Benchmark]
-    public void BenchmarkPrefixSearchIndex()
-    {
-        index.PrefixSearchIndex(Query);
-    }
-
-
-    //Measures the time for the Normal Search
-    [Benchmark]
-    public void BenchmarkNormalSearchDocuments()
-    {
-        index.SearchIndex(Query);
-    }
-    //Measures the time for the RankedSearchIndex
-    [Benchmark]
-    public void BenchmarkRankingSearch()
-    {
-        index.SearchRankedIndex(Query);
-    }
-    //Measures the time for the PhraseSearchIndex
     [Benchmark]
     public void BenchmarkPhraseSearch()
     {
@@ -99,17 +108,13 @@ public class QueryBenchmark
     }
 }
 
-// The Program class runs both sets of benchmarks.
 public class Program
 {
     public static void Main(string[] args)
     {
-        // Run the index construction benchmarks.
         BenchmarkRunner.Run<IndexConstructionBenchmark>();
-
-        // Run the query benchmarks
-        BenchmarkRunner.Run<QueryBenchmark>();
-
+        BenchmarkRunner.Run<SingleWordQueryBenchmark>();
+        BenchmarkRunner.Run<PhraseQueryBenchmark>();
     }
 }
 

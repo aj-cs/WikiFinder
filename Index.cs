@@ -341,18 +341,18 @@ public class Index
         TrieNode node = FindWord(word);
         if (node != null)
         {
-            Console.WriteLine("Found " + searchStr + " in:");
+            //Console.WriteLine("Found " + searchStr + " in:");
             DocumentLog log = node.Log;
             while (log != null)
             {
-                Console.WriteLine(documentTitles[log.DocumentId]);
+                //Console.WriteLine(documentTitles[log.DocumentId]);
                 log = log.Next;
             }
             return true;
         }
         else
         {
-            Console.WriteLine("No matches for " + searchStr + " found");
+            //Console.WriteLine("No matches for " + searchStr + " found");
             return false;
         }
     }
@@ -393,14 +393,14 @@ public class Index
         prefix = FilterWord(prefix);
         if (prefix.Length == 0)
         {
-            Console.WriteLine("No valid prefix provided.");
+            //Console.WriteLine("No valid prefix provided.");
             return false;
         }
         
         var (node, matched) = FindPrefixNode(prefix);
         if (node == null)
         {
-            Console.WriteLine("No matches for " + prefix + " found");
+            //Console.WriteLine("No matches for " + prefix + " found");
             return false;
         }
 
@@ -409,18 +409,18 @@ public class Index
         
         if (completions.Count == 0)
         {
-            Console.WriteLine("No complete words found with prefix " + prefix);
+            //Console.WriteLine("No complete words found with prefix " + prefix);
             return false;
         }
         else
         {
             foreach (var (wordComp, trieNode) in completions)
             {
-                Console.WriteLine("Found " + wordComp + " in:");
+                //Console.WriteLine("Found " + wordComp + " in:");
                 DocumentLog log = trieNode.Log;
                 while (log != null)
                 {
-                    Console.WriteLine(documentTitles[log.DocumentId]);
+                    //Console.WriteLine(documentTitles[log.DocumentId]);
                     log = log.Next;
                 }
             }
@@ -434,14 +434,14 @@ public class Index
         prefix = FilterWord(prefix);
         if (prefix.Length == 0)
         {
-            Console.WriteLine("No valid prefix provided.");
+            //Console.WriteLine("No valid prefix provided.");
             return false;
         }
         
         var (node, matched) = FindPrefixNode(prefix);
         if (node == null)
         {
-            Console.WriteLine("No matches for " + prefix + " found");
+            //Console.WriteLine("No matches for " + prefix + " found");
             return false;
         }
 
@@ -461,15 +461,15 @@ public class Index
         
         if (documentIds.Count == 0)
         {
-            Console.WriteLine($"No documents found for prefix: '{prefix}'");
+            //Console.WriteLine($"No documents found for prefix: '{prefix}'");
             return false;
         }
         else
         {
-            Console.WriteLine($"Documents containing a word starting with '{prefix}':");
+            //Console.WriteLine($"Documents containing a word starting with '{prefix}':");
             foreach (var docId in documentIds)
             {
-                Console.WriteLine(documentTitles[docId]);
+                //Console.WriteLine(documentTitles[docId]);
             }
             return true;
         }
@@ -492,7 +492,7 @@ public class Index
         string[] words = phrase.Split(' ', StringSplitOptions.RemoveEmptyEntries);
         if (words.Length == 0)
         {
-            Console.WriteLine("Invalid search provided.");
+            //Console.WriteLine("Invalid search provided.");
             return false;
         }
         if (words.Length == 1)
@@ -508,7 +508,7 @@ public class Index
         TrieNode firstNode = FindWord(words[0]);
         if (firstNode == null)
         {
-            Console.WriteLine($"Phrase '{phrase}' not found - first word doesn't exist");
+            //Console.WriteLine($"Phrase '{phrase}' not found - first word doesn't exist");
             return false;
         }
 
@@ -525,7 +525,7 @@ public class Index
             TrieNode node = FindWord(words[wordIndex]);
             if (node == null)
             {
-                Console.WriteLine($"Phrase '{phrase}' not found - word '{words[wordIndex]}' doesn't exist");
+                //Console.WriteLine($"Phrase '{phrase}' not found - word '{words[wordIndex]}' doesn't exist");
                 return false;
             }
 
@@ -550,15 +550,15 @@ public class Index
             candidateDocs = newCandidates;
             if (candidateDocs.Count == 0)
             {
-                Console.WriteLine($"Phrase '{phrase}' not found in any document");
+                //Console.WriteLine($"Phrase '{phrase}' not found in any document");
                 return false;
             }
         }
         
-        Console.WriteLine($"Found phrase '{phrase}' in:");
+        //Console.WriteLine($"Found phrase '{phrase}' in:");
         foreach (var docId in candidateDocs.Keys)
         {
-            Console.WriteLine(documentTitles[docId]);
+            //Console.WriteLine(documentTitles[docId]);
         }
         return true;
     }
@@ -569,14 +569,14 @@ public class Index
         string word = FilterWord(searchStr);
         if (!invertedIndex.ContainsKey(word))
         {
-            Console.WriteLine("No matches for " + searchStr + " found");
+            //Console.WriteLine("No matches for " + searchStr + " found");
             return false;
         }
 
-        Console.WriteLine("Found " + searchStr + " in:");
+        //Console.WriteLine("Found " + searchStr + " in:");
         foreach (var docId in invertedIndex[word].Keys)
         {
-            Console.WriteLine(documentTitles[docId]);
+            //Console.WriteLine(documentTitles[docId]);
         }
         return true;
     }
@@ -587,23 +587,23 @@ public class Index
         prefix = FilterWord(prefix);
         if (prefix.Length == 0)
         {
-            Console.WriteLine("No valid prefix provided.");
+            //Console.WriteLine("No valid prefix provided.");
             return false;
         }
 
         var matches = invertedIndex.Keys.Where(k => k.StartsWith(prefix)).ToList();
         if (matches.Count == 0)
         {
-            Console.WriteLine("No matches for " + prefix + " found");
+            //Console.WriteLine("No matches for " + prefix + " found");
             return false;
         }
 
         foreach (var word in matches)
         {
-            Console.WriteLine("Found " + word + " in:");
+            //Console.WriteLine("Found " + word + " in:");
             foreach (var docId in invertedIndex[word].Keys)
             {
-                Console.WriteLine(documentTitles[docId]);
+                //Console.WriteLine(documentTitles[docId]);
             }
         }
 
@@ -616,7 +616,7 @@ public class Index
         string[] words = phrase.Split(' ', StringSplitOptions.RemoveEmptyEntries);
         if (words.Length == 0)
         {
-            Console.WriteLine("Invalid search provided.");
+            //Console.WriteLine("Invalid search provided.");
             return false;
         }
         
@@ -632,7 +632,7 @@ public class Index
 
         if (!invertedIndex.ContainsKey(words[0]))
         {
-            Console.WriteLine($"Phrase '{phrase}' not found - first word doesn't exist");
+            //Console.WriteLine($"Phrase '{phrase}' not found - first word doesn't exist");
             return false;
         }
 
@@ -646,7 +646,7 @@ public class Index
         {
             if (!invertedIndex.ContainsKey(words[wordIndex]))
             {
-                Console.WriteLine($"Phrase '{phrase}' not found - word '{words[wordIndex]}' doesn't exist");
+                //Console.WriteLine($"Phrase '{phrase}' not found - word '{words[wordIndex]}' doesn't exist");
                 return false;
             }
 
@@ -669,15 +669,15 @@ public class Index
             candidateDocs = newCandidates;
             if (candidateDocs.Count == 0)
             {
-                Console.WriteLine($"Phrase '{phrase}' not found in any document");
+                //Console.WriteLine($"Phrase '{phrase}' not found in any document");
                 return false;
             }
         }
 
-        Console.WriteLine($"Found phrase '{phrase}' in:");
+        //Console.WriteLine($"Found phrase '{phrase}' in:");
         foreach (var docId in candidateDocs.Keys)
         {
-            Console.WriteLine(documentTitles[docId]);
+            //Console.WriteLine(documentTitles[docId]);
         }
         return true;
     }
@@ -688,7 +688,7 @@ public class Index
         string word = FilterWord(searchStr);
         if (!invertedIndex.ContainsKey(word))
         {
-            Console.WriteLine("No matches for " + searchStr + " found");
+            //Console.WriteLine("No matches for " + searchStr + " found");
             return false;
         }
     
@@ -701,10 +701,10 @@ public class Index
         var sortedDocs = new List<KeyValuePair<int, int>>(docCounts);
         sortedDocs.Sort((a, b) => b.Value.CompareTo(a.Value));
 
-        Console.WriteLine("Found " + searchStr + " in (ranked by occurrences):");
+        //Console.WriteLine("Found " + searchStr + " in (ranked by occurrences):");
         foreach (var docPair in sortedDocs)
         {
-            Console.WriteLine(documentTitles[docPair.Key] + " (occurrences: " + docPair.Value + ")");
+            //Console.WriteLine(documentTitles[docPair.Key] + " (occurrences: " + docPair.Value + ")");
         }
         return true;
     }
@@ -740,7 +740,7 @@ public class Index
         TrieNode node = FindWord(word);
         if (node == null)
         {
-            Console.WriteLine("No matches for " + searchStr + " found");
+            //Console.WriteLine("No matches for " + searchStr + " found");
             return false;
         }
         
@@ -758,10 +758,10 @@ public class Index
         var rankedResults = docCounts.ToList();
         rankedResults.Sort((a, b) => b.Value.CompareTo(a.Value));
 
-        Console.WriteLine($"Ranked results for '{searchStr}':");
+        //Console.WriteLine($"Ranked results for '{searchStr}':");
         foreach (var result in rankedResults)
         {
-            Console.WriteLine("{documentTitles[result.Key]} (relevance score: {result.Value})");
+            //Console.WriteLine("{documentTitles[result.Key]} (relevance score: {result.Value})");
         }
         
         return rankedResults.Count > 0;
