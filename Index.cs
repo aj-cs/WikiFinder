@@ -25,21 +25,34 @@ public class Index
             EndOfWord = false;
         }
     }
+    // variables to keep track of and compress documents 
+    private Dictionary<string, int> documentIdMap; // maps document titles to IDs
+    private List<string> documentTitles;           // list of document titles
+    private int nextDocumentId;                    // assigns IDs to Documents
+    private int documentPositionCounter;           // position counter for each document
 
     private class DocumentLog
     {
-        public string Title;
+        public int DocumentId;
+        public List<int> Positions;
         public DocumentLog Next;
-        public DocumentLog(string title, DocumentLog next)
+        public int Count;
+        public DocumentLog(int documentId, int position, DocumentLog next)
         {
-            Title = title;
+            DocumentId = documentId;
+            Positions = new List<int> { position };
             Next = next;
+            Count = 1;
         }
     }
 
     public Index(string filename)
     {
         root = new TrieNode("");
+        documentIdMap = new Dictionary<string, int>();
+        documentTitles = new List<string>();
+        nextDocumentId = 0;
+        documentPositionCounter = 0;
         try
         {
             using (StreamReader input = new StreamReader(filename, System.Text.Encoding.UTF8))
@@ -55,6 +68,7 @@ public class Index
                     {
                         titleRead = false;
                         currentTitle = "";
+                        documentPositionCounter = 0; // reset position counter for next document
                         continue;
                     }
                     if (!titleRead)
@@ -68,7 +82,7 @@ public class Index
                         string[] words = line.Split(' ', StringSplitOptions.RemoveEmptyEntries);
                         foreach (string word in words)
                         {
-                            InsertWord(word, currentTitle);
+                            InsertWord(word, currentTitle, documentPositionCounter++);
                         }
                     }
                 }
@@ -80,27 +94,59 @@ public class Index
         }
     }
 
-    private void InsertWord(string word, string title)
+    private string FilterWord(string word)
     {
-        word = word.ToLower();
-        Insert(root, word, title);
+        string result = "";
+        foreach (char ch in word.ToLower())
+        {
+            if (char.IsLetterOrDigit(ch))
+                result += ch;
+        }
+        return result;
     }
+
+    private void InsertWord(string word, string title, int position)
+    {
+        string filtered = FilterWord(word);
+        if (filtered.Length == 0)
+            return;
+            
+        Insert(root, filtered, title, position);
+    }
+    
     //recursive insertion into the tree
     // node is the current node and key is the substring that we need to insert
-    private void Insert(TrieNode node, string key, string title)
+    private void Insert(TrieNode node, string key, string title, int position)
     {
+        int documentId;
+        if (!documentIdMap.ContainsKey(title))
+        {
+            documentId = nextDocumentId++;
+            documentIdMap[title] = documentId;
+            documentTitles.Add(title);
+        }
+        else
+        {
+            documentId = documentIdMap[title];
+        }
+        
         // when key is empty, mark current node as a word
         if (key.Length == 0)
         {
             node.EndOfWord = true;
             node.Count++;
-            if (node.Log == null)
+            DocumentLog existing = FindDocLog(node.Log, documentId);
+            if (existing != null)
             {
-                node.Log = new DocumentLog(title, null);
+                if (!existing.Positions.Contains(position))
+                {
+                    existing.Positions.Add(position);
+                    existing.Count++;
+                }
             }
-            else if (!DocExists(node.Log, title))
+            else
             {
-                node.Log = new DocumentLog(title, node.Log);
+                node.Log = new DocumentLog(documentId, position, node.Log);
             }
             return;
         }
@@ -114,7 +160,7 @@ public class Index
             TrieNode newNode = new TrieNode(key);
             newNode.EndOfWord = true;
             newNode.Count = 1;
-            newNode.Log = new DocumentLog(title, null);
+            newNode.Log = new DocumentLog(documentId, position, null);
             node.Children[firstChar] = newNode;
             return;
         }
@@ -123,8 +169,8 @@ public class Index
 
         if (commonLength < child.Segment.Length)
         {
-            // partial match which means we gotta split the child
-            // create a new node for the remainder of the childs segment
+            // partial match which means we need to split the child
+            // create a new node for the remainder of the child's segment
             string childSuffix = child.Segment.Substring(commonLength);
             TrieNode splitNode = new TrieNode(childSuffix)
             {
@@ -136,22 +182,27 @@ public class Index
 
             // update the child node by setting its segment to the common prefix
             child.Segment = child.Segment.Substring(0, commonLength);
-
-            //resett children dict and add split node
+            
+            //reset children dict and add split node
             child.Children = new Dictionary<char, TrieNode>();
             child.Children[childSuffix[0]] = splitNode;
-            // if the key exactly matches the common pref
+            // if the key exactly matches the common prefix
             if (commonLength == key.Length)
             {
                 child.EndOfWord = true;
                 child.Count++;
-                if (child.Log == null)
+                DocumentLog existing = FindDocLog(child.Log, documentId);
+                if (existing != null)
                 {
-                    child.Log = new DocumentLog(title, null);
+                    if (!existing.Positions.Contains(position))
+                    {
+                        existing.Positions.Add(position);
+                        existing.Count++;
+                    }
                 }
-                else if (!DocExists(child.Log, title))
+                else
                 {
-                    child.Log = new DocumentLog(title, child.Log);
+                    child.Log = new DocumentLog(documentId, position, child.Log);
                 }
             }
             else
@@ -161,7 +212,7 @@ public class Index
                 TrieNode newChild = new TrieNode(keySuffix);
                 newChild.EndOfWord = true;
                 newChild.Count = 1;
-                newChild.Log = new DocumentLog(title, null);
+                newChild.Log = new DocumentLog(documentId, position, null);
                 child.Children[keySuffix[0]] = newChild;
             }
             return;
@@ -172,23 +223,29 @@ public class Index
             string keyRemainder = key.Substring(commonLength);
             if (keyRemainder.Length == 0)
             {
-                //key exactly matches the childs segment
+                //key exactly matches the child's segment
                 child.EndOfWord = true;
                 child.Count++;
-                if (child.Log == null)
+                DocumentLog existing = FindDocLog(child.Log, documentId);
+                if (existing != null)
                 {
-                    child.Log = new DocumentLog(title, null);
+                    if (!existing.Positions.Contains(position))
+                    {
+                        existing.Positions.Add(position);
+                        existing.Count++;
+                    }
                 }
-                else if (!DocExists(child.Log, title))
+                else
                 {
-                    child.Log = new DocumentLog(title, child.Log);
+                    child.Log = new DocumentLog(documentId, position, child.Log);
                 }
                 return;
             }
             // proceed with insertion of child node
-            Insert(child, keyRemainder, title);
+            Insert(child, keyRemainder, title, position);
         }
     }
+    
     // returns the length of the common prefix between two strings
     private int CommonPrefixLength(string s1, string s2)
     {
@@ -199,11 +256,32 @@ public class Index
         return i;
     }
 
+    private DocumentLog FindDocLog(DocumentLog log, int documentId)
+    {
+        while (log != null)
+        {
+            if (log.DocumentId == documentId)
+                return log;
+            log = log.Next;
+        }
+        return null;
+    }
+
+    private bool DocExists(DocumentLog log, int documentId)
+    {
+        while (log != null)
+        {
+            if (log.DocumentId == documentId)
+                return true;
+            log = log.Next;
+        }
+        return false;
+    }
 
     // find node corresponding to complete word
     private TrieNode FindWord(string word)
     {
-        word = word.ToLower();
+        word = FilterWord(word);
         TrieNode current = root;
         while (word.Length > 0)
         {
@@ -213,7 +291,7 @@ public class Index
                 return null;
             }
 
-            // the childs segment must matches the beginning of the word
+            // the child's segment must match the beginning of the word
             if (word.StartsWith(child.Segment))
             {
                 word = word.Substring(child.Segment.Length);
@@ -225,47 +303,35 @@ public class Index
             }
         }
         return current.EndOfWord ? current : null;
-
     }
 
-
-    private bool DocExists(DocumentLog log, string title)
-    {
-        while (log != null)
-        {
-            if (log.Title.Equals(title))
-                return true;
-            log = log.Next;
-        }
-        return false;
-    }
-
-    // NOTE: exact match search (unchanged in terms of implementation compared to like iondex4)
+    // NOTE: exact match search
     public bool Search(string searchStr)
     {
-        TrieNode current = FindWord(searchStr);
-        if (current != null)
+        string word = FilterWord(searchStr);
+        TrieNode node = FindWord(word);
+        if (node != null)
         {
-            // Console.WriteLine("Found " + searchStr + " in:");
-            DocumentLog log = current.Log;
+            Console.WriteLine("Found " + searchStr + " in:");
+            DocumentLog log = node.Log;
             while (log != null)
             {
-                // Console.WriteLine(log.Title);
+                Console.WriteLine(documentTitles[log.DocumentId]);
                 log = log.Next;
             }
             return true;
         }
         else
         {
-            // Console.WriteLine("No matches for " + searchStr + " found");
+            Console.WriteLine("No matches for " + searchStr + " found");
             return false;
         }
     }
 
-    // helper method to find node corresponding to prefix returns tuple of (matching node, accumualted string that's been matched)
+    // helper method to find node corresponding to prefix
     private (TrieNode node, string matched) FindPrefixNode(string prefix)
     {
-        prefix = prefix.ToLower();
+        prefix = FilterWord(prefix);
         TrieNode current = root;
         string matched = "";
         while (prefix.Length > 0)
@@ -273,7 +339,7 @@ public class Index
             char firstChar = prefix[0];
             if (!current.Children.TryGetValue(firstChar, out TrieNode child))
             {
-                return (null, null);
+                return (null, matched);
             }
             int commonLength = CommonPrefixLength(child.Segment, prefix);
             matched += child.Segment.Substring(0, commonLength);
@@ -281,116 +347,245 @@ public class Index
             {
                 // if the prefix ends in the middle of the child's segment it's a match
                 if (commonLength == prefix.Length)
-                {
                     return (child, matched);
-                }
-                else { return (null, null); }
+                else 
+                    return (null, matched);
             }
-            // childs segement fully matches so we continue with remainder of prefix
+            // child's segment fully matches so we continue with remainder of prefix
             prefix = prefix.Substring(commonLength);
             current = child;
         }
         return (current, matched);
     }
+    
     // NOTE: auto-completion, lists all words starting with the given prefix and their documents
-    //TODO: make searches return boolean instead of void
     public bool PrefixSearch(string prefix)
     {
+        prefix = FilterWord(prefix);
+        if (prefix.Length == 0)
+        {
+            Console.WriteLine("No valid prefix provided.");
+            return false;
+        }
+        
         var (node, matched) = FindPrefixNode(prefix);
         if (node == null)
         {
-            // Console.WriteLine("No matches for " + prefix + " found");
+            Console.WriteLine("No matches for " + prefix + " found");
             return false;
         }
 
         List<(string word, TrieNode node)> completions = new List<(string, TrieNode)>();
-
-        // matched is the portion of the pref that was found, we use it as the starting point
-
         CollectWords(node, matched, completions);
-
+        
         if (completions.Count == 0)
         {
-            // Console.WriteLine("No complete words found with prefix " + prefix);
+            Console.WriteLine("No complete words found with prefix " + prefix);
             return false;
         }
         else
         {
-            foreach (var (word, radNode) in completions)
+            foreach (var (wordComp, trieNode) in completions)
             {
-                // Console.WriteLine("Found " + word + " in:");
-                DocumentLog log = radNode.Log;
+                Console.WriteLine("Found " + wordComp + " in:");
+                DocumentLog log = trieNode.Log;
                 while (log != null)
                 {
-                    // Console.WriteLine(log.Title);
+                    Console.WriteLine(documentTitles[log.DocumentId]);
                     log = log.Next;
                 }
             }
+            return true;
         }
-        return true;
     }
 
-    // NOTE: returns the (unique) documents  where any word starting with the given prefix appears
+    // NOTE: returns the (unique) documents where any word starting with the given prefix appears
     public bool PrefixSearchDocuments(string prefix)
     {
+        prefix = FilterWord(prefix);
+        if (prefix.Length == 0)
+        {
+            Console.WriteLine("No valid prefix provided.");
+            return false;
+        }
+        
         var (node, matched) = FindPrefixNode(prefix);
         if (node == null)
         {
-            // Console.WriteLine("No matches for " + prefix + " found");
+            Console.WriteLine("No matches for " + prefix + " found");
             return false;
         }
 
-        // hashset to avoid duplicate titles
-        HashSet<string> documents = new HashSet<string>();
-
+        HashSet<int> documentIds = new HashSet<int>();
         List<(string word, TrieNode node)> completions = new List<(string, TrieNode)>();
         CollectWords(node, matched, completions);
-
-        foreach (var (word, radNode) in completions)
+        
+        foreach (var (wordComp, trieNode) in completions)
         {
-            DocumentLog log = radNode.Log;
+            DocumentLog log = trieNode.Log;
             while (log != null)
             {
-                documents.Add(log.Title);
+                documentIds.Add(log.DocumentId);
                 log = log.Next;
             }
         }
-
-        if (documents.Count == 0)
+        
+        if (documentIds.Count == 0)
         {
-            // Console.WriteLine($"No documents found for prefix: '{prefix}'");
+            Console.WriteLine($"No documents found for prefix: '{prefix}'");
             return false;
         }
         else
         {
-            // Console.WriteLine($"Documents containing a word starting with '{prefix}'");
-
-            foreach (var doc in documents)
+            Console.WriteLine($"Documents containing a word starting with '{prefix}':");
+            foreach (var docId in documentIds)
             {
-                // Console.WriteLine(doc);
+                Console.WriteLine(documentTitles[docId]);
             }
+            return true;
+        }
+    }
+
+    // recursively collects complete words (nodes marked as isEndOfWord) from a given node
+    private void CollectWords(TrieNode node, string prefix, List<(string, TrieNode)> result)
+    {
+        if (node.EndOfWord)
+            result.Add((prefix, node));
+            
+        foreach (var child in node.Children.Values)
+        {
+            CollectWords(child, prefix + child.Segment, result);
+        }
+    }
+
+    public bool PhraseSearch(string phrase)
+    {
+        string[] words = phrase.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (words.Length == 0)
+        {
+            Console.WriteLine("Invalid search provided.");
+            return false;
+        }
+        if (words.Length == 1)
+        {
+            return Search(words[0]);
+        }
+
+        for (int i = 0; i < words.Length; i++)
+        {
+            words[i] = FilterWord(words[i]);
+        }
+
+        TrieNode firstNode = FindWord(words[0]);
+        if (firstNode == null)
+        {
+            Console.WriteLine($"Phrase '{phrase}' not found - first word doesn't exist");
+            return false;
+        }
+
+        Dictionary<int, List<int>> candidateDocs = new Dictionary<int, List<int>>();
+        DocumentLog log = firstNode.Log;
+        while (log != null)
+        {
+            candidateDocs[log.DocumentId] = new List<int>(log.Positions);
+            log = log.Next;
+        }
+
+        for (int wordIndex = 1; wordIndex < words.Length; wordIndex++)
+        {
+            TrieNode node = FindWord(words[wordIndex]);
+            if (node == null)
+            {
+                Console.WriteLine($"Phrase '{phrase}' not found - word '{words[wordIndex]}' doesn't exist");
+                return false;
+            }
+
+            Dictionary<int, List<int>> newCandidates = new Dictionary<int, List<int>>();
+            foreach (var docEntry in candidateDocs)
+            {
+                int docId = docEntry.Key;
+                List<int> prevPositions = docEntry.Value;
+                DocumentLog currLog = FindDocLog(node.Log, docId);
+
+                if (currLog != null)
+                {
+                    List<int> validPositions = MergePositions(prevPositions, currLog.Positions);
+                    if (validPositions.Count > 0)
+                    {
+                        newCandidates[docId] = validPositions;
+                    }
+                }
+            }
+
+            candidateDocs = newCandidates;
+            if (candidateDocs.Count == 0)
+            {
+                Console.WriteLine($"Phrase '{phrase}' not found in any document");
+                return false;
+            }
+        }
+        
+        Console.WriteLine($"Found phrase '{phrase}' in:");
+        foreach (var docId in candidateDocs.Keys)
+        {
+            Console.WriteLine(documentTitles[docId]);
         }
         return true;
     }
 
-    /*
-     * helper to locate node corresponding to the last character of the prefix
-     */
-
-    // recursively collects complete words (nodes marked as isEndOfWord) from a given node
-    //  prefix is the accumulated string that leads to that node
-    private void CollectWords(TrieNode node, string prefix, List<(string, TrieNode)> completions)
+    private List<int> MergePositions(List<int> prevPositions, List<int> currPositions)
     {
-        if (node.EndOfWord)
+        List<int> result = new List<int>();
+        int i = 0, j = 0;
+        while (i < prevPositions.Count && j < currPositions.Count)
         {
-            completions.Add((prefix, node));
+            if (currPositions[j] == prevPositions[i] + 1)
+            {
+                result.Add(currPositions[j]);
+                i++;
+                j++;
+            }
+            else if (currPositions[j] < prevPositions[i] + 1)
+            {
+                j++;
+            }
+            else {
+                i++;
+            }
         }
-        foreach (var child in node.Children.Values)
+        return result;
+    }
+
+    public bool RankedSearch(string searchStr)
+    {
+        string word = FilterWord(searchStr);
+        TrieNode node = FindWord(word);
+        if (node == null)
         {
-            // append the childs segement to the current prefix and recusre
-            CollectWords(child, prefix + child.Segment, completions);
+            Console.WriteLine("No matches for " + searchStr + " found");
+            return false;
+        }
+        
+        // Dictionary to store document frequencies
+        Dictionary<int, int> docCounts = new Dictionary<int, int>();
+        DocumentLog log = node.Log;
+        
+        while (log != null)
+        {
+            docCounts[log.DocumentId] = log.Count;
+            log = log.Next;
         }
 
+        // convert to a list and sort by descending frequency
+        var rankedResults = docCounts.ToList();
+        rankedResults.Sort((a, b) => b.Value.CompareTo(a.Value));
+
+        Console.WriteLine($"Ranked results for '{searchStr}':");
+        foreach (var result in rankedResults)
+        {
+            Console.WriteLine($"{documentTitles[result.Key]} (relevance score: {result.Value})");
+        }
+        
+        return rankedResults.Count > 0;
     }
 }
-
