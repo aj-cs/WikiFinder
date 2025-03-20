@@ -42,7 +42,7 @@ public class IndexConstructionBenchmark
 
 [CsvExporter]
 [MemoryDiagnoser]
-[SimpleJob(warmupCount: 5, iterationCount: 1)]
+[SimpleJob(warmupCount: 5, iterationCount: 10)]
 public class SingleWordQueryBenchmark
 {
     [Params("100KB.txt", "1MB.txt", "2MB.txt", "5MB.txt", "10MB.txt", "20MB.txt", "50MB.txt", "100MB.txt")]
@@ -82,7 +82,7 @@ public class SingleWordQueryBenchmark
 
 [CsvExporter]
 [MemoryDiagnoser]
-[SimpleJob(warmupCount: 1, iterationCount: 1)]
+[SimpleJob(warmupCount: 5, iterationCount: 10)]
 public class PhraseQueryBenchmark
 {
     [Params("100KB.txt", "1MB.txt", "2MB.txt", "5MB.txt", "10MB.txt", "20MB.txt", "50MB.txt", "100MB.txt")]
