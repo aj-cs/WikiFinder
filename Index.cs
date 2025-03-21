@@ -55,7 +55,7 @@ public class Index
         documentIdMap = new Dictionary<string, int>();
         documentTitles = new List<string>();
         nextDocumentId = 0;
-        documentPositionCounter = 0;
+        documentPositionCounter = 0; 
         try
         {
             using (StreamReader input = new StreamReader(filename, System.Text.Encoding.UTF8))
@@ -77,16 +77,11 @@ public class Index
                     if (!titleRead)
                     {
                         currentTitle = line;
-                        // Console.WriteLine(currentTitle);
                         titleRead = true;
                     }
                     else
                     {
-                        string[] words = line.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-                        foreach (string word in words)
-                        {
-                            InsertWord(word, currentTitle, documentPositionCounter++);
-                        }
+                        ProcessLine(line, currentTitle);
                     }
                 }
             }
@@ -97,17 +92,36 @@ public class Index
         }
     }
 
-    private string FilterWord(string word)
+    private static string FilterWord(ReadOnlySpan<char> input)
     {
-        string result = "";
-        foreach (char ch in word.ToLower())
+        Span<char> buffer = stackalloc char[input.Length];
+        int index = 0;
+        foreach (char c in input)
         {
-            if (char.IsLetterOrDigit(ch))
-                result += ch;
+            if (char.IsLetterOrDigit(c))
+                buffer[index++] = char.ToLower(c);
         }
-        return result;
+        return new string(buffer[..index]);
     }
 
+    private void ProcessLine(string line, string currentTitle)
+    {
+        ReadOnlySpan<char> span = line.AsSpan();
+        while (!span.IsEmpty)
+        {
+            int nextSpace = span.IndexOf(' ');
+            ReadOnlySpan<char> token = nextSpace >= 0 ? span[..nextSpace] : span;
+
+            string filtered = FilterWord(token);
+            if (filtered.Length > 0)
+            {
+                InsertIntoInvertedIndex(filtered, currentTitle, documentPositionCounter++);
+            }
+
+            if (nextSpace < 0) break;
+            span = span[(nextSpace + 1)..];
+        }
+    }
     private void InsertWord(string word, string title, int position)
     {
         string filtered = FilterWord(word);
