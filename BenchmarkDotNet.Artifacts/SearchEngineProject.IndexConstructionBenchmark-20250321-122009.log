@@ -1,0 +1,177 @@
+// Validating benchmarks:
+// ***** BenchmarkRunner: Start   *****
+// ***** Found 2 benchmark(s) in total *****
+// ***** Building 1 exe(s) in Parallel: Start   *****
+// start dotnet  restore /p:UseSharedCompilation=false /p:BuildInParallel=false /m:1 /p:Deterministic=true /p:Optimize=true /p:IntermediateOutputPath="/home/shierfall/RiderProjects/search-engine-project/bin/RELEASE/net8.0/37b1cd32-0a83-4c94-9caa-6d5b4abc0f5f/obj/Release/net8.0/" /p:OutDir="/home/shierfall/RiderProjects/search-engine-project/bin/RELEASE/net8.0/37b1cd32-0a83-4c94-9caa-6d5b4abc0f5f/bin/Release/net8.0/" /p:OutputPath="/home/shierfall/RiderProjects/search-engine-project/bin/RELEASE/net8.0/37b1cd32-0a83-4c94-9caa-6d5b4abc0f5f/bin/Release/net8.0/" in /home/shierfall/RiderProjects/search-engine-project/bin/RELEASE/net8.0/37b1cd32-0a83-4c94-9caa-6d5b4abc0f5f
+// command took 3.73 sec and exited with 0
+// start dotnet  build -c Release --no-restore /p:UseSharedCompilation=false /p:BuildInParallel=false /m:1 /p:Deterministic=true /p:Optimize=true /p:IntermediateOutputPath="/home/shierfall/RiderProjects/search-engine-project/bin/RELEASE/net8.0/37b1cd32-0a83-4c94-9caa-6d5b4abc0f5f/obj/Release/net8.0/" /p:OutDir="/home/shierfall/RiderProjects/search-engine-project/bin/RELEASE/net8.0/37b1cd32-0a83-4c94-9caa-6d5b4abc0f5f/bin/Release/net8.0/" /p:OutputPath="/home/shierfall/RiderProjects/search-engine-project/bin/RELEASE/net8.0/37b1cd32-0a83-4c94-9caa-6d5b4abc0f5f/bin/Release/net8.0/" --output "/home/shierfall/RiderProjects/search-engine-project/bin/RELEASE/net8.0/37b1cd32-0a83-4c94-9caa-6d5b4abc0f5f/bin/Release/net8.0/" in /home/shierfall/RiderProjects/search-engine-project/bin/RELEASE/net8.0/37b1cd32-0a83-4c94-9caa-6d5b4abc0f5f
+// command took 17.16 sec and exited with 0
+// ***** Done, took 00:00:21 (21.04 sec)   *****
+// Found 2 benchmarks:
+//   IndexConstructionBenchmark.BenchmarkIndexConstruction: Job-AOUEUC(IterationCount=1, WarmupCount=1) [FileName=100KB.txt]
+//   IndexConstructionBenchmark.BenchmarkIndexConstruction: Job-AOUEUC(IterationCount=1, WarmupCount=1) [FileName=1MB.txt]
+
+// **************************
+// Benchmark: IndexConstructionBenchmark.BenchmarkIndexConstruction: Job-AOUEUC(IterationCount=1, WarmupCount=1) [FileName=100KB.txt]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 37b1cd32-0a83-4c94-9caa-6d5b4abc0f5f.dll --anonymousPipes 109 110 --benchmarkName "SearchEngineProject.IndexConstructionBenchmark.BenchmarkIndexConstruction(FileName: \"100KB.txt\")" --job "IterationCount=1, WarmupCount=1" --benchmarkId 0 in /home/shierfall/RiderProjects/search-engine-project/bin/RELEASE/net8.0/37b1cd32-0a83-4c94-9caa-6d5b4abc0f5f/bin/Release/net8.0
+// Failed to set up high priority (Permission denied). In order to run benchmarks with high priority, make sure you have the right permissions.
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 8.0.14 (8.0.1425.11118), X64 RyuJIT AVX2
+// GC=Concurrent Server
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT VectorSize=256
+// Job: Job-YAZETU(IterationCount=1, WarmupCount=1)
+
+OverheadJitting  1: 1 op, 1025157.00 ns, 1.0252 ms/op
+WorkloadJitting  1: 1 op, 62447857.00 ns, 62.4479 ms/op
+
+WorkloadPilot    1: 2 op, 44039972.00 ns, 22.0200 ms/op
+WorkloadPilot    2: 3 op, 63420395.00 ns, 21.1401 ms/op
+WorkloadPilot    3: 4 op, 81114799.00 ns, 20.2787 ms/op
+WorkloadPilot    4: 5 op, 105700557.00 ns, 21.1401 ms/op
+WorkloadPilot    5: 6 op, 70132337.00 ns, 11.6887 ms/op
+WorkloadPilot    6: 7 op, 76992882.00 ns, 10.9990 ms/op
+WorkloadPilot    7: 8 op, 85892901.00 ns, 10.7366 ms/op
+WorkloadPilot    8: 9 op, 100238895.00 ns, 11.1377 ms/op
+WorkloadPilot    9: 10 op, 106057348.00 ns, 10.6057 ms/op
+WorkloadPilot   10: 11 op, 112384109.00 ns, 10.2167 ms/op
+WorkloadPilot   11: 12 op, 119861469.00 ns, 9.9885 ms/op
+WorkloadPilot   12: 13 op, 128491309.00 ns, 9.8839 ms/op
+WorkloadPilot   13: 14 op, 138226639.00 ns, 9.8733 ms/op
+WorkloadPilot   14: 15 op, 182637715.00 ns, 12.1758 ms/op
+WorkloadPilot   15: 16 op, 158458831.00 ns, 9.9037 ms/op
+WorkloadPilot   16: 32 op, 340071551.00 ns, 10.6272 ms/op
+WorkloadPilot   17: 64 op, 783193742.00 ns, 12.2374 ms/op
+
+WorkloadWarmup   1: 64 op, 655647956.00 ns, 10.2445 ms/op
+
+// BeforeActualRun
+WorkloadActual   1: 64 op, 667596854.00 ns, 10.4312 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 64 op, 667596854.00 ns, 10.4312 ms/op
+// GC:  0 0 0 141201400 64
+// Threading:  0 0 64
+
+// AfterAll
+// Benchmark Process 26504 has exited with code 0.
+
+Mean = 10.431 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 10.431 ms, Q1 = 10.431 ms, Median = 10.431 ms, Q3 = 10.431 ms, Max = 10.431 ms
+IQR = 0.000 ms, LowerFence = 10.431 ms, UpperFence = 10.431 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+
+// ** Remained 1 (50.0%) benchmark(s) to run. Estimated finish 2025-03-21 12:20 (0h 0m from now) **
+// **************************
+// Benchmark: IndexConstructionBenchmark.BenchmarkIndexConstruction: Job-AOUEUC(IterationCount=1, WarmupCount=1) [FileName=1MB.txt]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 37b1cd32-0a83-4c94-9caa-6d5b4abc0f5f.dll --anonymousPipes 111 112 --benchmarkName "SearchEngineProject.IndexConstructionBenchmark.BenchmarkIndexConstruction(FileName: \"1MB.txt\")" --job "IterationCount=1, WarmupCount=1" --benchmarkId 1 in /home/shierfall/RiderProjects/search-engine-project/bin/RELEASE/net8.0/37b1cd32-0a83-4c94-9caa-6d5b4abc0f5f/bin/Release/net8.0
+// Failed to set up high priority (Permission denied). In order to run benchmarks with high priority, make sure you have the right permissions.
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 8.0.14 (8.0.1425.11118), X64 RyuJIT AVX2
+// GC=Concurrent Server
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT VectorSize=256
+// Job: Job-SNXLYO(IterationCount=1, WarmupCount=1)
+
+OverheadJitting  1: 1 op, 758515.00 ns, 758.5150 us/op
+WorkloadJitting  1: 1 op, 317855010.00 ns, 317.8550 ms/op
+
+WorkloadPilot    1: 2 op, 330592534.00 ns, 165.2963 ms/op
+WorkloadPilot    2: 3 op, 433712092.00 ns, 144.5707 ms/op
+WorkloadPilot    3: 4 op, 540478517.00 ns, 135.1196 ms/op
+
+WorkloadWarmup   1: 4 op, 526551212.00 ns, 131.6378 ms/op
+
+// BeforeActualRun
+WorkloadActual   1: 4 op, 536200614.00 ns, 134.0502 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 4 op, 536200614.00 ns, 134.0502 ms/op
+// GC:  0 0 0 89595768 4
+// Threading:  0 0 4
+
+// AfterAll
+// Benchmark Process 26526 has exited with code 0.
+
+Mean = 134.050 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 134.050 ms, Q1 = 134.050 ms, Median = 134.050 ms, Q3 = 134.050 ms, Max = 134.050 ms
+IQR = 0.000 ms, LowerFence = 134.050 ms, UpperFence = 134.050 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+
+// ** Remained 0 (0.0%) benchmark(s) to run. Estimated finish 2025-03-21 12:20 (0h 0m from now) **
+// ***** BenchmarkRunner: Finish  *****
+
+// * Export *
+  BenchmarkDotNet.Artifacts/results/SearchEngineProject.IndexConstructionBenchmark-report.csv
+  BenchmarkDotNet.Artifacts/results/SearchEngineProject.IndexConstructionBenchmark-report-github.md
+  BenchmarkDotNet.Artifacts/results/SearchEngineProject.IndexConstructionBenchmark-report.html
+
+// * Detailed results *
+IndexConstructionBenchmark.BenchmarkIndexConstruction: Job-AOUEUC(IterationCount=1, WarmupCount=1) [FileName=100KB.txt]
+Runtime = .NET 8.0.14 (8.0.1425.11118), X64 RyuJIT AVX2; GC = Concurrent Server
+Mean = 10.431 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 10.431 ms, Q1 = 10.431 ms, Median = 10.431 ms, Q3 = 10.431 ms, Max = 10.431 ms
+IQR = 0.000 ms, LowerFence = 10.431 ms, UpperFence = 10.431 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+-------------------- Histogram --------------------
+[10.431 ms ; 10.431 ms) | @
+---------------------------------------------------
+
+IndexConstructionBenchmark.BenchmarkIndexConstruction: Job-AOUEUC(IterationCount=1, WarmupCount=1) [FileName=1MB.txt]
+Runtime = .NET 8.0.14 (8.0.1425.11118), X64 RyuJIT AVX2; GC = Concurrent Server
+Mean = 134.050 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 134.050 ms, Q1 = 134.050 ms, Median = 134.050 ms, Q3 = 134.050 ms, Max = 134.050 ms
+IQR = 0.000 ms, LowerFence = 134.050 ms, UpperFence = 134.050 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+-------------------- Histogram --------------------
+[134.050 ms ; 134.050 ms) | @
+---------------------------------------------------
+
+// * Summary *
+
+BenchmarkDotNet v0.14.0, Ubuntu 24.04.2 LTS (Noble Numbat)
+Intel Core i5-8265U CPU 1.60GHz (Whiskey Lake), 1 CPU, 8 logical and 4 physical cores
+.NET SDK 8.0.114
+  [Host]     : .NET 8.0.14 (8.0.1425.11118), X64 RyuJIT AVX2
+  Job-AOUEUC : .NET 8.0.14 (8.0.1425.11118), X64 RyuJIT AVX2
+
+IterationCount=1  WarmupCount=1  
+
+| Method                     | FileName  | Mean      | Error | Allocated |
+|--------------------------- |---------- |----------:|------:|----------:|
+| BenchmarkIndexConstruction | 100KB.txt |  10.43 ms |    NA |    2.1 MB |
+| BenchmarkIndexConstruction | 1MB.txt   | 134.05 ms |    NA |  21.36 MB |
+// * Config Issues *
+
+// * Warnings *
+Configuration
+  Summary -> The exporter CsvExporter is already present in configuration. There may be unexpected results.
+
+// * Legends *
+  FileName  : Value of the 'FileName' parameter
+  Mean      : Arithmetic mean of all measurements
+  Error     : Half of 99.9% confidence interval
+  Allocated : Allocated memory per single operation (managed only, inclusive, 1KB = 1024B)
+  1 ms      : 1 Millisecond (0.001 sec)
+
+// * Diagnostic Output - MemoryDiagnoser *
+
+
+// ***** BenchmarkRunner: End *****
+Run time: 00:00:09 (9.36 sec), executed benchmarks: 2
+
+Global total time: 00:00:30 (30.69 sec), executed benchmarks: 2
+// * Artifacts cleanup *
+Artifacts cleanup is finished

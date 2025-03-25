@@ -2,7 +2,7 @@
 <html lang='en'>
 <head>
 <meta charset='utf-8' />
-<title>SearchEngineProject.IndexConstructionBenchmark-20250319-150112</title>
+<title>SearchEngineProject.IndexConstructionBenchmark-20250321-123109</title>
 
 <style type="text/css">
 	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
@@ -17,22 +17,16 @@ BenchmarkDotNet v0.14.0, Ubuntu 24.04.2 LTS (Noble Numbat)
 Intel Core i5-8265U CPU 1.60GHz (Whiskey Lake), 1 CPU, 8 logical and 4 physical cores
 .NET SDK 8.0.114
   [Host]     : .NET 8.0.14 (8.0.1425.11118), X64 RyuJIT AVX2
-  Job-ZUKSMB : .NET 8.0.14 (8.0.1425.11118), X64 RyuJIT AVX2
+  Job-NRVLDE : .NET 8.0.14 (8.0.1425.11118), X64 RyuJIT AVX2
 </code></pre>
-<pre><code>InvocationCount=1  IterationCount=1  UnrollFactor=1  
-WarmupCount=1  
+<pre><code>IterationCount=1  WarmupCount=1  
 </code></pre>
 
 <table>
-<thead><tr><th>Method              </th><th>FileName</th><th>Mean</th><th>Error</th>
+<thead><tr><th>Method              </th><th>FileName</th><th>Mean</th><th>Error</th><th>Gen0</th><th>Allocated</th>
 </tr>
-</thead><tbody><tr><td>BenchmarkIndexConstruction</td><td>100KB.txt</td><td>NA</td><td>NA</td>
-</tr><tr><td>BenchmarkIndexConstruction</td><td>10MB.txt</td><td>NA</td><td>NA</td>
-</tr><tr><td>BenchmarkIndexConstruction</td><td>1MB.txt</td><td>NA</td><td>NA</td>
-</tr><tr><td>BenchmarkIndexConstruction</td><td>20MB.txt</td><td>NA</td><td>NA</td>
-</tr><tr><td>BenchmarkIndexConstruction</td><td>2MB.txt</td><td>NA</td><td>NA</td>
-</tr><tr><td>BenchmarkIndexConstruction</td><td>50MB.txt</td><td>NA</td><td>NA</td>
-</tr><tr><td>BenchmarkIndexConstruction</td><td>5MB.txt</td><td>NA</td><td>NA</td>
+</thead><tbody><tr><td>BenchmarkIndexConstruction</td><td>100KB.txt</td><td>10.39 ms</td><td>NA</td><td>15.6250</td><td>2.1 MB</td>
+</tr><tr><td>BenchmarkIndexConstruction</td><td>1MB.txt</td><td>184.60 ms</td><td>NA</td><td>-</td><td>21.36 MB</td>
 </tr></tbody></table>
 </body>
 </html>

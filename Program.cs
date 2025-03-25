@@ -28,13 +28,14 @@ namespace SearchEngineProject;
 [SimpleJob(warmupCount: 1, iterationCount: 1)]
 public class IndexConstructionBenchmark
 {
-    [Params("100KB.txt", "1MB.txt", "2MB.txt", "5MB.txt", "10MB.txt", "20MB.txt", "50MB.txt", "100MB.txt")]
+    [Params("100KB.txt", "1MB.txt")]
+    //[Params("100KB.txt", "1MB.txt", "2MB.txt", "5MB.txt", "10MB.txt", "20MB.txt", "50MB.txt", "100MB.txt")]
     public string FileName { get; set; }
 
     [Benchmark]
     public Index BenchmarkIndexConstruction()
     {
-        string projectDir = "/zhome/6b/1/188023/search-engine-project";
+        string projectDir = "/home/shierfall/RiderProjects/search-engine-project";
         string fullPath = System.IO.Path.Combine(projectDir, FileName);
         return new Index(fullPath);
     }
@@ -42,9 +43,10 @@ public class IndexConstructionBenchmark
 
 [CsvExporter]
 [MemoryDiagnoser]
-[SimpleJob(warmupCount: 5, iterationCount: 10)]
+[SimpleJob(warmupCount: 5, iterationCount: 40)]
 public class SingleWordQueryBenchmark
 {
+    
     [Params("100KB.txt", "1MB.txt", "2MB.txt", "5MB.txt", "10MB.txt", "20MB.txt", "50MB.txt", "100MB.txt")]
     public string FileName { get; set; }
 
@@ -56,55 +58,76 @@ public class SingleWordQueryBenchmark
     [GlobalSetup]
     public void Setup()
     {
-        string projectDir = "/zhome/6b/1/188023/search-engine-project";
+        string projectDir = "/home/shierfall/RiderProjects/search-engine-project";
         string fullPath = System.IO.Path.Combine(projectDir, FileName);
         index = new Index(fullPath);
     }
 
     [Benchmark]
-    public void BenchmarkPrefixSearchIndex()
+    public void BenchmarkPrefixSearchTrie()
     {
-        index.PrefixSearchIndex(Query);
+        index.PrefixSearchTrie(Query);
     }
 
     [Benchmark]
-    public void BenchmarkNormalSearchDocuments()
+    public void BenchmarkNormalSearchDocumentsTrie()
     {
-        index.SearchIndex(Query);
+        index.SearchTrie(Query);
     }
 
     [Benchmark]
-    public void BenchmarkRankingSearch()
+    public void BenchmarkRankingSearchTrie()
     {
-        index.SearchRankedIndex(Query);
+        index.RankedSearchTrie(Query);
     }
+    
 }
 
 [CsvExporter]
 [MemoryDiagnoser]
-[SimpleJob(warmupCount: 5, iterationCount: 10)]
-public class PhraseQueryBenchmark
+[SimpleJob(warmupCount: 5, iterationCount: 50)]
+public class BoolQueryBenchmark
 {
     [Params("100KB.txt", "1MB.txt", "2MB.txt", "5MB.txt", "10MB.txt", "20MB.txt", "50MB.txt", "100MB.txt")]
     public string FileName { get; set; }
 
-    [Params("and they", "and they were", "it was not", "they could not")]
-    public string QueryPhrase { get; set; }
+    [Params("and && or", "and || or", "cat && dog", "bread || apple")]
+    public string QueryBool { get; set; }
 
     private Index index;
 
     [GlobalSetup]
     public void Setup()
     {
-        string projectDir = "/zhome/6b/1/188023/search-engine-project";
+        string projectDir = "/home/shierfall/RiderProjects/search-engine-project";
         string fullPath = System.IO.Path.Combine(projectDir, FileName);
         index = new Index(fullPath);
     }
 
     [Benchmark]
-    public void BenchmarkPhraseSearch()
+
+    public void BenchmarkBoolQueryTrieNaive()
     {
-        index.PhraseSearchIndex(QueryPhrase);
+        index.BooleanSearchNaiveTrie(QueryBool);
+    }
+
+    [Benchmark]
+
+    public void BenchmarkBoolQueryTrie()
+    {
+        index.BooleanSearchBitsetTrie(QueryBool);
+    }
+
+    [Benchmark]
+    public void BenchmarkBoolQueryIndexNaive()
+    {
+        index.BooleanSearchNaiveIndex(QueryBool);
+    }
+
+    [Benchmark]
+    public void BenchmarkBoolQueryIndex()
+    {
+        index.BooleanSearchBitsetIndex(QueryBool); 
     }
 }
 
@@ -112,14 +135,15 @@ public class Program
 {
     public static void Main(string[] args)
     {
-        BenchmarkRunner.Run<IndexConstructionBenchmark>();
-        BenchmarkRunner.Run<SingleWordQueryBenchmark>();
-        BenchmarkRunner.Run<PhraseQueryBenchmark>();
+        //BenchmarkRunner.Run<IndexConstructionBenchmark>();
+        BenchmarkRunner.Run<BoolQueryBenchmark>();
+        //BenchmarkRunner.Run<PhraseQueryBenchmark>();
     }
 }
 
 
 /*
+
 class Program
 {
     static void Main(string[] args)
@@ -143,7 +167,7 @@ class Program
                 break;
             }
 
-            index.PhraseSearchIndex(searchStr);
+            index.SearchIndex(searchStr);
         }
     }
     
