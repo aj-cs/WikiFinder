@@ -888,7 +888,6 @@ public class Index
                 for (var log = node.Log; log != null; log = log.Next)
                     docs.Add(log.DocumentId);
             }
-
             if (result == null) result = docs;
             else if (op == "&&") result.IntersectWith(docs);
             else if (op == "||") result.UnionWith(docs);

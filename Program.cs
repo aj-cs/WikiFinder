@@ -9,18 +9,8 @@ using BenchmarkDotNet.Jobs;
 namespace SearchEngineProject
 {
     /*
-     * 100KB.txt
-     * 100MB.txt
-     * 10MB.txt
-     * 1GB.txt
-     * 1MB.txt
-     * 200MB.txt
-     * 20MB.txt
-     * 2MB.txt
-     * 400MB.txt
-     * 50MB.txt
-     * 5MB.txt
-     * 800MB.txt
+     * Supported files:
+     * 100KB.txt, 1MB.txt, 2MB.txt, 5MB.txt, 10MB.txt, 20MB.txt, 50MB.txt, 100MB.txt, etc.
      */
 
     [CsvExporter]
@@ -29,8 +19,7 @@ namespace SearchEngineProject
     public class IndexConstructionBenchmark
     {
         [Params("100KB.txt", "1MB.txt")]
-        //[Params("100KB.txt", "1MB.txt", "2MB.txt", "5MB.txt", "10MB.txt", "20MB.txt", "50MB.txt", "100MB.txt")]
-        public string FileName { get; set; }
+        public string FileName { get; set; } = string.Empty;
 
         [Benchmark]
         public Index BenchmarkIndexConstruction()
@@ -47,12 +36,12 @@ namespace SearchEngineProject
     public class SingleWordQueryBenchmark
     {
         [Params("100KB.txt", "1MB.txt", "2MB.txt", "5MB.txt", "10MB.txt", "20MB.txt", "50MB.txt", "100MB.txt")]
-        public string FileName { get; set; }
+        public string FileName { get; set; } = string.Empty;
 
         [Params("and", "or", "cat", "bread")]
-        public string Query { get; set; }
+        public string Query { get; set; } = string.Empty;
 
-        private Index index;
+        private Index index = null!;
 
         [GlobalSetup]
         public void Setup()
@@ -87,12 +76,12 @@ namespace SearchEngineProject
     public class BoolQueryBenchmark
     {
         [Params("100KB.txt", "1MB.txt", "2MB.txt", "5MB.txt", "10MB.txt", "20MB.txt", "50MB.txt", "100MB.txt")]
-        public string FileName { get; set; }
+        public string FileName { get; set; } = string.Empty;
 
         [Params("and && or", "and || or", "cat && dog", "bread || apple")]
-        public string QueryBool { get; set; }
+        public string QueryBool { get; set; } = string.Empty;
 
-        private Index index;
+        private Index index = null!;
 
         [GlobalSetup]
         public void Setup()
@@ -130,33 +119,34 @@ namespace SearchEngineProject
     // Combined benchmark for testing all search methods with multiple queries.
     [CsvExporter]
     [MemoryDiagnoser]
-    [SimpleJob(warmupCount: 5, iterationCount: 10)]
+    [SimpleJob(warmupCount: 5, iterationCount: 50)]
     public class AllSearchMethodsBenchmark
     {
         [Params("100KB.txt", "1MB.txt", "2MB.txt", "5MB.txt", "10MB.txt", "20MB.txt", "50MB.txt", "100MB.txt")]
-        public string FileName { get; set; }
-        
-        [Params("and", "or", "cat", "bread")]
-        public string SingleQuery { get; set; }
-        
+        public string FileName { get; set; } = string.Empty;
 
+        // Multiple single-word queries for exact and ranked searches.
+        [Params("cat", "dog", "bread", "apple")]
+        public string SingleQuery { get; set; } = string.Empty;
+        
+        // Multiple prefix queries for auto-complete and prefix searches.
         [Params("ca", "do", "br", "ap")]
-        public string PrefixQuery { get; set; }
+        public string PrefixQuery { get; set; } = string.Empty;
 
-
+        // More common phrase queries that are likely to appear frequently.
         [Params("in the", "of the", "to the", "on the")]
-        public string PhraseQuery { get; set; }
+        public string PhraseQuery { get; set; } = string.Empty;
 
         // Multiple boolean queries.
-        [Params("cat && dog", "and || or", "cat && apple", "learn || bread || algorithm")]
-        public string BoolQuery { get; set; }
+        [Params("cat && dog", "bread || apple", "cat && apple", "dog || bread")]
+        public string BoolQuery { get; set; } = string.Empty;
 
-        private Index index;
+        private Index index = null!;
 
         [GlobalSetup]
         public void Setup()
         {
-            string projectDir = "/home/shierfall/RiderProjects/search-engine-project";
+            string projectDir = "/zhome/6b/188023/search-engine-project";
             string fullPath = System.IO.Path.Combine(projectDir, FileName);
             index = new Index(fullPath);
         }
@@ -258,16 +248,16 @@ namespace SearchEngineProject
         public static void Main(string[] args)
         {
             // Uncomment the benchmark(s) you wish to run:
-            //BenchmarkRunner.Run<IndexConstructionBenchmark>();
-            //BenchmarkRunner.Run<SingleWordQueryBenchmark>();
-            //BenchmarkRunner.Run<BoolQueryBenchmark>();
+            // BenchmarkRunner.Run<IndexConstructionBenchmark>();
+            // BenchmarkRunner.Run<SingleWordQueryBenchmark>();
+            // BenchmarkRunner.Run<BoolQueryBenchmark>();
             BenchmarkRunner.Run<AllSearchMethodsBenchmark>();
         }
     }
 }
 
 /*
-Alternative main (interactive mode):
+Alternative interactive main (commented out):
 
 class Program
 {
