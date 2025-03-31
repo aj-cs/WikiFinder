@@ -37,7 +37,7 @@ namespace SearchEngineProject
         [Benchmark]
         public Index BenchmarkIndexConstruction()
         {
-            string projectDir = "/home/shierfall/RiderProjects/search-engine-project";
+            string projectDir = "/zhome/6b/188023/search-engine-project";
             string fullPath = System.IO.Path.Combine(projectDir, FileName);
             return new Index(fullPath);
         }
@@ -63,7 +63,7 @@ namespace SearchEngineProject
         [GlobalSetup]
         public void Setup()
         {
-            string projectDir = "/home/shierfall/RiderProjects/search-engine-project";
+            string projectDir = "/zhome/6b/188023/search-engine-project";
             string fullPath = System.IO.Path.Combine(projectDir, FileName);
             index = new Index(fullPath);
         }
@@ -107,7 +107,7 @@ namespace SearchEngineProject
         [GlobalSetup]
         public void Setup()
         {
-            string projectDir = "/home/shierfall/RiderProjects/search-engine-project";
+            string projectDir = "/zhome/6b/188023/search-engine-project";
             string fullPath = System.IO.Path.Combine(projectDir, FileName);
             index = new Index(fullPath);
         }
@@ -160,7 +160,7 @@ namespace SearchEngineProject
         [GlobalSetup]
         public void Setup()
         {
-            string projectDir = "/home/shierfall/RiderProjects/search-engine-project";
+            string projectDir = "/zhome/6b/188023/search-engine-project";
             string fullPath = System.IO.Path.Combine(projectDir, FileName);
             index = new Index(fullPath);
         }
@@ -191,7 +191,7 @@ namespace SearchEngineProject
         [GlobalSetup]
         public void Setup()
         {
-            string projectDir = "/home/shierfall/RiderProjects/search-engine-project";
+            string projectDir = "/zhome/6b/188023/search-engine-project";
             string fullPath = System.IO.Path.Combine(projectDir, FileName);
             index = new Index(fullPath);
         }
@@ -226,7 +226,7 @@ namespace SearchEngineProject
         [GlobalSetup]
         public void Setup()
         {
-            string projectDir = "/home/shierfall/RiderProjects/search-engine-project";
+            string projectDir = "/zhome/6b/188023/search-engine-project";
             string fullPath = System.IO.Path.Combine(projectDir, FileName);
             index = new Index(fullPath);
         }
@@ -257,7 +257,7 @@ namespace SearchEngineProject
         [GlobalSetup]
         public void Setup()
         {
-            string projectDir = "/home/shierfall/RiderProjects/search-engine-project";
+            string projectDir = "/zhome/6b/188023/search-engine-project";
             string fullPath = System.IO.Path.Combine(projectDir, FileName);
             index = new Index(fullPath);
         }
@@ -288,7 +288,7 @@ namespace SearchEngineProject
         [GlobalSetup]
         public void Setup()
         {
-            string projectDir = "/home/shierfall/RiderProjects/search-engine-project";
+            string projectDir = "/zhome/6b/188023/search-engine-project";
             string fullPath = System.IO.Path.Combine(projectDir, FileName);
             index = new Index(fullPath);
         }
