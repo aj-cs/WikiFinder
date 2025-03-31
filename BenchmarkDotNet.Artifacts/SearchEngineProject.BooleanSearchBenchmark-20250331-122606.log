@@ -1,0 +1,212 @@
+// Validating benchmarks:
+// ***** BenchmarkRunner: Start   *****
+// ***** Found 128 benchmark(s) in total *****
+// ***** Building 1 exe(s) in Parallel: Start   *****
+// start dotnet  restore /p:UseSharedCompilation=false /p:BuildInParallel=false /m:1 /p:Deterministic=true /p:Optimize=true /p:IntermediateOutputPath="/home/shierfall/RiderProjects/search-engine-project/bin/RELEASE/net8.0/28ae3b0f-ce81-45c8-8bc4-8fe110ba60fd/obj/Release/net8.0/" /p:OutDir="/home/shierfall/RiderProjects/search-engine-project/bin/RELEASE/net8.0/28ae3b0f-ce81-45c8-8bc4-8fe110ba60fd/bin/Release/net8.0/" /p:OutputPath="/home/shierfall/RiderProjects/search-engine-project/bin/RELEASE/net8.0/28ae3b0f-ce81-45c8-8bc4-8fe110ba60fd/bin/Release/net8.0/" in /home/shierfall/RiderProjects/search-engine-project/bin/RELEASE/net8.0/28ae3b0f-ce81-45c8-8bc4-8fe110ba60fd
+// command took 5.31 sec and exited with 0
+// start dotnet  build -c Release --no-restore /p:UseSharedCompilation=false /p:BuildInParallel=false /m:1 /p:Deterministic=true /p:Optimize=true /p:IntermediateOutputPath="/home/shierfall/RiderProjects/search-engine-project/bin/RELEASE/net8.0/28ae3b0f-ce81-45c8-8bc4-8fe110ba60fd/obj/Release/net8.0/" /p:OutDir="/home/shierfall/RiderProjects/search-engine-project/bin/RELEASE/net8.0/28ae3b0f-ce81-45c8-8bc4-8fe110ba60fd/bin/Release/net8.0/" /p:OutputPath="/home/shierfall/RiderProjects/search-engine-project/bin/RELEASE/net8.0/28ae3b0f-ce81-45c8-8bc4-8fe110ba60fd/bin/Release/net8.0/" --output "/home/shierfall/RiderProjects/search-engine-project/bin/RELEASE/net8.0/28ae3b0f-ce81-45c8-8bc4-8fe110ba60fd/bin/Release/net8.0/" in /home/shierfall/RiderProjects/search-engine-project/bin/RELEASE/net8.0/28ae3b0f-ce81-45c8-8bc4-8fe110ba60fd
+// command took 18.87 sec and exited with 0
+// ***** Done, took 00:00:24 (24.5 sec)   *****
+// Found 128 benchmarks:
+//   BooleanSearchBenchmark.BooleanSearchNaiveTrie: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=100KB.txt, BoolQuery=bread || apple]
+//   BooleanSearchBenchmark.BooleanSearchBitsetTrie: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=100KB.txt, BoolQuery=bread || apple]
+//   BooleanSearchBenchmark.BooleanSearchNaiveIndex: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=100KB.txt, BoolQuery=bread || apple]
+//   BooleanSearchBenchmark.BooleanSearchBitsetIndex: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=100KB.txt, BoolQuery=bread || apple]
+//   BooleanSearchBenchmark.BooleanSearchNaiveTrie: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=100KB.txt, BoolQuery=cat && apple]
+//   BooleanSearchBenchmark.BooleanSearchBitsetTrie: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=100KB.txt, BoolQuery=cat && apple]
+//   BooleanSearchBenchmark.BooleanSearchNaiveIndex: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=100KB.txt, BoolQuery=cat && apple]
+//   BooleanSearchBenchmark.BooleanSearchBitsetIndex: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=100KB.txt, BoolQuery=cat && apple]
+//   BooleanSearchBenchmark.BooleanSearchNaiveTrie: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=100KB.txt, BoolQuery=cat && dog]
+//   BooleanSearchBenchmark.BooleanSearchBitsetTrie: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=100KB.txt, BoolQuery=cat && dog]
+//   BooleanSearchBenchmark.BooleanSearchNaiveIndex: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=100KB.txt, BoolQuery=cat && dog]
+//   BooleanSearchBenchmark.BooleanSearchBitsetIndex: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=100KB.txt, BoolQuery=cat && dog]
+//   BooleanSearchBenchmark.BooleanSearchNaiveTrie: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=100KB.txt, BoolQuery=dog || bread]
+//   BooleanSearchBenchmark.BooleanSearchBitsetTrie: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=100KB.txt, BoolQuery=dog || bread]
+//   BooleanSearchBenchmark.BooleanSearchNaiveIndex: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=100KB.txt, BoolQuery=dog || bread]
+//   BooleanSearchBenchmark.BooleanSearchBitsetIndex: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=100KB.txt, BoolQuery=dog || bread]
+//   BooleanSearchBenchmark.BooleanSearchNaiveTrie: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=100MB.txt, BoolQuery=bread || apple]
+//   BooleanSearchBenchmark.BooleanSearchBitsetTrie: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=100MB.txt, BoolQuery=bread || apple]
+//   BooleanSearchBenchmark.BooleanSearchNaiveIndex: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=100MB.txt, BoolQuery=bread || apple]
+//   BooleanSearchBenchmark.BooleanSearchBitsetIndex: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=100MB.txt, BoolQuery=bread || apple]
+//   BooleanSearchBenchmark.BooleanSearchNaiveTrie: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=100MB.txt, BoolQuery=cat && apple]
+//   BooleanSearchBenchmark.BooleanSearchBitsetTrie: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=100MB.txt, BoolQuery=cat && apple]
+//   BooleanSearchBenchmark.BooleanSearchNaiveIndex: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=100MB.txt, BoolQuery=cat && apple]
+//   BooleanSearchBenchmark.BooleanSearchBitsetIndex: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=100MB.txt, BoolQuery=cat && apple]
+//   BooleanSearchBenchmark.BooleanSearchNaiveTrie: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=100MB.txt, BoolQuery=cat && dog]
+//   BooleanSearchBenchmark.BooleanSearchBitsetTrie: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=100MB.txt, BoolQuery=cat && dog]
+//   BooleanSearchBenchmark.BooleanSearchNaiveIndex: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=100MB.txt, BoolQuery=cat && dog]
+//   BooleanSearchBenchmark.BooleanSearchBitsetIndex: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=100MB.txt, BoolQuery=cat && dog]
+//   BooleanSearchBenchmark.BooleanSearchNaiveTrie: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=100MB.txt, BoolQuery=dog || bread]
+//   BooleanSearchBenchmark.BooleanSearchBitsetTrie: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=100MB.txt, BoolQuery=dog || bread]
+//   BooleanSearchBenchmark.BooleanSearchNaiveIndex: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=100MB.txt, BoolQuery=dog || bread]
+//   BooleanSearchBenchmark.BooleanSearchBitsetIndex: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=100MB.txt, BoolQuery=dog || bread]
+//   BooleanSearchBenchmark.BooleanSearchNaiveTrie: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=10MB.txt, BoolQuery=bread || apple]
+//   BooleanSearchBenchmark.BooleanSearchBitsetTrie: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=10MB.txt, BoolQuery=bread || apple]
+//   BooleanSearchBenchmark.BooleanSearchNaiveIndex: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=10MB.txt, BoolQuery=bread || apple]
+//   BooleanSearchBenchmark.BooleanSearchBitsetIndex: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=10MB.txt, BoolQuery=bread || apple]
+//   BooleanSearchBenchmark.BooleanSearchNaiveTrie: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=10MB.txt, BoolQuery=cat && apple]
+//   BooleanSearchBenchmark.BooleanSearchBitsetTrie: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=10MB.txt, BoolQuery=cat && apple]
+//   BooleanSearchBenchmark.BooleanSearchNaiveIndex: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=10MB.txt, BoolQuery=cat && apple]
+//   BooleanSearchBenchmark.BooleanSearchBitsetIndex: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=10MB.txt, BoolQuery=cat && apple]
+//   BooleanSearchBenchmark.BooleanSearchNaiveTrie: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=10MB.txt, BoolQuery=cat && dog]
+//   BooleanSearchBenchmark.BooleanSearchBitsetTrie: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=10MB.txt, BoolQuery=cat && dog]
+//   BooleanSearchBenchmark.BooleanSearchNaiveIndex: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=10MB.txt, BoolQuery=cat && dog]
+//   BooleanSearchBenchmark.BooleanSearchBitsetIndex: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=10MB.txt, BoolQuery=cat && dog]
+//   BooleanSearchBenchmark.BooleanSearchNaiveTrie: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=10MB.txt, BoolQuery=dog || bread]
+//   BooleanSearchBenchmark.BooleanSearchBitsetTrie: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=10MB.txt, BoolQuery=dog || bread]
+//   BooleanSearchBenchmark.BooleanSearchNaiveIndex: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=10MB.txt, BoolQuery=dog || bread]
+//   BooleanSearchBenchmark.BooleanSearchBitsetIndex: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=10MB.txt, BoolQuery=dog || bread]
+//   BooleanSearchBenchmark.BooleanSearchNaiveTrie: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=1MB.txt, BoolQuery=bread || apple]
+//   BooleanSearchBenchmark.BooleanSearchBitsetTrie: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=1MB.txt, BoolQuery=bread || apple]
+//   BooleanSearchBenchmark.BooleanSearchNaiveIndex: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=1MB.txt, BoolQuery=bread || apple]
+//   BooleanSearchBenchmark.BooleanSearchBitsetIndex: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=1MB.txt, BoolQuery=bread || apple]
+//   BooleanSearchBenchmark.BooleanSearchNaiveTrie: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=1MB.txt, BoolQuery=cat && apple]
+//   BooleanSearchBenchmark.BooleanSearchBitsetTrie: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=1MB.txt, BoolQuery=cat && apple]
+//   BooleanSearchBenchmark.BooleanSearchNaiveIndex: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=1MB.txt, BoolQuery=cat && apple]
+//   BooleanSearchBenchmark.BooleanSearchBitsetIndex: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=1MB.txt, BoolQuery=cat && apple]
+//   BooleanSearchBenchmark.BooleanSearchNaiveTrie: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=1MB.txt, BoolQuery=cat && dog]
+//   BooleanSearchBenchmark.BooleanSearchBitsetTrie: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=1MB.txt, BoolQuery=cat && dog]
+//   BooleanSearchBenchmark.BooleanSearchNaiveIndex: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=1MB.txt, BoolQuery=cat && dog]
+//   BooleanSearchBenchmark.BooleanSearchBitsetIndex: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=1MB.txt, BoolQuery=cat && dog]
+//   BooleanSearchBenchmark.BooleanSearchNaiveTrie: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=1MB.txt, BoolQuery=dog || bread]
+//   BooleanSearchBenchmark.BooleanSearchBitsetTrie: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=1MB.txt, BoolQuery=dog || bread]
+//   BooleanSearchBenchmark.BooleanSearchNaiveIndex: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=1MB.txt, BoolQuery=dog || bread]
+//   BooleanSearchBenchmark.BooleanSearchBitsetIndex: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=1MB.txt, BoolQuery=dog || bread]
+//   BooleanSearchBenchmark.BooleanSearchNaiveTrie: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=20MB.txt, BoolQuery=bread || apple]
+//   BooleanSearchBenchmark.BooleanSearchBitsetTrie: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=20MB.txt, BoolQuery=bread || apple]
+//   BooleanSearchBenchmark.BooleanSearchNaiveIndex: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=20MB.txt, BoolQuery=bread || apple]
+//   BooleanSearchBenchmark.BooleanSearchBitsetIndex: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=20MB.txt, BoolQuery=bread || apple]
+//   BooleanSearchBenchmark.BooleanSearchNaiveTrie: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=20MB.txt, BoolQuery=cat && apple]
+//   BooleanSearchBenchmark.BooleanSearchBitsetTrie: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=20MB.txt, BoolQuery=cat && apple]
+//   BooleanSearchBenchmark.BooleanSearchNaiveIndex: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=20MB.txt, BoolQuery=cat && apple]
+//   BooleanSearchBenchmark.BooleanSearchBitsetIndex: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=20MB.txt, BoolQuery=cat && apple]
+//   BooleanSearchBenchmark.BooleanSearchNaiveTrie: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=20MB.txt, BoolQuery=cat && dog]
+//   BooleanSearchBenchmark.BooleanSearchBitsetTrie: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=20MB.txt, BoolQuery=cat && dog]
+//   BooleanSearchBenchmark.BooleanSearchNaiveIndex: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=20MB.txt, BoolQuery=cat && dog]
+//   BooleanSearchBenchmark.BooleanSearchBitsetIndex: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=20MB.txt, BoolQuery=cat && dog]
+//   BooleanSearchBenchmark.BooleanSearchNaiveTrie: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=20MB.txt, BoolQuery=dog || bread]
+//   BooleanSearchBenchmark.BooleanSearchBitsetTrie: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=20MB.txt, BoolQuery=dog || bread]
+//   BooleanSearchBenchmark.BooleanSearchNaiveIndex: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=20MB.txt, BoolQuery=dog || bread]
+//   BooleanSearchBenchmark.BooleanSearchBitsetIndex: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=20MB.txt, BoolQuery=dog || bread]
+//   BooleanSearchBenchmark.BooleanSearchNaiveTrie: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=2MB.txt, BoolQuery=bread || apple]
+//   BooleanSearchBenchmark.BooleanSearchBitsetTrie: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=2MB.txt, BoolQuery=bread || apple]
+//   BooleanSearchBenchmark.BooleanSearchNaiveIndex: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=2MB.txt, BoolQuery=bread || apple]
+//   BooleanSearchBenchmark.BooleanSearchBitsetIndex: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=2MB.txt, BoolQuery=bread || apple]
+//   BooleanSearchBenchmark.BooleanSearchNaiveTrie: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=2MB.txt, BoolQuery=cat && apple]
+//   BooleanSearchBenchmark.BooleanSearchBitsetTrie: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=2MB.txt, BoolQuery=cat && apple]
+//   BooleanSearchBenchmark.BooleanSearchNaiveIndex: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=2MB.txt, BoolQuery=cat && apple]
+//   BooleanSearchBenchmark.BooleanSearchBitsetIndex: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=2MB.txt, BoolQuery=cat && apple]
+//   BooleanSearchBenchmark.BooleanSearchNaiveTrie: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=2MB.txt, BoolQuery=cat && dog]
+//   BooleanSearchBenchmark.BooleanSearchBitsetTrie: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=2MB.txt, BoolQuery=cat && dog]
+//   BooleanSearchBenchmark.BooleanSearchNaiveIndex: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=2MB.txt, BoolQuery=cat && dog]
+//   BooleanSearchBenchmark.BooleanSearchBitsetIndex: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=2MB.txt, BoolQuery=cat && dog]
+//   BooleanSearchBenchmark.BooleanSearchNaiveTrie: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=2MB.txt, BoolQuery=dog || bread]
+//   BooleanSearchBenchmark.BooleanSearchBitsetTrie: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=2MB.txt, BoolQuery=dog || bread]
+//   BooleanSearchBenchmark.BooleanSearchNaiveIndex: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=2MB.txt, BoolQuery=dog || bread]
+//   BooleanSearchBenchmark.BooleanSearchBitsetIndex: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=2MB.txt, BoolQuery=dog || bread]
+//   BooleanSearchBenchmark.BooleanSearchNaiveTrie: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=50MB.txt, BoolQuery=bread || apple]
+//   BooleanSearchBenchmark.BooleanSearchBitsetTrie: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=50MB.txt, BoolQuery=bread || apple]
+//   BooleanSearchBenchmark.BooleanSearchNaiveIndex: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=50MB.txt, BoolQuery=bread || apple]
+//   BooleanSearchBenchmark.BooleanSearchBitsetIndex: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=50MB.txt, BoolQuery=bread || apple]
+//   BooleanSearchBenchmark.BooleanSearchNaiveTrie: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=50MB.txt, BoolQuery=cat && apple]
+//   BooleanSearchBenchmark.BooleanSearchBitsetTrie: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=50MB.txt, BoolQuery=cat && apple]
+//   BooleanSearchBenchmark.BooleanSearchNaiveIndex: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=50MB.txt, BoolQuery=cat && apple]
+//   BooleanSearchBenchmark.BooleanSearchBitsetIndex: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=50MB.txt, BoolQuery=cat && apple]
+//   BooleanSearchBenchmark.BooleanSearchNaiveTrie: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=50MB.txt, BoolQuery=cat && dog]
+//   BooleanSearchBenchmark.BooleanSearchBitsetTrie: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=50MB.txt, BoolQuery=cat && dog]
+//   BooleanSearchBenchmark.BooleanSearchNaiveIndex: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=50MB.txt, BoolQuery=cat && dog]
+//   BooleanSearchBenchmark.BooleanSearchBitsetIndex: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=50MB.txt, BoolQuery=cat && dog]
+//   BooleanSearchBenchmark.BooleanSearchNaiveTrie: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=50MB.txt, BoolQuery=dog || bread]
+//   BooleanSearchBenchmark.BooleanSearchBitsetTrie: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=50MB.txt, BoolQuery=dog || bread]
+//   BooleanSearchBenchmark.BooleanSearchNaiveIndex: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=50MB.txt, BoolQuery=dog || bread]
+//   BooleanSearchBenchmark.BooleanSearchBitsetIndex: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=50MB.txt, BoolQuery=dog || bread]
+//   BooleanSearchBenchmark.BooleanSearchNaiveTrie: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=5MB.txt, BoolQuery=bread || apple]
+//   BooleanSearchBenchmark.BooleanSearchBitsetTrie: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=5MB.txt, BoolQuery=bread || apple]
+//   BooleanSearchBenchmark.BooleanSearchNaiveIndex: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=5MB.txt, BoolQuery=bread || apple]
+//   BooleanSearchBenchmark.BooleanSearchBitsetIndex: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=5MB.txt, BoolQuery=bread || apple]
+//   BooleanSearchBenchmark.BooleanSearchNaiveTrie: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=5MB.txt, BoolQuery=cat && apple]
+//   BooleanSearchBenchmark.BooleanSearchBitsetTrie: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=5MB.txt, BoolQuery=cat && apple]
+//   BooleanSearchBenchmark.BooleanSearchNaiveIndex: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=5MB.txt, BoolQuery=cat && apple]
+//   BooleanSearchBenchmark.BooleanSearchBitsetIndex: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=5MB.txt, BoolQuery=cat && apple]
+//   BooleanSearchBenchmark.BooleanSearchNaiveTrie: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=5MB.txt, BoolQuery=cat && dog]
+//   BooleanSearchBenchmark.BooleanSearchBitsetTrie: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=5MB.txt, BoolQuery=cat && dog]
+//   BooleanSearchBenchmark.BooleanSearchNaiveIndex: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=5MB.txt, BoolQuery=cat && dog]
+//   BooleanSearchBenchmark.BooleanSearchBitsetIndex: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=5MB.txt, BoolQuery=cat && dog]
+//   BooleanSearchBenchmark.BooleanSearchNaiveTrie: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=5MB.txt, BoolQuery=dog || bread]
+//   BooleanSearchBenchmark.BooleanSearchBitsetTrie: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=5MB.txt, BoolQuery=dog || bread]
+//   BooleanSearchBenchmark.BooleanSearchNaiveIndex: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=5MB.txt, BoolQuery=dog || bread]
+//   BooleanSearchBenchmark.BooleanSearchBitsetIndex: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=5MB.txt, BoolQuery=dog || bread]
+
+// **************************
+// Benchmark: BooleanSearchBenchmark.BooleanSearchNaiveTrie: Job-LAAITM(IterationCount=50, WarmupCount=5) [FileName=100KB.txt, BoolQuery=bread || apple]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 28ae3b0f-ce81-45c8-8bc4-8fe110ba60fd.dll --anonymousPipes 109 111 --benchmarkName "SearchEngineProject.BooleanSearchBenchmark.BooleanSearchNaiveTrie(FileName: \"100KB.txt\", BoolQuery: \"bread || apple\")" --job "IterationCount=50, WarmupCount=5" --benchmarkId 0 in /home/shierfall/RiderProjects/search-engine-project/bin/RELEASE/net8.0/28ae3b0f-ce81-45c8-8bc4-8fe110ba60fd/bin/Release/net8.0
+// Failed to set up high priority (Permission denied). In order to run benchmarks with high priority, make sure you have the right permissions.
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 8.0.14 (8.0.1425.11118), X64 RyuJIT AVX2
+// GC=Concurrent Server
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT VectorSize=256
+// Job: Job-ELGZFM(IterationCount=50, WarmupCount=5)
+
+OverheadJitting  1: 1 op, 601484.00 ns, 601.4840 us/op
+WorkloadJitting  1: 1 op, 30322275.00 ns, 30.3223 ms/op
+
+OverheadJitting  2: 16 op, 760207.00 ns, 47.5129 us/op
+WorkloadJitting  2: 16 op, 858758.00 ns, 53.6724 us/op
+
+WorkloadPilot    1: 16 op, 200057.00 ns, 12.5036 us/op
+WorkloadPilot    2: 32 op, 247689.00 ns, 7.7403 us/op
+WorkloadPilot    3: 64 op, 596953.00 ns, 9.3274 us/op
+WorkloadPilot    4: 128 op, 385591.00 ns, 3.0124 us/op
+WorkloadPilot    5: 256 op, 2007530.00 ns, 7.8419 us/op
+WorkloadPilot    6: 512 op, 2168040.00 ns, 4.2345 us/op
+WorkloadPilot    7: 1024 op, 2866711.00 ns, 2.7995 us/op
+WorkloadPilot    8: 2048 op, 4812827.00 ns, 2.3500 us/op
+WorkloadPilot    9: 4096 op, 9769444.00 ns, 2.3851 us/op
+WorkloadPilot   10: 8192 op, 19905336.00 ns, 2.4299 us/op
+WorkloadPilot   11: 16384 op, 45242655.00 ns, 2.7614 us/op
+WorkloadPilot   12: 32768 op, 38752811.00 ns, 1.1826 us/op
+WorkloadPilot   13: 65536 op, 73624155.00 ns, 1.1234 us/op
+WorkloadPilot   14: 131072 op, 140954455.00 ns, 1.0754 us/op
+WorkloadPilot   15: 262144 op, 240174741.00 ns, 916.1939 ns/op
+WorkloadPilot   16: 524288 op, 469920167.00 ns, 896.3016 ns/op
+WorkloadPilot   17: 1048576 op, 937164777.00 ns, 893.7500 ns/op
+
+OverheadWarmup   1: 1048576 op, 6378001.00 ns, 6.0825 ns/op
+OverheadWarmup   2: 1048576 op, 6270411.00 ns, 5.9799 ns/op
+OverheadWarmup   3: 1048576 op, 6797250.00 ns, 6.4824 ns/op
+OverheadWarmup   4: 1048576 op, 8090885.00 ns, 7.7161 ns/op
+OverheadWarmup   5: 1048576 op, 8481644.00 ns, 8.0887 ns/op
+OverheadWarmup   6: 1048576 op, 8267328.00 ns, 7.8843 ns/op
+OverheadWarmup   7: 1048576 op, 7226532.00 ns, 6.8918 ns/op
+OverheadWarmup   8: 1048576 op, 6715851.00 ns, 6.4047 ns/op
+OverheadWarmup   9: 1048576 op, 6992647.00 ns, 6.6687 ns/op
+OverheadWarmup  10: 1048576 op, 6761264.00 ns, 6.4480 ns/op
+
+OverheadActual   1: 1048576 op, 6767926.00 ns, 6.4544 ns/op
+OverheadActual   2: 1048576 op, 7734258.00 ns, 7.3760 ns/op
+OverheadActual   3: 1048576 op, 10524939.00 ns, 10.0374 ns/op
+OverheadActual   4: 1048576 op, 8061853.00 ns, 7.6884 ns/op
+OverheadActual   5: 1048576 op, 6401858.00 ns, 6.1053 ns/op
+OverheadActual   6: 1048576 op, 6446706.00 ns, 6.1481 ns/op
+OverheadActual   7: 1048576 op, 7096094.00 ns, 6.7674 ns/op
+OverheadActual   8: 1048576 op, 6632876.00 ns, 6.3256 ns/op
+OverheadActual   9: 1048576 op, 9144189.00 ns, 8.7206 ns/op
+OverheadActual  10: 1048576 op, 6529244.00 ns, 6.2268 ns/op
+OverheadActual  11: 1048576 op, 8042576.00 ns, 7.6700 ns/op
+OverheadActual  12: 1048576 op, 6445158.00 ns, 6.1466 ns/op
+OverheadActual  13: 1048576 op, 4467109.00 ns, 4.2602 ns/op
+OverheadActual  14: 1048576 op, 4534683.00 ns, 4.3246 ns/op
+OverheadActual  15: 1048576 op, 4764061.00 ns, 4.5434 ns/op
+OverheadActual  16: 1048576 op, 5039783.00 ns, 4.8063 ns/op
+OverheadActual  17: 1048576 op, 4399595.00 ns, 4.1958 ns/op
+OverheadActual  18: 1048576 op, 4661055.00 ns, 4.4451 ns/op
+OverheadActual  19: 1048576 op, 5625147.00 ns, 5.3646 ns/op
+OverheadActual  20: 1048576 op, 5700863.00 ns, 5.4368 ns/op
+
+WorkloadWarmup   1: 1048576 op, 968367611.00 ns, 923.5073 ns/op
+WorkloadWarmup   2: 1048576 op, 933387820.00 ns, 890.1480 ns/op

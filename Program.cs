@@ -9,9 +9,21 @@ using BenchmarkDotNet.Jobs;
 namespace SearchEngineProject
 {
     /*
-     * Supported files:
-     * 100KB.txt, 1MB.txt, 2MB.txt, 5MB.txt, 10MB.txt, 20MB.txt, 50MB.txt, 100MB.txt, etc.
+     * 100KB.txt
+     * 100MB.txt
+     * 10MB.txt
+     * 1GB.txt
+     * 1MB.txt
+     * 200MB.txt
+     * 20MB.txt
+     * 2MB.txt
+     * 400MB.txt
+     * 50MB.txt
+     * 5MB.txt
+     * 800MB.txt
      */
+
+    #region Index Construction Benchmark
 
     [CsvExporter]
     [MemoryDiagnoser]
@@ -19,16 +31,21 @@ namespace SearchEngineProject
     public class IndexConstructionBenchmark
     {
         [Params("100KB.txt", "1MB.txt")]
+        //[Params("100KB.txt", "1MB.txt", "2MB.txt", "5MB.txt", "10MB.txt", "20MB.txt", "50MB.txt", "100MB.txt")]
         public string FileName { get; set; } = string.Empty;
 
         [Benchmark]
         public Index BenchmarkIndexConstruction()
         {
-            string projectDir = "/home/shierfall/RiderProjects/search-engine-project";
+            string projectDir = "/zhome/6b/188023/search-engine-project";
             string fullPath = System.IO.Path.Combine(projectDir, FileName);
             return new Index(fullPath);
         }
     }
+
+    #endregion
+
+    #region Single Word Query Benchmark (Exact Match, Trie Only)
 
     [CsvExporter]
     [MemoryDiagnoser]
@@ -46,7 +63,7 @@ namespace SearchEngineProject
         [GlobalSetup]
         public void Setup()
         {
-            string projectDir = "/home/shierfall/RiderProjects/search-engine-project";
+            string projectDir = "/zhome/6b/188023/search-engine-project";
             string fullPath = System.IO.Path.Combine(projectDir, FileName);
             index = new Index(fullPath);
         }
@@ -70,6 +87,10 @@ namespace SearchEngineProject
         }
     }
 
+    #endregion
+
+    #region Boolean Query Benchmark (Trie and Inverted Index)
+
     [CsvExporter]
     [MemoryDiagnoser]
     [SimpleJob(warmupCount: 5, iterationCount: 50)]
@@ -86,7 +107,7 @@ namespace SearchEngineProject
         [GlobalSetup]
         public void Setup()
         {
-            string projectDir = "/home/shierfall/RiderProjects/search-engine-project";
+            string projectDir = "/zhome/6b/188023/search-engine-project";
             string fullPath = System.IO.Path.Combine(projectDir, FileName);
             index = new Index(fullPath);
         }
@@ -116,33 +137,26 @@ namespace SearchEngineProject
         }
     }
 
-    // Combined benchmark for testing all search methods with multiple queries.
+    #endregion
+
+    #region New Benchmarks for Each Separate Search Type
+
+    //--------------------------------------------------------------------------
+    // Exact Search Benchmark (Exact match using trie vs. inverted index)
+    //--------------------------------------------------------------------------
     [CsvExporter]
     [MemoryDiagnoser]
     [SimpleJob(warmupCount: 5, iterationCount: 50)]
-    public class AllSearchMethodsBenchmark
+    public class ExactSearchBenchmark
     {
         [Params("100KB.txt", "1MB.txt", "2MB.txt", "5MB.txt", "10MB.txt", "20MB.txt", "50MB.txt", "100MB.txt")]
         public string FileName { get; set; } = string.Empty;
-
-        // Multiple single-word queries for exact and ranked searches.
-        [Params("cat", "dog", "bread", "apple")]
-        public string SingleQuery { get; set; } = string.Empty;
         
-        // Multiple prefix queries for auto-complete and prefix searches.
-        [Params("ca", "do", "br", "ap")]
-        public string PrefixQuery { get; set; } = string.Empty;
-
-        // More common phrase queries that are likely to appear frequently.
-        [Params("in the", "of the", "to the", "on the")]
-        public string PhraseQuery { get; set; } = string.Empty;
-
-        // Multiple boolean queries.
-        [Params("cat && dog", "bread || apple", "cat && apple", "dog || bread")]
-        public string BoolQuery { get; set; } = string.Empty;
-
+        [Params("cat", "dog", "bread", "apple")]
+        public string Query { get; set; } = string.Empty;
+        
         private Index index = null!;
-
+        
         [GlobalSetup]
         public void Setup()
         {
@@ -150,98 +164,151 @@ namespace SearchEngineProject
             string fullPath = System.IO.Path.Combine(projectDir, FileName);
             index = new Index(fullPath);
         }
-
-        // Trie-based exact search.
+        
         [Benchmark]
-        public void BenchmarkSearchTrie()
-        {
-            index.SearchTrie(SingleQuery);
-        }
-
-        // Trie-based auto-complete.
+        public void TrieExactSearch() => index.SearchTrie(Query);
+        
         [Benchmark]
-        public void BenchmarkAutoComplete()
-        {
-            index.AutoComplete(PrefixQuery);
-        }
-
-        // Trie-based prefix search.
-        [Benchmark]
-        public void BenchmarkPrefixSearchTrie()
-        {
-            index.PrefixSearchTrie(PrefixQuery);
-        }
-
-        // Trie-based phrase search.
-        [Benchmark]
-        public void BenchmarkPhraseSearchTrie()
-        {
-            index.PhraseSearchTrie(PhraseQuery);
-        }
-
-        // Inverted index exact search.
-        [Benchmark]
-        public void BenchmarkSearchIndex()
-        {
-            index.SearchIndex(SingleQuery);
-        }
-
-        // Inverted index prefix search.
-        [Benchmark]
-        public void BenchmarkPrefixSearchIndex()
-        {
-            index.PrefixSearchIndex(PrefixQuery);
-        }
-
-        // Inverted index phrase search.
-        [Benchmark]
-        public void BenchmarkPhraseSearchIndex()
-        {
-            index.PhraseSearchIndex(PhraseQuery);
-        }
-
-        // Inverted index ranked search.
-        [Benchmark]
-        public void BenchmarkSearchRankedIndex()
-        {
-            index.SearchRankedIndex(SingleQuery);
-        }
-
-        // Boolean search using inverted index (naive).
-        [Benchmark]
-        public void BenchmarkBooleanSearchNaiveIndex()
-        {
-            index.BooleanSearchNaiveIndex(BoolQuery);
-        }
-
-        // Boolean search using inverted index (bitset).
-        [Benchmark]
-        public void BenchmarkBooleanSearchBitsetIndex()
-        {
-            index.BooleanSearchBitsetIndex(BoolQuery);
-        }
-
-        // Boolean search using trie (naive).
-        [Benchmark]
-        public void BenchmarkBooleanSearchNaiveTrie()
-        {
-            index.BooleanSearchNaiveTrie(BoolQuery);
-        }
-
-        // Boolean search using trie (bitset).
-        [Benchmark]
-        public void BenchmarkBooleanSearchBitsetTrie()
-        {
-            index.BooleanSearchBitsetTrie(BoolQuery);
-        }
-
-        // Trie-based ranked search.
-        [Benchmark]
-        public void BenchmarkRankedSearchTrie()
-        {
-            index.RankedSearchTrie(SingleQuery);
-        }
+        public void InvertedIndexExactSearch() => index.SearchIndex(Query);
     }
+
+    //--------------------------------------------------------------------------
+    // Prefix Search Benchmark (Trie prefix search, inverted index prefix search, and auto-complete)
+    //--------------------------------------------------------------------------
+    [CsvExporter]
+    [MemoryDiagnoser]
+    [SimpleJob(warmupCount: 5, iterationCount: 50)]
+    public class PrefixSearchBenchmark
+    {
+        [Params("100KB.txt", "1MB.txt", "2MB.txt", "5MB.txt", "10MB.txt", "20MB.txt", "50MB.txt", "100MB.txt")]
+        public string FileName { get; set; } = string.Empty;
+        
+        [Params("ca", "do", "br", "ap")]
+        public string Prefix { get; set; } = string.Empty;
+        
+        private Index index = null!;
+        
+        [GlobalSetup]
+        public void Setup()
+        {
+            string projectDir = "/zhome/6b/188023/search-engine-project";
+            string fullPath = System.IO.Path.Combine(projectDir, FileName);
+            index = new Index(fullPath);
+        }
+        
+        [Benchmark]
+        public void TriePrefixSearch() => index.PrefixSearchTrie(Prefix);
+        
+        [Benchmark]
+        public void InvertedIndexPrefixSearch() => index.PrefixSearchIndex(Prefix);
+        
+        [Benchmark]
+        public void AutoCompleteSearch() => index.AutoComplete(Prefix);
+    }
+
+    //--------------------------------------------------------------------------
+    // Phrase Search Benchmark (Phrase search using trie vs. inverted index)
+    //--------------------------------------------------------------------------
+    [CsvExporter]
+    [MemoryDiagnoser]
+    [SimpleJob(warmupCount: 5, iterationCount: 50)]
+    public class PhraseSearchBenchmark
+    {
+        [Params("100KB.txt", "1MB.txt", "2MB.txt", "5MB.txt", "10MB.txt", "20MB.txt", "50MB.txt", "100MB.txt")]
+        public string FileName { get; set; } = string.Empty;
+        
+        // Common two-word phrases likely to appear frequently.
+        [Params("in the", "of the", "to the", "on the")]
+        public string Phrase { get; set; } = string.Empty;
+        
+        private Index index = null!;
+        
+        [GlobalSetup]
+        public void Setup()
+        {
+            string projectDir = "/zhome/6b/188023/search-engine-project";
+            string fullPath = System.IO.Path.Combine(projectDir, FileName);
+            index = new Index(fullPath);
+        }
+        
+        [Benchmark]
+        public void TriePhraseSearch() => index.PhraseSearchTrie(Phrase);
+        
+        [Benchmark]
+        public void InvertedIndexPhraseSearch() => index.PhraseSearchIndex(Phrase);
+    }
+
+    //--------------------------------------------------------------------------
+    // Ranked Search Benchmark (Ranked search using trie vs. inverted index)
+    //--------------------------------------------------------------------------
+    [CsvExporter]
+    [MemoryDiagnoser]
+    [SimpleJob(warmupCount: 5, iterationCount: 50)]
+    public class RankedSearchBenchmark
+    {
+        [Params("100KB.txt", "1MB.txt", "2MB.txt", "5MB.txt", "10MB.txt", "20MB.txt", "50MB.txt", "100MB.txt")]
+        public string FileName { get; set; } = string.Empty;
+        
+        [Params("cat", "dog", "bread", "apple")]
+        public string Query { get; set; } = string.Empty;
+        
+        private Index index = null!;
+        
+        [GlobalSetup]
+        public void Setup()
+        {
+            string projectDir = "/zhome/6b/188023/search-engine-project";
+            string fullPath = System.IO.Path.Combine(projectDir, FileName);
+            index = new Index(fullPath);
+        }
+        
+        [Benchmark]
+        public void TrieRankedSearch() => index.RankedSearchTrie(Query);
+        
+        [Benchmark]
+        public void InvertedIndexRankedSearch() => index.SearchRankedIndex(Query);
+    }
+
+    //--------------------------------------------------------------------------
+    // Boolean Search Benchmark (Boolean search using trie and inverted index implementations)
+    //--------------------------------------------------------------------------
+    [CsvExporter]
+    [MemoryDiagnoser]
+    [SimpleJob(warmupCount: 5, iterationCount: 50)]
+    public class BooleanSearchBenchmark
+    {
+        [Params("100KB.txt", "1MB.txt", "2MB.txt", "5MB.txt", "10MB.txt", "20MB.txt", "50MB.txt", "100MB.txt")]
+        public string FileName { get; set; } = string.Empty;
+        
+        [Params("cat && dog", "bread || apple", "cat && apple", "dog || bread")]
+        public string BoolQuery { get; set; } = string.Empty;
+        
+        private Index index = null!;
+        
+        [GlobalSetup]
+        public void Setup()
+        {
+            string projectDir = "/zhome/6b/188023/search-engine-project";
+            string fullPath = System.IO.Path.Combine(projectDir, FileName);
+            index = new Index(fullPath);
+        }
+        
+        [Benchmark]
+        public void BooleanSearchNaiveTrie() => index.BooleanSearchNaiveTrie(BoolQuery);
+        
+        [Benchmark]
+        public void BooleanSearchBitsetTrie() => index.BooleanSearchBitsetTrie(BoolQuery);
+        
+        [Benchmark]
+        public void BooleanSearchNaiveIndex() => index.BooleanSearchNaiveIndex(BoolQuery);
+        
+        [Benchmark]
+        public void BooleanSearchBitsetIndex() => index.BooleanSearchBitsetIndex(BoolQuery);
+    }
+
+    #endregion
+
+    #region Program Entry Point
 
     public class Program
     {
@@ -249,41 +316,47 @@ namespace SearchEngineProject
         {
             // Uncomment the benchmark(s) you wish to run:
             // BenchmarkRunner.Run<IndexConstructionBenchmark>();
-            // BenchmarkRunner.Run<SingleWordQueryBenchmark>();
-            // BenchmarkRunner.Run<BoolQueryBenchmark>();
-            BenchmarkRunner.Run<AllSearchMethodsBenchmark>();
+            BenchmarkRunner.Run<SingleWordQueryBenchmark>();
+            BenchmarkRunner.Run<BoolQueryBenchmark>();
+            BenchmarkRunner.Run<ExactSearchBenchmark>();
+            BenchmarkRunner.Run<PrefixSearchBenchmark>();
+            BenchmarkRunner.Run<PhraseSearchBenchmark>();
+            BenchmarkRunner.Run<RankedSearchBenchmark>();
+            BenchmarkRunner.Run<BooleanSearchBenchmark>();
         }
     }
-}
 
-/*
-Alternative interactive main (commented out):
+    #endregion
 
-class Program
-{
-    static void Main(string[] args)
+    /*
+    Alternative interactive main:
+
+    class Program
     {
-        if (args.Length == 0)
+        static void Main(string[] args)
         {
-            Console.WriteLine("Usage: Index1 <filename>");
-            return;
-        }
-
-        Console.WriteLine("Preprocessing " + args[0]);
-        Index index = new Index(args[0]);
-
-        while (true)
-        {
-            Console.WriteLine("Input search string or type exit to stop");
-            string searchStr = Console.ReadLine();
-
-            if (searchStr.Equals("exit", StringComparison.OrdinalIgnoreCase))
+            if (args.Length == 0)
             {
-                break;
+                Console.WriteLine("Usage: Index1 <filename>");
+                return;
             }
 
-            index.SearchIndex(searchStr);
+            Console.WriteLine("Preprocessing " + args[0]);
+            Index index = new Index(args[0]);
+
+            while (true)
+            {
+                Console.WriteLine("Input search string or type exit to stop");
+                string searchStr = Console.ReadLine();
+
+                if (searchStr.Equals("exit", StringComparison.OrdinalIgnoreCase))
+                {
+                    break;
+                }
+
+                index.SearchIndex(searchStr);
+            }
         }
     }
+    */
 }
-*/
