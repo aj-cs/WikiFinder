@@ -1,0 +1,179 @@
+// Validating benchmarks:
+// ***** BenchmarkRunner: Start   *****
+// ***** Found 96 benchmark(s) in total *****
+// ***** Building 1 exe(s) in Parallel: Start   *****
+// start dotnet  restore /p:UseSharedCompilation=false /p:BuildInParallel=false /m:1 /p:Deterministic=true /p:Optimize=true /p:IntermediateOutputPath="/home/shierfall/RiderProjects/search-engine-project/bin/RELEASE/net8.0/d2d8da10-5e69-4f9b-a94b-30921721a5e3/obj/Release/net8.0/" /p:OutDir="/home/shierfall/RiderProjects/search-engine-project/bin/RELEASE/net8.0/d2d8da10-5e69-4f9b-a94b-30921721a5e3/bin/Release/net8.0/" /p:OutputPath="/home/shierfall/RiderProjects/search-engine-project/bin/RELEASE/net8.0/d2d8da10-5e69-4f9b-a94b-30921721a5e3/bin/Release/net8.0/" in /home/shierfall/RiderProjects/search-engine-project/bin/RELEASE/net8.0/d2d8da10-5e69-4f9b-a94b-30921721a5e3
+// command took 3.54 sec and exited with 0
+// start dotnet  build -c Release --no-restore /p:UseSharedCompilation=false /p:BuildInParallel=false /m:1 /p:Deterministic=true /p:Optimize=true /p:IntermediateOutputPath="/home/shierfall/RiderProjects/search-engine-project/bin/RELEASE/net8.0/d2d8da10-5e69-4f9b-a94b-30921721a5e3/obj/Release/net8.0/" /p:OutDir="/home/shierfall/RiderProjects/search-engine-project/bin/RELEASE/net8.0/d2d8da10-5e69-4f9b-a94b-30921721a5e3/bin/Release/net8.0/" /p:OutputPath="/home/shierfall/RiderProjects/search-engine-project/bin/RELEASE/net8.0/d2d8da10-5e69-4f9b-a94b-30921721a5e3/bin/Release/net8.0/" --output "/home/shierfall/RiderProjects/search-engine-project/bin/RELEASE/net8.0/d2d8da10-5e69-4f9b-a94b-30921721a5e3/bin/Release/net8.0/" in /home/shierfall/RiderProjects/search-engine-project/bin/RELEASE/net8.0/d2d8da10-5e69-4f9b-a94b-30921721a5e3
+// command took 17.34 sec and exited with 0
+// ***** Done, took 00:00:21 (21.13 sec)   *****
+// Found 96 benchmarks:
+//   SingleWordQueryBenchmark.BenchmarkPrefixSearchTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=100KB.txt, Query=and]
+//   SingleWordQueryBenchmark.BenchmarkNormalSearchDocumentsTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=100KB.txt, Query=and]
+//   SingleWordQueryBenchmark.BenchmarkRankingSearchTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=100KB.txt, Query=and]
+//   SingleWordQueryBenchmark.BenchmarkPrefixSearchTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=100KB.txt, Query=bread]
+//   SingleWordQueryBenchmark.BenchmarkNormalSearchDocumentsTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=100KB.txt, Query=bread]
+//   SingleWordQueryBenchmark.BenchmarkRankingSearchTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=100KB.txt, Query=bread]
+//   SingleWordQueryBenchmark.BenchmarkPrefixSearchTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=100KB.txt, Query=cat]
+//   SingleWordQueryBenchmark.BenchmarkNormalSearchDocumentsTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=100KB.txt, Query=cat]
+//   SingleWordQueryBenchmark.BenchmarkRankingSearchTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=100KB.txt, Query=cat]
+//   SingleWordQueryBenchmark.BenchmarkPrefixSearchTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=100KB.txt, Query=or]
+//   SingleWordQueryBenchmark.BenchmarkNormalSearchDocumentsTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=100KB.txt, Query=or]
+//   SingleWordQueryBenchmark.BenchmarkRankingSearchTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=100KB.txt, Query=or]
+//   SingleWordQueryBenchmark.BenchmarkPrefixSearchTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=100MB.txt, Query=and]
+//   SingleWordQueryBenchmark.BenchmarkNormalSearchDocumentsTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=100MB.txt, Query=and]
+//   SingleWordQueryBenchmark.BenchmarkRankingSearchTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=100MB.txt, Query=and]
+//   SingleWordQueryBenchmark.BenchmarkPrefixSearchTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=100MB.txt, Query=bread]
+//   SingleWordQueryBenchmark.BenchmarkNormalSearchDocumentsTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=100MB.txt, Query=bread]
+//   SingleWordQueryBenchmark.BenchmarkRankingSearchTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=100MB.txt, Query=bread]
+//   SingleWordQueryBenchmark.BenchmarkPrefixSearchTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=100MB.txt, Query=cat]
+//   SingleWordQueryBenchmark.BenchmarkNormalSearchDocumentsTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=100MB.txt, Query=cat]
+//   SingleWordQueryBenchmark.BenchmarkRankingSearchTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=100MB.txt, Query=cat]
+//   SingleWordQueryBenchmark.BenchmarkPrefixSearchTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=100MB.txt, Query=or]
+//   SingleWordQueryBenchmark.BenchmarkNormalSearchDocumentsTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=100MB.txt, Query=or]
+//   SingleWordQueryBenchmark.BenchmarkRankingSearchTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=100MB.txt, Query=or]
+//   SingleWordQueryBenchmark.BenchmarkPrefixSearchTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=10MB.txt, Query=and]
+//   SingleWordQueryBenchmark.BenchmarkNormalSearchDocumentsTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=10MB.txt, Query=and]
+//   SingleWordQueryBenchmark.BenchmarkRankingSearchTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=10MB.txt, Query=and]
+//   SingleWordQueryBenchmark.BenchmarkPrefixSearchTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=10MB.txt, Query=bread]
+//   SingleWordQueryBenchmark.BenchmarkNormalSearchDocumentsTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=10MB.txt, Query=bread]
+//   SingleWordQueryBenchmark.BenchmarkRankingSearchTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=10MB.txt, Query=bread]
+//   SingleWordQueryBenchmark.BenchmarkPrefixSearchTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=10MB.txt, Query=cat]
+//   SingleWordQueryBenchmark.BenchmarkNormalSearchDocumentsTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=10MB.txt, Query=cat]
+//   SingleWordQueryBenchmark.BenchmarkRankingSearchTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=10MB.txt, Query=cat]
+//   SingleWordQueryBenchmark.BenchmarkPrefixSearchTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=10MB.txt, Query=or]
+//   SingleWordQueryBenchmark.BenchmarkNormalSearchDocumentsTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=10MB.txt, Query=or]
+//   SingleWordQueryBenchmark.BenchmarkRankingSearchTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=10MB.txt, Query=or]
+//   SingleWordQueryBenchmark.BenchmarkPrefixSearchTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=1MB.txt, Query=and]
+//   SingleWordQueryBenchmark.BenchmarkNormalSearchDocumentsTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=1MB.txt, Query=and]
+//   SingleWordQueryBenchmark.BenchmarkRankingSearchTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=1MB.txt, Query=and]
+//   SingleWordQueryBenchmark.BenchmarkPrefixSearchTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=1MB.txt, Query=bread]
+//   SingleWordQueryBenchmark.BenchmarkNormalSearchDocumentsTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=1MB.txt, Query=bread]
+//   SingleWordQueryBenchmark.BenchmarkRankingSearchTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=1MB.txt, Query=bread]
+//   SingleWordQueryBenchmark.BenchmarkPrefixSearchTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=1MB.txt, Query=cat]
+//   SingleWordQueryBenchmark.BenchmarkNormalSearchDocumentsTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=1MB.txt, Query=cat]
+//   SingleWordQueryBenchmark.BenchmarkRankingSearchTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=1MB.txt, Query=cat]
+//   SingleWordQueryBenchmark.BenchmarkPrefixSearchTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=1MB.txt, Query=or]
+//   SingleWordQueryBenchmark.BenchmarkNormalSearchDocumentsTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=1MB.txt, Query=or]
+//   SingleWordQueryBenchmark.BenchmarkRankingSearchTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=1MB.txt, Query=or]
+//   SingleWordQueryBenchmark.BenchmarkPrefixSearchTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=20MB.txt, Query=and]
+//   SingleWordQueryBenchmark.BenchmarkNormalSearchDocumentsTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=20MB.txt, Query=and]
+//   SingleWordQueryBenchmark.BenchmarkRankingSearchTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=20MB.txt, Query=and]
+//   SingleWordQueryBenchmark.BenchmarkPrefixSearchTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=20MB.txt, Query=bread]
+//   SingleWordQueryBenchmark.BenchmarkNormalSearchDocumentsTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=20MB.txt, Query=bread]
+//   SingleWordQueryBenchmark.BenchmarkRankingSearchTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=20MB.txt, Query=bread]
+//   SingleWordQueryBenchmark.BenchmarkPrefixSearchTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=20MB.txt, Query=cat]
+//   SingleWordQueryBenchmark.BenchmarkNormalSearchDocumentsTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=20MB.txt, Query=cat]
+//   SingleWordQueryBenchmark.BenchmarkRankingSearchTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=20MB.txt, Query=cat]
+//   SingleWordQueryBenchmark.BenchmarkPrefixSearchTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=20MB.txt, Query=or]
+//   SingleWordQueryBenchmark.BenchmarkNormalSearchDocumentsTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=20MB.txt, Query=or]
+//   SingleWordQueryBenchmark.BenchmarkRankingSearchTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=20MB.txt, Query=or]
+//   SingleWordQueryBenchmark.BenchmarkPrefixSearchTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=2MB.txt, Query=and]
+//   SingleWordQueryBenchmark.BenchmarkNormalSearchDocumentsTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=2MB.txt, Query=and]
+//   SingleWordQueryBenchmark.BenchmarkRankingSearchTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=2MB.txt, Query=and]
+//   SingleWordQueryBenchmark.BenchmarkPrefixSearchTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=2MB.txt, Query=bread]
+//   SingleWordQueryBenchmark.BenchmarkNormalSearchDocumentsTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=2MB.txt, Query=bread]
+//   SingleWordQueryBenchmark.BenchmarkRankingSearchTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=2MB.txt, Query=bread]
+//   SingleWordQueryBenchmark.BenchmarkPrefixSearchTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=2MB.txt, Query=cat]
+//   SingleWordQueryBenchmark.BenchmarkNormalSearchDocumentsTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=2MB.txt, Query=cat]
+//   SingleWordQueryBenchmark.BenchmarkRankingSearchTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=2MB.txt, Query=cat]
+//   SingleWordQueryBenchmark.BenchmarkPrefixSearchTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=2MB.txt, Query=or]
+//   SingleWordQueryBenchmark.BenchmarkNormalSearchDocumentsTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=2MB.txt, Query=or]
+//   SingleWordQueryBenchmark.BenchmarkRankingSearchTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=2MB.txt, Query=or]
+//   SingleWordQueryBenchmark.BenchmarkPrefixSearchTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=50MB.txt, Query=and]
+//   SingleWordQueryBenchmark.BenchmarkNormalSearchDocumentsTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=50MB.txt, Query=and]
+//   SingleWordQueryBenchmark.BenchmarkRankingSearchTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=50MB.txt, Query=and]
+//   SingleWordQueryBenchmark.BenchmarkPrefixSearchTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=50MB.txt, Query=bread]
+//   SingleWordQueryBenchmark.BenchmarkNormalSearchDocumentsTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=50MB.txt, Query=bread]
+//   SingleWordQueryBenchmark.BenchmarkRankingSearchTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=50MB.txt, Query=bread]
+//   SingleWordQueryBenchmark.BenchmarkPrefixSearchTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=50MB.txt, Query=cat]
+//   SingleWordQueryBenchmark.BenchmarkNormalSearchDocumentsTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=50MB.txt, Query=cat]
+//   SingleWordQueryBenchmark.BenchmarkRankingSearchTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=50MB.txt, Query=cat]
+//   SingleWordQueryBenchmark.BenchmarkPrefixSearchTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=50MB.txt, Query=or]
+//   SingleWordQueryBenchmark.BenchmarkNormalSearchDocumentsTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=50MB.txt, Query=or]
+//   SingleWordQueryBenchmark.BenchmarkRankingSearchTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=50MB.txt, Query=or]
+//   SingleWordQueryBenchmark.BenchmarkPrefixSearchTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=5MB.txt, Query=and]
+//   SingleWordQueryBenchmark.BenchmarkNormalSearchDocumentsTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=5MB.txt, Query=and]
+//   SingleWordQueryBenchmark.BenchmarkRankingSearchTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=5MB.txt, Query=and]
+//   SingleWordQueryBenchmark.BenchmarkPrefixSearchTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=5MB.txt, Query=bread]
+//   SingleWordQueryBenchmark.BenchmarkNormalSearchDocumentsTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=5MB.txt, Query=bread]
+//   SingleWordQueryBenchmark.BenchmarkRankingSearchTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=5MB.txt, Query=bread]
+//   SingleWordQueryBenchmark.BenchmarkPrefixSearchTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=5MB.txt, Query=cat]
+//   SingleWordQueryBenchmark.BenchmarkNormalSearchDocumentsTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=5MB.txt, Query=cat]
+//   SingleWordQueryBenchmark.BenchmarkRankingSearchTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=5MB.txt, Query=cat]
+//   SingleWordQueryBenchmark.BenchmarkPrefixSearchTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=5MB.txt, Query=or]
+//   SingleWordQueryBenchmark.BenchmarkNormalSearchDocumentsTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=5MB.txt, Query=or]
+//   SingleWordQueryBenchmark.BenchmarkRankingSearchTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=5MB.txt, Query=or]
+
+// **************************
+// Benchmark: SingleWordQueryBenchmark.BenchmarkPrefixSearchTrie: Job-MXMLAY(IterationCount=40, WarmupCount=5) [FileName=100KB.txt, Query=and]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet d2d8da10-5e69-4f9b-a94b-30921721a5e3.dll --anonymousPipes 109 111 --benchmarkName "SearchEngineProject.SingleWordQueryBenchmark.BenchmarkPrefixSearchTrie(FileName: \"100KB.txt\", Query: \"and\")" --job "IterationCount=40, WarmupCount=5" --benchmarkId 0 in /home/shierfall/RiderProjects/search-engine-project/bin/RELEASE/net8.0/d2d8da10-5e69-4f9b-a94b-30921721a5e3/bin/Release/net8.0
+// Failed to set up high priority (Permission denied). In order to run benchmarks with high priority, make sure you have the right permissions.
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.14.0
+// Runtime=.NET 8.0.14 (8.0.1425.11118), X64 RyuJIT AVX2
+// GC=Concurrent Server
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT VectorSize=256
+// Job: Job-YUKPAE(IterationCount=40, WarmupCount=5)
+
+OverheadJitting  1: 1 op, 614980.00 ns, 614.9800 us/op
+WorkloadJitting  1: 1 op, 29648441.00 ns, 29.6484 ms/op
+
+OverheadJitting  2: 16 op, 746774.00 ns, 46.6734 us/op
+WorkloadJitting  2: 16 op, 694006.00 ns, 43.3754 us/op
+
+WorkloadPilot    1: 16 op, 18732.00 ns, 1.1708 us/op
+WorkloadPilot    2: 32 op, 73623.00 ns, 2.3007 us/op
+WorkloadPilot    3: 64 op, 163790.00 ns, 2.5592 us/op
+WorkloadPilot    4: 128 op, 188325.00 ns, 1.4713 us/op
+WorkloadPilot    5: 256 op, 543768.00 ns, 2.1241 us/op
+WorkloadPilot    6: 512 op, 409062.00 ns, 798.9492 ns/op
+WorkloadPilot    7: 1024 op, 764799.00 ns, 746.8740 ns/op
+WorkloadPilot    8: 2048 op, 1158689.00 ns, 565.7661 ns/op
+WorkloadPilot    9: 4096 op, 2017901.00 ns, 492.6516 ns/op
+WorkloadPilot   10: 8192 op, 6018365.00 ns, 734.6637 ns/op
+WorkloadPilot   11: 16384 op, 13502060.00 ns, 824.1003 ns/op
+WorkloadPilot   12: 32768 op, 14792238.00 ns, 451.4233 ns/op
+WorkloadPilot   13: 65536 op, 32207583.00 ns, 491.4487 ns/op
+WorkloadPilot   14: 131072 op, 38848666.00 ns, 296.3918 ns/op
+WorkloadPilot   15: 262144 op, 68005992.00 ns, 259.4223 ns/op
+WorkloadPilot   16: 524288 op, 130934007.00 ns, 249.7368 ns/op
+WorkloadPilot   17: 1048576 op, 230640689.00 ns, 219.9561 ns/op
+WorkloadPilot   18: 2097152 op, 460645214.00 ns, 219.6528 ns/op
+WorkloadPilot   19: 4194304 op, 931073407.00 ns, 221.9852 ns/op
+
+OverheadWarmup   1: 4194304 op, 25547034.00 ns, 6.0909 ns/op
+OverheadWarmup   2: 4194304 op, 25541782.00 ns, 6.0896 ns/op
+OverheadWarmup   3: 4194304 op, 25706312.00 ns, 6.1289 ns/op
+OverheadWarmup   4: 4194304 op, 25606523.00 ns, 6.1051 ns/op
+OverheadWarmup   5: 4194304 op, 24906389.00 ns, 5.9381 ns/op
+OverheadWarmup   6: 4194304 op, 25580651.00 ns, 6.0989 ns/op
+OverheadWarmup   7: 4194304 op, 25252447.00 ns, 6.0207 ns/op
+
+OverheadActual   1: 4194304 op, 25635426.00 ns, 6.1120 ns/op
+OverheadActual   2: 4194304 op, 26064137.00 ns, 6.2142 ns/op
+OverheadActual   3: 4194304 op, 26254760.00 ns, 6.2596 ns/op
+OverheadActual   4: 4194304 op, 25136753.00 ns, 5.9931 ns/op
+OverheadActual   5: 4194304 op, 26062671.00 ns, 6.2138 ns/op
+OverheadActual   6: 4194304 op, 26330401.00 ns, 6.2777 ns/op
+OverheadActual   7: 4194304 op, 25516305.00 ns, 6.0836 ns/op
+OverheadActual   8: 4194304 op, 25454710.00 ns, 6.0689 ns/op
+OverheadActual   9: 4194304 op, 25598808.00 ns, 6.1032 ns/op
+OverheadActual  10: 4194304 op, 21256196.00 ns, 5.0679 ns/op
+OverheadActual  11: 4194304 op, 17547470.00 ns, 4.1836 ns/op
+OverheadActual  12: 4194304 op, 17894227.00 ns, 4.2663 ns/op
+OverheadActual  13: 4194304 op, 19599885.00 ns, 4.6730 ns/op
+OverheadActual  14: 4194304 op, 19112118.00 ns, 4.5567 ns/op
+OverheadActual  15: 4194304 op, 18785644.00 ns, 4.4788 ns/op
+OverheadActual  16: 4194304 op, 20502882.00 ns, 4.8883 ns/op
+OverheadActual  17: 4194304 op, 17111469.00 ns, 4.0797 ns/op
+OverheadActual  18: 4194304 op, 17153074.00 ns, 4.0896 ns/op
+OverheadActual  19: 4194304 op, 17399648.00 ns, 4.1484 ns/op
+OverheadActual  20: 4194304 op, 17420263.00 ns, 4.1533 ns/op
+
+WorkloadWarmup   1: 4194304 op, 951408569.00 ns, 226.8335 ns/op
+WorkloadWarmup   2: 4194304 op, 922103412.00 ns, 219.8466 ns/op
