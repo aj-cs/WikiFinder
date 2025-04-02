@@ -1,7 +1,12 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
+using System.Linq; 
+using System.Net.Http; 
+using System.Text.Json; 
+using System.Threading.Tasks;
 
 namespace SearchEngineProject;
 //RENAME RADIX TO COMPACT TRIE CUZ RADIX TRIE IS BAD
@@ -365,7 +370,7 @@ public class Index
         }
         return current.EndOfWord ? current : null;
     }
-
+    
     // NOTE: exact match search
     public bool SearchTrie(string searchStr)
     {
@@ -373,11 +378,11 @@ public class Index
         TrieNode node = FindWord(word);
         if (node != null)
         {
-            Console.WriteLine("Found " + searchStr + " in:");
+            //Console.WriteLine("Found " + searchStr + " in:");
             DocumentLog log = node.Log;
             while (log != null)
             {
-                Console.WriteLine(documentTitles[log.DocumentId]);
+                //Console.WriteLine(documentTitles[log.DocumentId]);
                 log = log.Next;
             }
             return true;
@@ -605,10 +610,10 @@ public class Index
             return false;
         }
 
-        Console.WriteLine("Found " + searchStr + " in:");
+        //Console.WriteLine("Found " + searchStr + " in:");
         foreach (var docId in invertedIndex[word].Keys)
         {
-            Console.WriteLine(documentTitles[docId]);
+            //Console.WriteLine(documentTitles[docId]);
         }
         return true;
     }
@@ -632,10 +637,10 @@ public class Index
 
         foreach (var word in matches)
         {
-            Console.WriteLine("Found " + word + " in:");
+            //Console.WriteLine("Found " + word + " in:");
             foreach (var docId in invertedIndex[word].Keys)
             {
-                Console.WriteLine(documentTitles[docId]);
+                //Console.WriteLine(documentTitles[docId]);
             }
         }
 
@@ -706,10 +711,10 @@ public class Index
             }
         }
 
-        Console.WriteLine($"Found phrase '{phrase}' in:");
+        //Console.WriteLine($"Found phrase '{phrase}' in:");
         foreach (var docId in candidateDocs.Keys)
         {
-            Console.WriteLine(documentTitles[docId]);
+            //Console.WriteLine(documentTitles[docId]);
         }
         return true;
     }
@@ -732,11 +737,10 @@ public class Index
     
         var sortedDocs = new List<KeyValuePair<int, int>>(docCounts);
         sortedDocs.Sort((a, b) => b.Value.CompareTo(a.Value));
-
-        Console.WriteLine("Found " + searchStr + " in (ranked by occurrences):");
+        //Console.WriteLine("Found " + searchStr + " in (ranked by occurrences):");
         foreach (var docPair in sortedDocs)
         {
-            Console.WriteLine(documentTitles[docPair.Key] + " (occurrences: " + docPair.Value + ")");
+            //Console.WriteLine(documentTitles[docPair.Key] + " (occurrences: " + docPair.Value + ")");
         }
         return true;
     }
@@ -790,10 +794,10 @@ public class Index
         var rankedResults = docCounts.ToList();
         rankedResults.Sort((a, b) => b.Value.CompareTo(a.Value));
 
-        Console.WriteLine($"Ranked results for '{searchStr}':");
+        //Console.WriteLine($"Ranked results for '{searchStr}':");
         foreach (var result in rankedResults)
         {
-            Console.WriteLine("{documentTitles[result.Key]} (relevance score: {result.Value})");
+            //Console.WriteLine($"{documentTitles[result.Key]} (relevance score: {result.Value})");
         }
         
         return rankedResults.Count > 0;
@@ -830,7 +834,9 @@ public class Index
         }
 
         //Console.WriteLine($"Naive Index results for '{SearchStr}':");
-        foreach (var id in result) Console.WriteLine(documentTitles[id]);
+        foreach (var id in result) 
+            //Console.WriteLine(documentTitles[id])
+            ;
         return true;
     }
 
@@ -938,11 +944,56 @@ public class Index
             return false;
         }
 
-        Console.WriteLine($"Bitset Trie results for '{SearchStr}':");
+        //Console.WriteLine($"Bitset Trie results for '{SearchStr}':");
         foreach (var id in found)
             ;//Console.WriteLine(documentTitles[id]);
         return true;
     }
+    
+    public void AddPublication(string title, string content)
+    {
+        documentPositionCounter = 0;
+        var lines = content.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None); // split content into lines. Processing in chunks
+        foreach (var line in lines)
+        {
+            if (string.IsNullOrWhiteSpace(line))
+                continue;
+            ProcessLine(line, title);
+        }
+    }
+    
+    // asynchronously fetches a Wikipedia article by title, parses its content,
+    // and adds it as a publication to the index.
+    public async Task AddPublicationFromWikipediaAsync(string title)
+    {
+        string url = $"https://en.wikipedia.org/w/api.php?action=query&prop=revisions&rvprop=content&format=json&titles={Uri.EscapeDataString(title)}&formatversion=2";
+        using (HttpClient client = new HttpClient())
+        {
+            string json = await client.GetStringAsync(url);
+            using (JsonDocument doc = JsonDocument.Parse(json))
+            {
+                var rootElement = doc.RootElement;
+                if (rootElement.TryGetProperty("query", out var queryElement))
+                {
+                    if (queryElement.TryGetProperty("pages", out var pagesElement) && pagesElement.GetArrayLength() > 0)
+                    {
+                        var page = pagesElement[0];
+                        if (page.TryGetProperty("revisions", out var revisionsElement) && revisionsElement.GetArrayLength() > 0)
+                        {
+                            var revision = revisionsElement[0];
+                            if (revision.TryGetProperty("content", out var contentElement))
+                            {
+                                string content = contentElement.GetString();
+                                AddPublication(title, content);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    
 
 
 }
