@@ -22,7 +22,7 @@ namespace SearchEngineProject
      * 5MB.txt
      * 800MB.txt
      */
-
+    /*
     #region Index Construction Benchmark
 
     [CsvExporter]
@@ -141,9 +141,7 @@ namespace SearchEngineProject
 
     #region New Benchmarks for Each Separate Search Type
 
-    //--------------------------------------------------------------------------
     // Exact Search Benchmark (Exact match using trie vs. inverted index)
-    //--------------------------------------------------------------------------
     [CsvExporter]
     [MemoryDiagnoser]
     [SimpleJob(warmupCount: 5, iterationCount: 50)]
@@ -172,9 +170,9 @@ namespace SearchEngineProject
         public void InvertedIndexExactSearch() => index.SearchIndex(Query);
     }
 
-    //--------------------------------------------------------------------------
+
     // Prefix Search Benchmark (Trie prefix search, inverted index prefix search, and auto-complete)
-    //--------------------------------------------------------------------------
+
     [CsvExporter]
     [MemoryDiagnoser]
     [SimpleJob(warmupCount: 5, iterationCount: 50)]
@@ -206,9 +204,7 @@ namespace SearchEngineProject
         public void AutoCompleteSearch() => index.AutoComplete(Prefix);
     }
 
-    //--------------------------------------------------------------------------
     // Phrase Search Benchmark (Phrase search using trie vs. inverted index)
-    //--------------------------------------------------------------------------
     [CsvExporter]
     [MemoryDiagnoser]
     [SimpleJob(warmupCount: 5, iterationCount: 50)]
@@ -238,9 +234,9 @@ namespace SearchEngineProject
         public void InvertedIndexPhraseSearch() => index.PhraseSearchIndex(Phrase);
     }
 
-    //--------------------------------------------------------------------------
+
     // Ranked Search Benchmark (Ranked search using trie vs. inverted index)
-    //--------------------------------------------------------------------------
+
     [CsvExporter]
     [MemoryDiagnoser]
     [SimpleJob(warmupCount: 5, iterationCount: 50)]
@@ -269,9 +265,9 @@ namespace SearchEngineProject
         public void InvertedIndexRankedSearch() => index.SearchRankedIndex(Query);
     }
 
-    //--------------------------------------------------------------------------
+    
     // Boolean Search Benchmark (Boolean search using trie and inverted index implementations)
-    //--------------------------------------------------------------------------
+    
     [CsvExporter]
     [MemoryDiagnoser]
     [SimpleJob(warmupCount: 5, iterationCount: 50)]
@@ -327,10 +323,8 @@ namespace SearchEngineProject
     }
 
     #endregion
-
-    /*
-    Alternative interactive main:
-
+*/
+     
     class Program
     {
         static void Main(string[] args)
@@ -344,6 +338,10 @@ namespace SearchEngineProject
             Console.WriteLine("Preprocessing " + args[0]);
             Index index = new Index(args[0]);
 
+            index.CompareDataStructures();
+            
+            index.AddPublicationFromWikipediaAsync("raccoon").Wait();
+
             while (true)
             {
                 Console.WriteLine("Input search string or type exit to stop");
@@ -354,9 +352,9 @@ namespace SearchEngineProject
                     break;
                 }
 
-                index.SearchIndex(searchStr);
+                index.Search(searchStr);
             }
         }
     }
-    */
+    
 }
