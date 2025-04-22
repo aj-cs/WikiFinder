@@ -6,391 +6,279 @@ namespace SearchEngineProject;
 //RENAME RADIX TO COMPACT TRIE CUZ RADIX TRIE IS BAD
 public class Index
 {
-    private TrieNode root;
-
     private class TrieNode
     {
-        public string Segment;
-        public Dictionary<char, TrieNode> Children;
-        public DocumentLog Log;
-        public int Count;
-        public bool EndOfWord;
+        public int PoolIndex;
+        public int Offset;
+        public int Length;
+        public TrieNode[] ArrayChildren;
+        public Dictionary<char, TrieNode> DictChildren;
+        public List<int> DocIds;
+        public bool IsEndOfWord;
 
-        public TrieNode(string segment)
+        public TrieNode()
         {
-            Segment = segment;
-            Children = new Dictionary<char, TrieNode>();
-            Log = null;
-            Count = 0;
-            EndOfWord = false;
+            ArrayChildren = new TrieNode[26];
+            DictChildren = new Dictionary<char, TrieNode>(2);
+            DocIds = new List<int>();
+            IsEndOfWord = false;
+        }
+
+        public TrieNode(int poolIndex, int offset, int length) : this()
+        {
+            PoolIndex = poolIndex;
+            Offset = offset;
+            Length = length;
         }
     }
 
-    private class DocumentLog
-    {
-        public string Title;
-        public DocumentLog Next;
-        public DocumentLog(string title, DocumentLog next)
-        {
-            Title = title;
-            Next = next;
-        }
-    }
+    private TrieNode root = new TrieNode();
+    private List<string> wordPool = new List<string>();
+    private Dictionary<string, int> wordToPoolIndex = new Dictionary<string, int>();
+    private Dictionary<string, int> titleToId = new Dictionary<string, int>();
+    private List<string> idToTitle = new List<string>();
 
     public Index(string filename)
     {
-        root = new TrieNode("");
         try
         {
-            using (StreamReader input = new StreamReader(filename, System.Text.Encoding.UTF8))
+            using var input = new StreamReader(filename, System.Text.Encoding.UTF8);
+            string line;
+            string currentTitle = null;
+            bool titleRead = false;
+            while ((line = input.ReadLine()) != null)
             {
-                string line;
-                string currentTitle = "";
-                bool titleRead = false;
-                while ((line = input.ReadLine()) != null)
+                if (string.IsNullOrWhiteSpace(line)) continue;
+                if (line.Equals("---END.OF.DOCUMENT---", StringComparison.Ordinal))
                 {
-                    if (string.IsNullOrWhiteSpace(line))
-                        continue;
-                    if (line.Equals("---END.OF.DOCUMENT---"))
+                    titleRead = false;
+                    currentTitle = null;
+                    continue;
+                }
+                if (!titleRead)
+                {
+                    currentTitle = line;
+                    RegisterTitle(currentTitle);
+                    titleRead = true;
+                }
+                else
+                {
+                    foreach (var rawWord in line.Split(' ', StringSplitOptions.RemoveEmptyEntries))
                     {
-                        titleRead = false;
-                        currentTitle = "";
-                        continue;
-                    }
-                    if (!titleRead)
-                    {
-                        currentTitle = line;
-                        // Console.WriteLine(currentTitle);
-                        titleRead = true;
-                    }
-                    else
-                    {
-                        string[] words = line.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-                        foreach (string word in words)
-                        {
+                        var word = Normalize(rawWord);
+                        if (word.Length > 0)
                             InsertWord(word, currentTitle);
-                        }
                     }
                 }
             }
         }
         catch (FileNotFoundException)
         {
-            //Console.WriteLine("Error reading file " + filename);
+            throw;
+        }
+    }
+
+    private void RegisterTitle(string title)
+    {
+        if (!titleToId.ContainsKey(title))
+        {
+            titleToId[title] = idToTitle.Count;
+            idToTitle.Add(title);
         }
     }
 
     private void InsertWord(string word, string title)
     {
-        word = word.ToLower();
-        Insert(root, word, title);
+        int poolIdx = GetPoolIndex(word);
+        int titleId = titleToId[title];
+        Insert(root, poolIdx, 0, word.Length, titleId);
     }
-    //recursive insertion into the tree
-    // node is the current node and key is the substring that we need to insert
-    private void Insert(TrieNode node, string key, string title)
+
+    private int GetPoolIndex(string word)
     {
-        // when key is empty, mark current node as a word
-        if (key.Length == 0)
+        if (!wordToPoolIndex.TryGetValue(word, out int idx))
         {
-            node.EndOfWord = true;
-            node.Count++;
-            if (node.Log == null)
-            {
-                node.Log = new DocumentLog(title, null);
-            }
-            else if (!DocExists(node.Log, title))
-            {
-                node.Log = new DocumentLog(title, node.Log);
-            }
+            idx = wordPool.Count;
+            wordPool.Add(word);
+            wordToPoolIndex[word] = idx;
+        }
+        return idx;
+    }
+
+    private void Insert(TrieNode node, int poolIdx, int offset, int length, int titleId)
+    {
+        if (length == 0)
+        {
+            MarkNode(node, titleId);
+            return;
+        }
+        char c = wordPool[poolIdx][offset];
+        TrieNode child = null;
+        int ci = c - 'a';
+        if (ci >= 0 && ci < 26)
+            child = node.ArrayChildren[ci];
+        else
+            node.DictChildren.TryGetValue(c, out child);
+
+        if (child == null)
+        {
+            var newNode = new TrieNode(poolIdx, offset, length);
+            newNode.IsEndOfWord = true;
+            newNode.DocIds.Add(titleId);
+            if (ci >= 0 && ci < 26)
+                node.ArrayChildren[ci] = newNode;
+            else
+                node.DictChildren[c] = newNode;
             return;
         }
 
-        char firstChar = key[0];
-
-        // check if a child with a segment starting with firstChar exists
-        if (!node.Children.TryGetValue(firstChar, out TrieNode child))
+        int common = CommonPrefix(child, poolIdx, offset, length);
+        if (common < child.Length)
         {
-            // no child exists so we create a new one with the entire key
-            TrieNode newNode = new TrieNode(key);
-            newNode.EndOfWord = true;
-            newNode.Count = 1;
-            newNode.Log = new DocumentLog(title, null);
-            node.Children[firstChar] = newNode;
-            return;
-        }
-        // compute the longest common prefix length between the childs segment and the key
-        int commonLength = CommonPrefixLength(child.Segment, key);
-
-        if (commonLength < child.Segment.Length)
-        {
-            // partial match which means we gotta split the child
-            // create a new node for the remainder of the childs segment
-            string childSuffix = child.Segment.Substring(commonLength);
-            TrieNode splitNode = new TrieNode(childSuffix)
+            // split child
+            var splitNode = new TrieNode(child.PoolIndex,
+                    child.Offset + common,
+                    child.Length - common)
             {
-                Children = child.Children,
-                EndOfWord = child.EndOfWord,
-                Count = child.Count,
-                Log = child.Log
+                ArrayChildren = child.ArrayChildren,
+                DictChildren = child.DictChildren,
+                IsEndOfWord = child.IsEndOfWord,
+                DocIds = child.DocIds
             };
+            child.Length = common;
+            child.IsEndOfWord = false;
+            child.DocIds = new List<int>();
+            child.ArrayChildren = new TrieNode[26];
+            child.DictChildren = new Dictionary<char, TrieNode>(2);
+            char splitChar = wordPool[splitNode.PoolIndex][splitNode.Offset];
+            int sci = splitChar - 'a';
+            if (sci >= 0 && sci < 26)
+                child.ArrayChildren[sci] = splitNode;
+            else
+                child.DictChildren[splitChar] = splitNode;
 
-            // update the child node by setting its segment to the common prefix
-            child.Segment = child.Segment.Substring(0, commonLength);
-
-            //resett children dict and add split node
-            child.Children = new Dictionary<char, TrieNode>();
-            child.Children[childSuffix[0]] = splitNode;
-            // if the key exactly matches the common pref
-            if (commonLength == key.Length)
+            if (common == length)
             {
-                child.EndOfWord = true;
-                child.Count++;
-                if (child.Log == null)
-                {
-                    child.Log = new DocumentLog(title, null);
-                }
-                else if (!DocExists(child.Log, title))
-                {
-                    child.Log = new DocumentLog(title, child.Log);
-                }
+                MarkNode(child, titleId);
             }
             else
             {
-                // insert the remainder of the key as a new child
-                string keySuffix = key.Substring(commonLength);
-                TrieNode newChild = new TrieNode(keySuffix);
-                newChild.EndOfWord = true;
-                newChild.Count = 1;
-                newChild.Log = new DocumentLog(title, null);
-                child.Children[keySuffix[0]] = newChild;
+                var newChild = new TrieNode(poolIdx, offset + common, length - common);
+                newChild.IsEndOfWord = true;
+                newChild.DocIds.Add(titleId);
+                char nc = wordPool[newChild.PoolIndex][newChild.Offset];
+                int nci = nc - 'a';
+                if (nci >= 0 && nci < 26)
+                    child.ArrayChildren[nci] = newChild;
+                else
+                    child.DictChildren[nc] = newChild;
             }
             return;
         }
-        // commonLength == child.Segment.Length (child seg fully matches pref of key)
-        else
+
+        Insert(child, poolIdx, offset + common, length - common, titleId);
+    }
+
+    private void MarkNode(TrieNode node, int titleId)
+    {
+        node.IsEndOfWord = true;
+        if (!node.DocIds.Contains(titleId))
+            node.DocIds.Add(titleId);
+    }
+
+    private int CommonPrefix(TrieNode child, int poolIdx, int offset, int length)
+    {
+        int max = Math.Min(child.Length, length);
+        var pool = wordPool;
+        for (int i = 0; i < max; i++)
         {
-            string keyRemainder = key.Substring(commonLength);
-            if (keyRemainder.Length == 0)
-            {
-                //key exactly matches the childs segment
-                child.EndOfWord = true;
-                child.Count++;
-                if (child.Log == null)
-                {
-                    child.Log = new DocumentLog(title, null);
-                }
-                else if (!DocExists(child.Log, title))
-                {
-                    child.Log = new DocumentLog(title, child.Log);
-                }
-                return;
-            }
-            // proceed with insertion of child node
-            Insert(child, keyRemainder, title);
+            if (pool[child.PoolIndex][child.Offset + i] != pool[poolIdx][offset + i])
+                return i;
         }
-    }
-    // returns the length of the common prefix between two strings
-    private int CommonPrefixLength(string s1, string s2)
-    {
-        int len = Math.Min(s1.Length, s2.Length);
-        int i = 0;
-        while (i < len && s1[i] == s2[i])
-            i++;
-        return i;
+        return max;
     }
 
-
-    // find node corresponding to complete word
-    private TrieNode FindWord(string word)
+    public bool Search(string query)
     {
-        word = word.ToLower();
-        TrieNode current = root;
-        while (word.Length > 0)
+        var node = FindNode(root, query.ToLowerInvariant());
+        return node != null && node.IsEndOfWord;
+    }
+
+    private TrieNode FindNode(TrieNode node, string query)
+    {
+        int idx = 0;
+        while (node != null && idx < query.Length)
         {
-            char firstChar = word[0];
-            if (!current.Children.TryGetValue(firstChar, out TrieNode child))
-            {
-                return null;
-            }
-
-            // the childs segment must matches the beginning of the word
-            if (word.StartsWith(child.Segment))
-            {
-                word = word.Substring(child.Segment.Length);
-                current = child;
-            }
+            char c = query[idx];
+            TrieNode child = null;
+            int ci = c - 'a';
+            if (ci >= 0 && ci < 26)
+                child = node.ArrayChildren[ci];
             else
-            {
-                return null;
-            }
-        }
-        return current.EndOfWord ? current : null;
+                node.DictChildren.TryGetValue(c, out child);
 
+            if (child == null) return null;
+            int match = 0;
+            while (match < child.Length && idx + match < query.Length &&
+                    wordPool[child.PoolIndex][child.Offset + match] == query[idx + match])
+                match++;
+            if (match < child.Length) return null;
+            idx += match;
+            node = child;
+        }
+        return node;
     }
 
-
-    private bool DocExists(DocumentLog log, string title)
+    public List<string> PrefixSearchDocuments(string prefix)
     {
-        while (log != null)
-        {
-            if (log.Title.Equals(title))
-                return true;
-            log = log.Next;
-        }
-        return false;
+        var docs = new HashSet<int>();
+        var node = FindNode(root, prefix.ToLowerInvariant().TrimEnd());
+        if (node != null)
+            CollectDocs(node, docs);
+        var results = new List<string>();
+        foreach (var id in docs)
+            results.Add(idToTitle[id]);
+        return results;
     }
 
-    // NOTE: exact match search (unchanged in terms of implementation compared to like iondex4)
-    public bool Search(string searchStr)
+    private void CollectDocs(TrieNode node, HashSet<int> docs)
     {
-        TrieNode current = FindWord(searchStr);
-        if (current != null)
-        {
-            // Console.WriteLine("Found " + searchStr + " in:");
-            DocumentLog log = current.Log;
-            while (log != null)
-            {
-                // Console.WriteLine(log.Title);
-                log = log.Next;
-            }
-            return true;
-        }
-        else
-        {
-            // Console.WriteLine("No matches for " + searchStr + " found");
-            return false;
-        }
+        if (node.IsEndOfWord)
+            foreach (var id in node.DocIds)
+                docs.Add(id);
+        foreach (var child in node.ArrayChildren)
+            if (child != null) CollectDocs(child, docs);
+        foreach (var kv in node.DictChildren)
+            CollectDocs(kv.Value, docs);
     }
 
-    // helper method to find node corresponding to prefix returns tuple of (matching node, accumualted string that's been matched)
-    private (TrieNode node, string matched) FindPrefixNode(string prefix)
+    public List<(string word, List<string> documents)> PrefixSearch(string prefix)
     {
-        prefix = prefix.ToLower();
-        TrieNode current = root;
-        string matched = "";
-        while (prefix.Length > 0)
-        {
-            char firstChar = prefix[0];
-            if (!current.Children.TryGetValue(firstChar, out TrieNode child))
-            {
-                return (null, null);
-            }
-            int commonLength = CommonPrefixLength(child.Segment, prefix);
-            matched += child.Segment.Substring(0, commonLength);
-            if (commonLength < child.Segment.Length)
-            {
-                // if the prefix ends in the middle of the child's segment it's a match
-                if (commonLength == prefix.Length)
-                {
-                    return (child, matched);
-                }
-                else { return (null, null); }
-            }
-            // childs segement fully matches so we continue with remainder of prefix
-            prefix = prefix.Substring(commonLength);
-            current = child;
-        }
-        return (current, matched);
-    }
-    // NOTE: auto-completion, lists all words starting with the given prefix and their documents
-    //TODO: make searches return boolean instead of void
-    public bool PrefixSearch(string prefix)
-    {
-        var (node, matched) = FindPrefixNode(prefix);
-        if (node == null)
-        {
-            // Console.WriteLine("No matches for " + prefix + " found");
-            return false;
-        }
-
-        List<(string word, TrieNode node)> completions = new List<(string, TrieNode)>();
-
-        // matched is the portion of the pref that was found, we use it as the starting point
-
-        CollectWords(node, matched, completions);
-
-        if (completions.Count == 0)
-        {
-            // Console.WriteLine("No complete words found with prefix " + prefix);
-            return false;
-        }
-        else
-        {
-            foreach (var (word, radNode) in completions)
-            {
-                // Console.WriteLine("Found " + word + " in:");
-                DocumentLog log = radNode.Log;
-                while (log != null)
-                {
-                    // Console.WriteLine(log.Title);
-                    log = log.Next;
-                }
-            }
-        }
-        return true;
+        var results = new List<(string, List<string>)>();
+        var startNode = FindNode(root, prefix.ToLowerInvariant());
+        if (startNode != null)
+            CollectWords(startNode, prefix, results);
+        return results;
     }
 
-    // NOTE: returns the (unique) documents  where any word starting with the given prefix appears
-    public bool PrefixSearchDocuments(string prefix)
+    private void CollectWords(TrieNode node, string current, List<(string, List<string>)> output)
     {
-        var (node, matched) = FindPrefixNode(prefix);
-        if (node == null)
+        if (node.IsEndOfWord)
         {
-            // Console.WriteLine("No matches for " + prefix + " found");
-            return false;
+            var docs = new List<string>();
+            foreach (var id in node.DocIds)
+                docs.Add(idToTitle[id]);
+            output.Add((current, docs));
         }
-
-        // hashset to avoid duplicate titles
-        HashSet<string> documents = new HashSet<string>();
-
-        List<(string word, TrieNode node)> completions = new List<(string, TrieNode)>();
-        CollectWords(node, matched, completions);
-
-        foreach (var (word, radNode) in completions)
-        {
-            DocumentLog log = radNode.Log;
-            while (log != null)
-            {
-                documents.Add(log.Title);
-                log = log.Next;
-            }
-        }
-
-        if (documents.Count == 0)
-        {
-            // Console.WriteLine($"No documents found for prefix: '{prefix}'");
-            return false;
-        }
-        else
-        {
-            // Console.WriteLine($"Documents containing a word starting with '{prefix}'");
-
-            foreach (var doc in documents)
-            {
-                // Console.WriteLine(doc);
-            }
-        }
-        return true;
+        foreach (var child in node.ArrayChildren)
+            if (child != null)
+                CollectWords(child, current + wordPool[child.PoolIndex].Substring(child.Offset, child.Length), output);
+        foreach (var kv in node.DictChildren)
+            CollectWords(kv.Value, current + kv.Key, output);
     }
 
-    /*
-     * helper to locate node corresponding to the last character of the prefix
-     */
-
-    // recursively collects complete words (nodes marked as isEndOfWord) from a given node
-    //  prefix is the accumulated string that leads to that node
-    private void CollectWords(TrieNode node, string prefix, List<(string, TrieNode)> completions)
+    private string Normalize(string raw)
     {
-        if (node.EndOfWord)
-        {
-            completions.Add((prefix, node));
-        }
-        foreach (var child in node.Children.Values)
-        {
-            // append the childs segement to the current prefix and recusre
-            CollectWords(child, prefix + child.Segment, completions);
-        }
-
+        return raw.Trim().ToLowerInvariant();
     }
 }
-

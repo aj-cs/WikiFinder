@@ -55,12 +55,12 @@ public class IndexConstructionBenchmark
     public string FileName { get; set; }
 
     [Benchmark]
-    public Index BenchmarkIndexConstruction()
+    public System.Index BenchmarkIndexConstruction()
     {
         // Use an absolute path to your project directory
         string projectDir = "/zhome/79/1/188120/search-engine-project";
         string fullPath = System.IO.Path.Combine(projectDir, FileName);
-        return new Index(fullPath);
+        return new System.Index(fullPath);
     }
 }
 
@@ -77,14 +77,14 @@ public class QueryBenchmark
     [Params("and", "or", "cat", "bread")]
     public string Query { get; set; }
 
-    private Index index;
+    private System.Index index;
 
     [GlobalSetup]
     public void Setup()
     {
         string projectDir = "/zhome/79/1/188120/search-engine-project";
         string fullPath = System.IO.Path.Combine(projectDir, FileName);
-        index = new Index(fullPath);
+        index = new System.Index(fullPath);
     }
 
     // Measures the time for the PrefixSearch method for a single query.
