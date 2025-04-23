@@ -1,10 +1,12 @@
 using System;
+using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Exporters;
 using BenchmarkDotNet.Exporters.Csv;
 using BenchmarkDotNet.Running;
 using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Jobs;
+using System.Diagnostics;
 
 namespace SearchEngineProject;
 /*
@@ -55,12 +57,12 @@ public class IndexConstructionBenchmark
     public string FileName { get; set; }
 
     [Benchmark]
-    public Index BenchmarkIndexConstruction()
+    public System.Index BenchmarkIndexConstruction()
     {
         // Use an absolute path to your project directory
         string projectDir = "/zhome/79/1/188120/search-engine-project";
         string fullPath = System.IO.Path.Combine(projectDir, FileName);
-        return new Index(fullPath);
+        return new System.Index(fullPath);
     }
 }
 
@@ -77,14 +79,14 @@ public class QueryBenchmark
     [Params("and", "or", "cat", "bread")]
     public string Query { get; set; }
 
-    private Index index;
+    private System.Index index;
 
     [GlobalSetup]
     public void Setup()
     {
         string projectDir = "/zhome/79/1/188120/search-engine-project";
         string fullPath = System.IO.Path.Combine(projectDir, FileName);
-        index = new Index(fullPath);
+        index = new System.Index(fullPath);
     }
 
     // Measures the time for the PrefixSearch method for a single query.
@@ -119,7 +121,34 @@ public class Program
 
         // Run the query benchmarks
         BenchmarkRunner.Run<QueryBenchmark>();
-
+        // if (args.Length == 0)
+        // {
+        //     Console.WriteLine("Usage: Index1 <filename>");
+        //     return;
+        // }
+        //
+        // Console.WriteLine("Preprocessing " + args[0]);
+        // var stopwatch = new Stopwatch();
+        // stopwatch.Start();
+        // System.Index index = new System.Index(args[0]);
+        // stopwatch.Stop();
+        // Console.WriteLine($"Time to pre-process: {stopwatch.ElapsedMilliseconds / (decimal)1000}");
+        //
+        // while (true)
+        // {
+        //     Console.WriteLine("Input search string or type exit to stop");
+        //     string searchStr = Console.ReadLine();
+        //
+        //     if (searchStr.Equals("exit", StringComparison.OrdinalIgnoreCase))
+        //     {
+        //         break;
+        //     }
+        //
+        //     index.PrintDemo(searchStr, searchStr);
+        //     // index.PrefixSearchDocuments(searchStr);
+        //     // Console.WriteLine($"\nAuto-completion of words starting with '{searchStr}': ");
+        //     // index.PrefixSearch(searchStr);
+        // }
     }
 }
 /*class Program
