@@ -192,4 +192,22 @@ public class Index
     {
         return raw.Trim().ToLowerInvariant();
     }
+    public void PrintDemo(string term, string prefix)
+    {
+        Console.WriteLine($"Search(\"{term}\") → {Search(term)}");
+
+        var docsByPrefix = PrefixSearchDocuments(prefix);
+        Console.WriteLine($"\nDocuments containing words starting with \"{prefix}\":");
+        foreach (var title in docsByPrefix)
+            Console.WriteLine($"  • {title}");
+
+        var detailed = PrefixSearch(prefix);
+        Console.WriteLine($"\nAll words beginning with \"{prefix}\" and their documents:");
+        foreach (var (word, titles) in detailed)
+        {
+            Console.WriteLine($"  {word}:");
+            foreach (var t in titles)
+                Console.WriteLine($"    – {t}");
+        }
+    }
 }
