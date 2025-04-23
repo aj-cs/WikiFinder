@@ -53,14 +53,14 @@ public class IndexConstructionBenchmark
 {
     // Parameterized list of file names.
     // (These file names are relative to your project directory.)
-    [Params("100KB.txt", "1MB.txt", "2MB.txt", "5MB.txt", "10MB.txt", "20MB.txt", "50MB.txt", "100MB.txt")]
+    [Params("100MB.txt")]
     public string FileName { get; set; }
 
     [Benchmark]
     public Index BenchmarkIndexConstruction()
     {
         // Use an absolute path to your project directory
-        string projectDir = "/zhome/79/1/188120/search-engine-project";
+        string projectDir = "/home/arjun/Documents/SearchEngine/SearchEngineProject";
         string fullPath = System.IO.Path.Combine(projectDir, FileName);
         return new Index(fullPath);
     }
@@ -72,7 +72,7 @@ public class IndexConstructionBenchmark
 public class QueryBenchmark
 {
     // Parameterized file name for building the index.
-    [Params("100KB.txt", "1MB.txt", "2MB.txt", "5MB.txt", "10MB.txt", "20MB.txt", "50MB.txt", "100MB.txt")]
+    [Params("100MB.txt")]
     public string FileName { get; set; }
 
     // Parameterized query so that each query ("and", "or", "cat", "bread") is benchmarked separately.
@@ -84,7 +84,7 @@ public class QueryBenchmark
     [GlobalSetup]
     public void Setup()
     {
-        string projectDir = "/zhome/79/1/188120/search-engine-project";
+        string projectDir = "/home/arjun/Documents/SearchEngine/SearchEngineProject";
         string fullPath = System.IO.Path.Combine(projectDir, FileName);
         index = new Index(fullPath);
     }
@@ -117,38 +117,38 @@ public class Program
     public static void Main(string[] args)
     {
         // Run the index construction benchmarks.
-        BenchmarkRunner.Run<IndexConstructionBenchmark>();
+        // BenchmarkRunner.Run<IndexConstructionBenchmark>();
 
         // Run the query benchmarks
-        BenchmarkRunner.Run<QueryBenchmark>();
+        // BenchmarkRunner.Run<QueryBenchmark>();
         // if (args.Length == 0)
         // {
         //     Console.WriteLine("Usage: Index1 <filename>");
         //     return;
         // }
         //
-        // Console.WriteLine("Preprocessing " + args[0]);
-        // var stopwatch = new Stopwatch();
-        // stopwatch.Start();
-        // Index index = new Index(args[0]);
-        // stopwatch.Stop();
-        // Console.WriteLine($"Time to pre-process: {stopwatch.ElapsedMilliseconds / (decimal)1000}");
-        //
-        // while (true)
-        // {
-        //     Console.WriteLine("Input search string or type exit to stop");
-        //     string searchStr = Console.ReadLine();
-        //
-        //     if (searchStr.Equals("exit", StringComparison.OrdinalIgnoreCase))
-        //     {
-        //         break;
-        //     }
-        //
-        //     index.PrintDemo(searchStr, searchStr);
-        //     // index.PrefixSearchDocuments(searchStr);
-        //     // Console.WriteLine($"\nAuto-completion of words starting with '{searchStr}': ");
-        //     // index.PrefixSearch(searchStr);
-        // }
+        Console.WriteLine("Preprocessing " + args[0]);
+        var stopwatch = new Stopwatch();
+        stopwatch.Start();
+        Index index = new Index(args[0]);
+        stopwatch.Stop();
+        Console.WriteLine($"Time to pre-process: {stopwatch.ElapsedMilliseconds / (decimal)1000}");
+
+        while (true)
+        {
+            Console.WriteLine("Input search string or type exit to stop");
+            string searchStr = Console.ReadLine();
+
+            if (searchStr.Equals("exit", StringComparison.OrdinalIgnoreCase))
+            {
+                break;
+            }
+
+            index.PrintDemo(searchStr, searchStr);
+            // index.PrefixSearchDocuments(searchStr);
+            // Console.WriteLine($"\nAuto-completion of words starting with '{searchStr}': ");
+            // index.PrefixSearch(searchStr);
+        }
     }
 }
 /*class Program
