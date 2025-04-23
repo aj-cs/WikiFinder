@@ -84,6 +84,7 @@ public class Index
         char c = word[idx];
         if (node == null)
             node = new TSTNode(c);
+
         if (c < node.Character)
             node.Left = Insert(node.Left, word, idx, docId);
         else if (c > node.Character)
@@ -104,7 +105,9 @@ public class Index
 
     public bool Search(string query)
     {
-        var node = FindNode(root, query, 0);
+        if (string.IsNullOrEmpty(query)) return false;
+        var normalized = Normalize(query);
+        var node = FindNode(root, normalized, 0);
         return node != null && node.IsEndOfWord;
     }
 
@@ -127,9 +130,14 @@ public class Index
     public List<string> PrefixSearchDocuments(string prefix)
     {
         var docs = new HashSet<int>();
-        var startNode = FindPrefixNode(root, prefix, 0);
+        if (string.IsNullOrEmpty(prefix))
+            return new List<string>();
+
+        var normalized = Normalize(prefix);
+        var startNode = FindPrefixNode(root, normalized, 0);
         if (startNode != null)
             CollectDocs(startNode, docs);
+
         var results = new List<string>();
         foreach (var id in docs)
             results.Add(idToTitle[id]);
@@ -166,16 +174,23 @@ public class Index
     public List<(string word, List<string> documents)> PrefixSearch(string prefix)
     {
         var results = new List<(string, List<string>)>();
-        var node = FindPrefixNode(root, prefix, 0);
+        if (string.IsNullOrEmpty(prefix))
+            return results;
+
+        var normalized = Normalize(prefix);
+        var node = FindPrefixNode(root, normalized, 0);
         if (node != null)
-            CollectWords(node, prefix, results);
+            CollectWords(node, normalized, results);
+
         return results;
     }
 
     private void CollectWords(TSTNode node, string current, List<(string, List<string>)> output)
     {
         if (node == null) return;
+
         CollectWords(node.Left, current, output);
+
         var next = current + node.Character;
         if (node.IsEndOfWord)
         {
@@ -184,6 +199,7 @@ public class Index
                 docs.Add(idToTitle[id]);
             output.Add((next, docs));
         }
+
         CollectWords(node.Equal, next, output);
         CollectWords(node.Right, current, output);
     }
@@ -192,6 +208,7 @@ public class Index
     {
         return raw.Trim().ToLowerInvariant();
     }
+
     public void PrintDemo(string term, string prefix)
     {
         Console.WriteLine($"Search(\"{term}\") → {Search(term)}");
@@ -211,3 +228,4 @@ public class Index
         }
     }
 }
+
