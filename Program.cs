@@ -130,7 +130,7 @@ public class Program
         // Console.WriteLine("Preprocessing " + args[0]);
         // var stopwatch = new Stopwatch();
         // stopwatch.Start();
-        // System.Index index = new System.Index(args[0]);
+        // Index index = new Index(args[0]);
         // stopwatch.Stop();
         // Console.WriteLine($"Time to pre-process: {stopwatch.ElapsedMilliseconds / (decimal)1000}");
         //
