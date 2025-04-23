@@ -115,11 +115,31 @@ public class Program
     public static void Main(string[] args)
     {
         // Run the index construction benchmarks.
-        BenchmarkRunner.Run<IndexConstructionBenchmark>();
+        // BenchmarkRunner.Run<IndexConstructionBenchmark>();
 
         // Run the query benchmarks
-        BenchmarkRunner.Run<QueryBenchmark>();
+        // BenchmarkRunner.Run<QueryBenchmark>();
+        if (args.Length == 0)
+        {
+            Console.WriteLine("Usage: Index1 <filename>");
+            return;
+        }
 
+        Console.WriteLine("Preprocessing " + args[0]);
+        Index index = new Index(args[0]);
+
+        while (true)
+        {
+            Console.WriteLine("Input search string or type exit to stop");
+            string searchStr = Console.ReadLine();
+
+            if (searchStr.Equals("exit", StringComparison.OrdinalIgnoreCase))
+            {
+                break;
+            }
+
+            index.PrintDemo(searchStr, searchStr);
+        }
     }
 }
 /*class Program
