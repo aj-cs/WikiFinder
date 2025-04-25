@@ -2,18 +2,68 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.IO;
 using System.Linq; 
 using System.Net.Http; 
 using System.Text.Json; 
+using System.Buffers;
+using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-
 namespace SearchEngineProject;
-//RENAME RADIX TO COMPACT TRIE CUZ RADIX TRIE IS BAD
 public class Index
 {
-    private TrieNode root;
+    private record Token(string Raw, string Norm, int DocId, int TermPos, int CharStart, int CharEnd);
 
+    private static readonly HashSet<string> StopWords =
+        new(StringComparer.OrdinalIgnoreCase)
+        {
+            "a", "an", "the", "and", "or", "but", "is", "are", "was", "were",
+            "to", "in", "on", "at", "for", "with", "of", "by", "as", "that",
+            // add more stop words
+        };
+    private static readonly Porter2Stemmer.EnglishPorter2Stemmer Stemmer
+        = new();
+    //compact trie root node
+    private TrieNode root;
+    // bloom filter 
+    private readonly BloomFilter _bloomFilter;
+    private class BloomFilter
+    {
+        private readonly BitArray bits;
+        private readonly int m, k, n;
+
+        public BloomFilter(int expectedItems, double falsePositiveRate)
+        {
+            if (expectedItems <= 0 ) throw new ArgumentException(nameof(expectedItems)); // only positive numbers for expected
+            if (falsePositiveRate <= 0 || falsePositiveRate >= 1) throw new ArgumentOutOfRangeException(nameof(falsePositiveRate)); // FP rate can only go between 0 and 100 percent.
+            n = expectedItems;
+            m = (int)Math.Ceiling(-n * Math.Log(falsePositiveRate) / (Math.Log(2) * Math.Log(2)));
+            k = (int)Math.Round((m / (double)n) * Math.Log(2));
+            bits = new BitArray(m);
+        }
+
+        public void Add(string word)
+        {
+            var data = System.Text.Encoding.UTF8.GetBytes(word);
+            uint hash1 = MurmurHash3(data, 0);
+            uint hash2 = MurmurHash3(data, 1);
+            for (int i = 0; i < k; i++)
+                bits[(int)((hash1 + (uint)i * hash2) % (uint)m)] = true;
+        }
+
+        public bool MayContain(string word)
+        {
+            var data = System.Text.Encoding.UTF8.GetBytes(word);
+            uint hash1 = MurmurHash3(data, 0);
+            uint hash2 = MurmurHash3(data, 1);
+            for (int i = 0; i < k; i++)
+                if (!bits[(int)((hash1 + (uint)i * hash2) % (uint)m)])
+                    return false;
+            return true;
+        }
+    }
     private class TrieNode
     {
         public string Segment;
@@ -21,6 +71,7 @@ public class Index
         public DocumentLog Log;
         public int Count;
         public bool EndOfWord;
+        
 
         public TrieNode(string segment)
         {
@@ -31,7 +82,44 @@ public class Index
             EndOfWord = false;
         }
     }
-    // Flag to enable/disable delta encoding
+        // MurmurHash3 ported from Austin Appleby's C++ implementation
+        // https://github.com/aappleby/smhasher/blob/master/src/MurmurHash3.cpp
+    private static uint MurmurHash3(byte[] data, uint seed)
+    {
+        const uint c1 = 0xcc9e2d51, c2 = 0x1b873593;
+        uint h1 = seed;
+        int len = data.Length, roundedEnd = len & ~3;
+        for (int i = 0; i < roundedEnd; i += 4)
+        {
+            uint k1 = (uint)(data[i] | data[i+1]<<8 | data[i+2]<<16 | data[i+3]<<24);
+            k1 = Rotl32(k1 * c1, 15) * c2;
+            h1 = Rotl32(h1 ^ k1, 13) * 5 + 0xe6546b64;
+        }
+        uint k2 = 0;
+        switch (len & 3)
+        {
+            case 3: k2 ^= (uint)data[roundedEnd+2] << 16; goto case 2;
+            case 2: k2 ^= (uint)data[roundedEnd+1] << 8; goto case 1;
+            case 1:
+                k2 ^= data[roundedEnd];
+                k2 = Rotl32(k2 * c1, 15) * c2;
+                h1 ^= k2;
+                break;
+        }
+        h1 ^= (uint)len;
+        return FMix(h1);
+    }
+
+    private static uint Rotl32(uint x, byte r) => (x << r) | (x >> (32 - r));
+    private static uint FMix(uint h)
+    {
+        h ^= h >> 16; h *= 0x85ebca6b;
+        h ^= h >> 13; h *= 0xc2b2ae35;
+        h ^= h >> 16;
+        return h;
+    }
+    
+    // flag to enable/disable delta encoding
     private bool deltaEncodingEnabled = true;
     public void SetDeltaEncoding(bool enabled)
     {
@@ -39,8 +127,22 @@ public class Index
     }
     private Dictionary<string, BitArray> bitIndex;
     private bool bitIndexBuilt = false;
+
+    private class Posting
+    {
+        public int DocumentId;
+        public int Count; 
+        public List<int> Positions;
+
+        public Posting(int docId, int firstPos)
+        {
+            DocumentId = docId;
+            Count = 1;
+            Positions = new List<int> { firstPos }; 
+        }
+    }
     // Inverted index
-    private Dictionary<string, Dictionary<int, (List<int> Positions, int Count)>> invertedIndex; 
+    private Dictionary<string, List<Posting>> invertedIndex;
     // variables to keep track of and compress documents 
     private Dictionary<int, string> documentIdMap; // maps document IDs to names
     private List<string> documentTitles;           // list of document titles (index corresponds to document ID)
@@ -73,16 +175,17 @@ public class Index
         foreach (var kv in invertedIndex)
         {
             var bits = new BitArray(docCount);
-            foreach (var docId in kv.Value.Keys)
-                bits.Set(docId, true);
+            foreach (var post in kv.Value)
+                bits.Set(post.DocumentId, true);
             bitIndex[kv.Key] = bits;
         }
     }
-
+    
     public Index(string filename)
     {
         root = new TrieNode("");
-        invertedIndex = new Dictionary<string, Dictionary<int, (List<int>, int)>>();
+        invertedIndex = new Dictionary<string,List<Posting>>();
+        _bloomFilter = new BloomFilter(100000, 0.1); 
         documentIdMap = new Dictionary<int, string>();
         documentTitles = new List<string>();
         nextDocumentId = 0;
@@ -122,42 +225,76 @@ public class Index
             Console.WriteLine("Error reading file " + filename);
         }
     }
+    
 
-    private static string FilterWord(ReadOnlySpan<char> input)
-    {
-        Span<char> buffer = stackalloc char[input.Length];
-        int index = 0;
-        foreach (char c in input)
-        {
-            if (char.IsLetterOrDigit(c))
-                buffer[index++] = char.ToLower(c);
-        }
-        return new string(buffer[..index]);
-    }
+    private static readonly Regex TokenRegex =
+        // letters + digits with optional internal ’ ’ - characters
+        new(@"\p{L}[\p{L}\p{Nd}’'-]*", RegexOptions.Compiled);
 
     private void ProcessLine(string line, string currentTitle)
     {
-        ReadOnlySpan<char> span = line.AsSpan();
-        while (!span.IsEmpty)
-        {
-            int nextSpace = span.IndexOf(' ');
-            ReadOnlySpan<char> word = nextSpace >= 0 ? span[..nextSpace] : span;
-            
-            InsertWord(word.ToString(), currentTitle, documentPositionCounter);
-            documentPositionCounter++;
+        if (string.IsNullOrWhiteSpace(line)) return;
 
-            if (nextSpace < 0) break;
-            span = span[(nextSpace + 1)..];
+        int docId = GetOrCreateDocId(currentTitle);
+
+        foreach (Match m in TokenRegex.Matches(line.Normalize(NormalizationForm.FormC)))
+        {
+            string raw  = m.Value;
+            string norm = Stemmer.Stem(raw.ToLowerInvariant()).Value;
+
+            if (StopWords.Contains(norm) || norm.Length == 0)
+                continue;                              // drop stop-words
+
+            int termPos   = documentPositionCounter++;
+            var token     = new Token(raw, norm, docId, termPos, m.Index, m.Index + raw.Length);
+
+            InsertToken(token);                        // one unified entry point
         }
     }
-    private void InsertWord(string word, string title, int position)
+    private int GetOrCreateDocId(string title)
     {
-        string filtered = FilterWord(word);
-        if (filtered.Length == 0)
-            return;
-            
-        InsertIntoTrie(root, filtered, title, position);
-        InsertIntoInvertedIndex(filtered, title, position);
+        int id = documentTitles.IndexOf(title);
+        if (id != -1) return id;
+        id = nextDocumentId++;
+        documentTitles.Add(title);
+        documentIdMap[id] = title;
+        return id;
+    }
+
+    private void InsertToken(Token t)
+    {
+        if (!invertedIndex.TryGetValue(t.Norm, out var postings))
+            invertedIndex[t.Norm] = postings = new List<Posting>();
+
+        Posting p = postings.FirstOrDefault(x => x.DocumentId == t.DocId);
+        if (p == null)
+        {
+            p = new Posting(t.DocId, t.TermPos);
+            postings.Add(p);
+        }
+        else
+        {
+            int last = p.Positions[^1];
+            p.Positions.Add(deltaEncodingEnabled ? t.TermPos - last : t.TermPos);
+            p.Count++;
+        }
+        
+        _bloomFilter.Add(t.Norm);
+        // InsertIntoTrie(root, t.Norm, documentTitles[t.DocId], t.TermPos);
+    }
+    private static string FilterWord(string input)
+    {
+        if (string.IsNullOrWhiteSpace(input)) return "";
+
+        var sb = new StringBuilder(input.Length);
+        foreach (char c in input)
+            if (char.IsLetterOrDigit(c)) sb.Append(char.ToLowerInvariant(c));
+
+        if (sb.Length == 0) return "";
+
+        string stem = Stemmer.Stem(sb.ToString()).Value;
+        if (StopWords.Contains(stem)) return "";
+        return stem;
     }
     private void InsertIntoInvertedIndex(string word, string title, int position)
     {
@@ -168,25 +305,29 @@ public class Index
             documentTitles.Add(title);
             documentIdMap[documentId] = title;
         }
-        if (!invertedIndex.ContainsKey(word))
+        if (!invertedIndex.TryGetValue(word, out var postings))
         {
-            invertedIndex[word] = new Dictionary<int, (List<int> Positions, int Count)>();
+            postings = new List<Posting>();
+            invertedIndex[word] = postings;
         }
-        if (!invertedIndex[word].ContainsKey(documentId))
+        // find existing posting for this doc
+        foreach (var p in postings)
         {
-            invertedIndex[word][documentId] = (new List<int>(), 0);
+            if (p.DocumentId == documentId)
+            {
+                p.Count++;
+                int last = p.Positions[^1];
+                p.Positions.Add(deltaEncodingEnabled ? position - last : position);
+                return;
+            }
         }
-        var (positions, count) = invertedIndex[word][documentId];
-        if (deltaEncodingEnabled && positions.Count > 0)
-        {
-            positions.Add(position - positions[^1]);
-        }
-        else
-        {
-            positions.Add(position);
-        }
-        invertedIndex[word][documentId] = (positions, count + 1);
+
+        // first time this term in this document
+        postings.Add(new Posting(documentId,
+            deltaEncodingEnabled ? position : position
+        ));
     }
+
     // helper method to decode delta-encoded positions
     private List<int> DecodePositions(List<int> encoded)
     {
@@ -395,65 +536,64 @@ public class Index
     
     // NOTE: exact match search
 
-    public bool Search(string query)
+    public List<string> Search(string query)
     {
         var words = query.Split(" ", StringSplitOptions.RemoveEmptyEntries);
+        var result = new List<string>();
+
         if (words.Length > 1)
         {
-            if (query.Contains("&&") || (query.Contains("||")))
+            if (query.Contains("&&") || query.Contains("||"))
             {
-                Console.WriteLine("Boolean search");
-                return BooleanSearchBitsetIndex(query);
+                result = BooleanSearchNaiveIndex(query);
+                return result;
             }
             else
             {
-                Console.WriteLine("Phrase search");
-                return PhraseSearchIndex(query);
+                result = PhraseSearchIndex(query);
+                return result;
             }
-        }
-        else 
-        {
-            if (query.EndsWith("*"))
-            {
-                Console.WriteLine("Prefix search");
-                query.Remove(query.Length - 1);
-                return PrefixSearchTrie(query);
-            }
-            if (query.EndsWith("#"))
-            {
-                Console.WriteLine("Ranked search");
-                query.Remove(query.Length - 1);
-                return SearchRankedIndex((query));
-            }
-            else
-            {
-                Console.WriteLine("Normal search");
-                return SearchIndex(query);
-            }
-            
-        }
-    }
-    public bool SearchTrie(string searchStr)
-    {
-        string word = FilterWord(searchStr);
-        TrieNode node = FindWord(word);
-        if (node != null)
-        {
-            Console.WriteLine("Found " + searchStr + " in:");
-            DocumentLog log = node.Log;
-            while (log != null)
-            {
-                Console.WriteLine(documentTitles[log.DocumentId]);
-                log = log.Next;
-            }
-            return true;
         }
         else
         {
-            Console.WriteLine("No matches for " + searchStr + " found");
-            return false;
+            if (query.EndsWith("*"))
+            {
+                query = query.Substring(0, query.Length - 1);
+                result = PrefixSearchTrie(query);
+                return result;
+            }
+            else if (query.EndsWith("#"))
+            {
+                query = query.Substring(0, query.Length - 1);
+                result = SearchRankedIndex(query).Select(x => x.Item1).ToList();
+                return result;
+            }
+            else
+            {
+                result = SearchIndex(query);
+                return result;
+                
+            }
         }
     }
+    public List<string> SearchTrie(string searchStr)
+    {
+        var results = new List<string>();
+        string word = FilterWord(searchStr);
+        TrieNode node = FindWord(word);
+
+        if (node != null)
+        {
+            // Collect all document IDs from this node’s DocumentLog chain
+            for (var log = node.Log; log != null; log = log.Next)
+            {
+                results.Add(documentTitles[log.DocumentId]);
+            }
+        }
+
+        return results;
+    }
+
 
     // helper method to find node corresponding to prefix
     private (TrieNode node, string matched) FindPrefixNode(string prefix)
@@ -486,91 +626,57 @@ public class Index
     }
     
     // NOTE: auto-completion, lists all words starting with the given prefix and their documents
-    public bool AutoComplete(string prefix)
-    {
-        prefix = FilterWord(prefix);
-        if (prefix.Length == 0)
-        {
-            Console.WriteLine("No valid prefix provided.");
-            return false;
-        }
-        
-        var (node, matched) = FindPrefixNode(prefix);
-        if (node == null)
-        {
-            Console.WriteLine("No matches for " + prefix + " found");
-            return false;
-        }
+    public List<string> AutoComplete(string prefix)
+{
+    prefix = FilterWord(prefix);
+    var results = new HashSet<string>();
+    
+    if (prefix.Length == 0) return results.ToList();
 
-        List<(string word, TrieNode node)> completions = new List<(string, TrieNode)>();
-        CollectWords(node, matched, completions);
-        
-        if (completions.Count == 0)
+    var (node, matched) = FindPrefixNode(prefix);
+    if (node == null) return results.ToList();
+
+    var completions = new List<(string word, TrieNode node)>();
+    CollectWords(node, matched, completions);
+
+    foreach (var (wordComp, trieNode) in completions)
+    {
+        for (var log = trieNode.Log; log != null; log = log.Next)
         {
-            Console.WriteLine("No complete words found with prefix " + prefix);
-            return false;
-        }
-        else
-        {
-            foreach (var (wordComp, trieNode) in completions)
-            {
-                Console.WriteLine("Found " + wordComp + " in:");
-                DocumentLog log = trieNode.Log;
-                while (log != null)
-                {
-                    Console.WriteLine(documentTitles[log.DocumentId]);
-                    log = log.Next;
-                }
-            }
-            return true;
+            results.Add(documentTitles[log.DocumentId]);
         }
     }
 
-    // NOTE: returns the (unique) documents where any word starting with the given prefix appears
-    public bool PrefixSearchTrie(string prefix)
-    {
-        prefix = FilterWord(prefix);
-        if (prefix.Length == 0)
-        {
-            Console.WriteLine("No valid prefix provided.");
-            return false;
-        }
-        
-        var (node, matched) = FindPrefixNode(prefix);
-        if (node == null)
-        {
-            Console.WriteLine("No matches for " + prefix + " found");
-            return false;
-        }
+    return results.ToList();
+}
 
-        HashSet<int> documentIds = new HashSet<int>();
-        List<(string word, TrieNode node)> completions = new List<(string, TrieNode)>();
+    // NOTE: returns the (unique) documents where any word starting with the given prefix appears
+    public List<string> PrefixSearchTrie(string prefix)
+    {
+        var results = new List<string>();
+        prefix = FilterWord(prefix);
+        if (prefix.Length == 0) return results;
+
+        var (node, matched) = FindPrefixNode(prefix);
+        if (node == null) return results;
+
+        var documentIds = new HashSet<int>();
+        var completions = new List<(string word, TrieNode node)>();
         CollectWords(node, matched, completions);
         
         foreach (var (wordComp, trieNode) in completions)
         {
-            DocumentLog log = trieNode.Log;
-            while (log != null)
+            for (var log = trieNode.Log; log != null; log = log.Next)
             {
                 documentIds.Add(log.DocumentId);
-                log = log.Next;
             }
         }
         
-        if (documentIds.Count == 0)
+        foreach (var docId in documentIds)
         {
-            Console.WriteLine($"No documents found for prefix: '{prefix}'");
-            return false;
+            results.Add(documentTitles[docId]);
         }
-        else
-        {
-            Console.WriteLine($"Documents containing a word starting with '{prefix}':");
-            foreach (var docId in documentIds)
-            {
-                Console.WriteLine(documentTitles[docId]);
-            }
-            return true;
-        }
+        return results;
     }
 
     // recursively collects complete words (nodes marked as isEndOfWord) from a given node
@@ -585,227 +691,164 @@ public class Index
         }
     }
 
-    public bool PhraseSearchTrie(string phrase)
+    public List<string> PhraseSearchTrie(string phrase)
+{
+    var results = new List<string>();
+    string[] words = phrase.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+    if (words.Length == 0) return results;
+    
+    if (words.Length == 1)
     {
-        string[] words = phrase.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        if (words.Length == 0)
+        return SearchTrie(words[0]);
+    }
+
+    // filter each word
+    for (int i = 0; i < words.Length; i++)
+    {
+        words[i] = FilterWord(words[i]);
+    }
+
+    TrieNode firstNode = FindWord(words[0]);
+    if (firstNode == null) return results;
+
+    // get all doc IDs for the first word
+    var candidateDocs = new Dictionary<int, List<int>>();
+    for (var log = firstNode.Log; log != null; log = log.Next)
+    {
+        // make a copy of positions
+        candidateDocs[log.DocumentId] = new List<int>(log.Positions);
+    }
+
+    // Intersect position lists for subsequent words
+    for (int wordIndex = 1; wordIndex < words.Length; wordIndex++)
+    {
+        TrieNode node = FindWord(words[wordIndex]);
+        if (node == null)
         {
-            Console.WriteLine("Invalid search provided.");
-            return false;
-        }
-        if (words.Length == 1)
-        {
-            return SearchTrie(words[0]);
+            // No match for this word => no phrase match
+            return new List<string>();
         }
 
-        for (int i = 0; i < words.Length; i++)
+        var newCandidates = new Dictionary<int, List<int>>();
+        foreach (var docEntry in candidateDocs)
         {
-            words[i] = FilterWord(words[i]);
-        }
+            int docId = docEntry.Key;
+            List<int> prevPositions = docEntry.Value;
 
-        TrieNode firstNode = FindWord(words[0]);
-        if (firstNode == null)
-        {
-            Console.WriteLine($"Phrase '{phrase}' not found - first word doesn't exist");
-            return false;
-        }
-
-        Dictionary<int, List<int>> candidateDocs = new Dictionary<int, List<int>>();
-        DocumentLog log = firstNode.Log;
-        while (log != null)
-        {
-            candidateDocs[log.DocumentId] = new List<int>(log.Positions);
-            log = log.Next;
-        }
-
-        for (int wordIndex = 1; wordIndex < words.Length; wordIndex++)
-        {
-            TrieNode node = FindWord(words[wordIndex]);
-            if (node == null)
+            var currLog = FindDocLog(node.Log, docId);
+            if (currLog != null)
             {
-                Console.WriteLine($"Phrase '{phrase}' not found - word '{words[wordIndex]}' doesn't exist");
-                return false;
-            }
-
-            Dictionary<int, List<int>> newCandidates = new Dictionary<int, List<int>>();
-            foreach (var docEntry in candidateDocs)
-            {
-                int docId = docEntry.Key;
-                List<int> prevPositions = docEntry.Value;
-                DocumentLog currLog = FindDocLog(node.Log, docId);
-
-                if (currLog != null)
+                var validPositions = MergePositions(prevPositions, currLog.Positions);
+                if (validPositions.Count > 0)
                 {
-                    
-                    List<int> validPositions = MergePositions(prevPositions, currLog.Positions);
-                    if (validPositions.Count > 0)
-                    {
-                        newCandidates[docId] = validPositions;
-                    }
+                    newCandidates[docId] = validPositions;
                 }
             }
+        }
 
-            candidateDocs = newCandidates;
-            if (candidateDocs.Count == 0)
-            {
-                Console.WriteLine($"Phrase '{phrase}' not found in any document");
-                return false;
-            }
-        }
-        
-        Console.WriteLine($"Found phrase '{phrase}' in:");
-        foreach (var docId in candidateDocs.Keys)
-        {
-            Console.WriteLine(documentTitles[docId]);
-        }
-        return true;
+        candidateDocs = newCandidates;
+        if (candidateDocs.Count == 0) return new List<string>();
     }
+
+    // convert final doc IDs to titles
+    foreach (var docId in candidateDocs.Keys)
+    {
+        results.Add(documentTitles[docId]);
+    }
+    return results;
+}
     
     //exact match search using inverted index
-    public bool SearchIndex(string searchStr)
+    public List<string> SearchIndex(string searchStr)
     {
+        var results = new List<string>();
         string word = FilterWord(searchStr);
-        if (!invertedIndex.ContainsKey(word))
+        if (!invertedIndex.TryGetValue(word, out var postings))
         {
-            Console.WriteLine("No matches for " + searchStr + " found");
-            return false;
+            return results;
         }
 
-        Console.WriteLine("Found " + searchStr + " in:");
-        foreach (var docId in invertedIndex[word].Keys)
+        //adds all matching doc titles
+        foreach (var posting in postings)
         {
-            Console.WriteLine(documentTitles[docId]);
+            results.Add(documentTitles[posting.DocumentId]);
         }
-        return true;
+        return results;
     }
 
     // prefix search using inverted index
-    public bool PrefixSearchIndex(string prefix)
+    public List<string> PrefixSearchIndex(string prefix)
     {
+        var results = new List<string>();
         prefix = FilterWord(prefix);
-        if (prefix.Length == 0)
-        {
-            Console.WriteLine("No valid prefix provided.");
-            return false;
-        }
+        if (prefix.Length == 0) return results;
 
         var matches = invertedIndex.Keys.Where(k => k.StartsWith(prefix)).ToList();
-        if (matches.Count == 0)
-        {
-            Console.WriteLine("No matches for " + prefix + " found");
-            return false;
-        }
+        if (matches.Count == 0) return results;
 
         foreach (var word in matches)
         {
-            Console.WriteLine("Found " + word + " in:");
-            foreach (var docId in invertedIndex[word].Keys)
+            foreach (var posting in invertedIndex[word])
             {
-                Console.WriteLine(documentTitles[docId]);
+                results.Add(documentTitles[posting.DocumentId]);
             }
         }
-
-        return true;
+        return results;
     }
 
-    // Phrase search using inverted index
-    public bool PhraseSearchIndex(string phrase)
+    // phrase search using inverted index
+    public List<string> PhraseSearchIndex(string phrase)
     {
+        var results = new List<string>();
         string[] words = phrase.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        if (words.Length == 0)
-        {
-            Console.WriteLine("Invalid search provided.");
-            return false;
-        }
         
+        if (words.Length == 0) return results;
         if (words.Length == 1)
-        {
             return SearchIndex(words[0]);
-        }
-
         for (int i = 0; i < words.Length; i++)
-        {
             words[i] = FilterWord(words[i]);
-        }
-
         if (!invertedIndex.ContainsKey(words[0]))
+            return results;
+        
+        var first = invertedIndex[words[0]];
+        var candidates = first.ToDictionary(
+            entry => entry.DocumentId,
+            entry => new List<int>(entry.Positions));
+        for (int i = 1; i < words.Length; i++)
         {
-            Console.WriteLine($"Phrase '{phrase}' not found - first word doesn't exist");
-            return false;
-        }
-
-        Dictionary<int, List<int>> candidateDocs = new Dictionary<int, List<int>>();
-        foreach (var entry in invertedIndex[words[0]])
-        {
-            candidateDocs[entry.Key] = new List<int>(entry.Value.Positions);
-        }
-
-        for (int wordIndex = 1; wordIndex < words.Length; wordIndex++)
-        {
-            if (!invertedIndex.ContainsKey(words[wordIndex]))
+            if (!invertedIndex.TryGetValue(words[i], out var postings))
+                return new List<string>();
+            var newCandidates = new Dictionary<int, List<int>>();
+            foreach (var p in postings)
             {
-                Console.WriteLine($"Phrase '{phrase}' not found - word '{words[wordIndex]}' doesn't exist");
-                return false;
-            }
-
-            Dictionary<int, List<int>> newCandidates = new Dictionary<int, List<int>>();
-            foreach (var docEntry in candidateDocs)
-            {
-                int docId = docEntry.Key;
-                List<int> prevPositions = docEntry.Value;
-
-                if (invertedIndex[words[wordIndex]].TryGetValue(docId, out var currPosition))
+                if (candidates.TryGetValue(p.DocumentId, out var prev))
                 {
-                    List<int> validPositions = MergePositions(prevPositions, currPosition.Positions);
+                    var validPositions = MergePositions(prev, p.Positions);
                     if (validPositions.Count > 0)
-                    {
-                        newCandidates[docId] = validPositions;
-                    }
+                        newCandidates[p.DocumentId] = validPositions;
                 }
             }
-
-            candidateDocs = newCandidates;
-            if (candidateDocs.Count == 0)
-            {
-                Console.WriteLine($"Phrase '{phrase}' not found in any document");
-                return false;
-            }
+            candidates = newCandidates;
+            if (candidates.Count == 0) return results;
         }
 
-        Console.WriteLine($"Found phrase '{phrase}' in:");
-        foreach (var docId in candidateDocs.Keys)
-        {
-            Console.WriteLine(documentTitles[docId]);
-        }
-        return true;
+        foreach (var documentId in candidates.Keys)
+            results.Add(documentTitles[documentId]);
+        return results;
     }
 
     // ranked search using inverted index
-    public bool SearchRankedIndex(string searchStr)
+    public List<(string,int)> SearchRankedIndex(string searchStr)
     {
+        var results = new List<(string,int)>();
         string word = FilterWord(searchStr);
-        if (!invertedIndex.ContainsKey(word))
-        {
-            Console.WriteLine("No matches for " + searchStr + " found");
-            return false;
-        }
-    
-        // use the precomputed counts directly
-        var docCounts = invertedIndex[word].ToDictionary(
-            entry => entry.Key, 
-            entry => entry.Value.Count
-        );
-    
-        var sortedDocs = new List<KeyValuePair<int, int>>(docCounts);
-        sortedDocs.Sort((a, b) => b.Value.CompareTo(a.Value));
-        Console.WriteLine("Found " + searchStr + " in (ranked by occurrences):");
-        foreach (var docPair in sortedDocs)
-        {
-            Console.WriteLine(documentTitles[docPair.Key] + " (occurrences: " + docPair.Value + ")");
-        }
-        return true;
+        if (!invertedIndex.TryGetValue(word, out var postings))
+            return new List<(string,int)>();
+        
+        foreach (var posting in postings.OrderByDescending(p => p.Count))
+            results.Add((documentTitles[posting.DocumentId],posting.Count));
+        return results;
     }
-
     // merge positions of two words in a document 
     // assumes positions are sorted, which they are by default for the positions within documentlog
     private List<int> MergePositions(List<int> prevPositions, List<int> currPositions)
@@ -834,185 +877,212 @@ public class Index
         return result;
     }
 
-    public bool RankedSearchTrie(string searchStr)
+    public List<string> RankedSearchTrie(string searchStr)
     {
+        var results = new List<string>();
         string word = FilterWord(searchStr);
         TrieNode node = FindWord(word);
+
         if (node == null)
         {
-            Console.WriteLine("No matches for " + searchStr + " found");
-            return false;
+            return results;
         }
-        
-        //dictionary to store document frequencies in descending order
-        Dictionary<int, int> docCounts = new Dictionary<int, int>();
-        DocumentLog log = node.Log;
-        
-        while (log != null)
+
+        // Collect doc frequency from DocumentLog
+        var docCounts = new Dictionary<int, int>();
+        for (var log = node.Log; log != null; log = log.Next)
         {
             docCounts[log.DocumentId] = log.Count;
-            log = log.Next;
         }
 
-        // convert to a list and sort by descending frequency
-        var rankedResults = docCounts.ToList();
-        rankedResults.Sort((a, b) => b.Value.CompareTo(a.Value));
-
-        Console.WriteLine($"Ranked results for '{searchStr}':");
-        foreach (var result in rankedResults)
+        // Sort descending by frequency
+        var rankedResults = docCounts.OrderByDescending(x => x.Value).ToList();
+        foreach (var pair in rankedResults)
         {
-            Console.WriteLine($"{documentTitles[result.Key]} (relevance score: {result.Value})");
+            results.Add($"{documentTitles[pair.Key]} (relevance: {pair.Value})");
         }
-        
-        return rankedResults.Count > 0;
+
+        return results;
     }
+    
 //searchStr example "word1 AND word2 OR word3"
-    public bool BooleanSearchNaiveIndex(string SearchStr)
+    public List<string> BooleanSearchNaiveIndex(string searchStr)
     {
-        var words = SearchStr.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        HashSet<int> result = null;
+        var results = new List<string>();
+        var words = searchStr.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        HashSet<int> resultSet = null;
         string op = null;
-
-        foreach (var word in words)
+        foreach (var w in words)
         {
-            if (word == "&&" || word == "||") { op = word; continue; }
+            if (w == "&&" || w == "||"){op = w; continue;}
 
-            string filterWord = FilterWord(word);
+            string filterWord = FilterWord(w);
             if (!invertedIndex.TryGetValue(filterWord, out var posting))
             {
-                Console.WriteLine($"Word '{filterWord}' not found.");
-                return false;
+                // If AND is in effect, everything fails if one term is missing
+                // Return empty
+                return new List<string>();
             }
 
-            var docs = new HashSet<int>(posting.Keys);
-            if (result == null) result = docs;
-            else if (op == "&&") result.IntersectWith(docs);
-            else if (op == "||") result.UnionWith(docs);
+            var docs = new HashSet<int>(posting.Select(p => p.DocumentId));
+            if (resultSet == null) resultSet = docs;
+            else if (op == "&&")   resultSet.IntersectWith(docs);
+            else if (op == "||")   resultSet.UnionWith(docs);
             op = null;
         }
 
-        if (result == null || result.Count == 0)
-        {
-            Console.WriteLine("No matching documents found.");
-            return false;
-        }
-
-        Console.WriteLine($"Naive Index results for '{SearchStr}':");
-        foreach (var id in result) 
-            Console.WriteLine(documentTitles[id])
-            ;
-        return true;
+        if (resultSet != null)
+            foreach (int docId in resultSet)
+                results.Add(documentTitles[docId]);
+        return results;
     }
 
-    public bool BooleanSearchBitsetIndex(string SearchStr)
+    public List<string> BooleanSearchBitsetIndex(string searchStr)
     {
-        BuildBitIndex();
-        var words = SearchStr.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        BitArray result = null;
+        var results = new List<string>();
+        BuildBitIndex(); // ensure bitIndex is built
+
+        var words = searchStr.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        BitArray resultBits = null;
         string op = null;
 
-        foreach (var word in words)
+        foreach (var w in words)
         {
-            if (word == "&&" || word == "||") { op = word; continue; }
+            if (w == "&&" || w == "||") op = w; continue;
 
-            string filterWord = FilterWord(word);
-            bitIndex.TryGetValue(filterWord, out BitArray bits);
+            string word = FilterWord(w);
+            bitIndex.TryGetValue(word, out BitArray bits);
             bits ??= new BitArray(nextDocumentId);
 
-            if (result == null) result = (BitArray)bits.Clone();
-            else if (op == "&&") result.And(bits);
-            else if (op == "||") result.Or(bits);
-
+            if (resultBits == null) resultBits = (BitArray)bits.Clone();
+            else if (op == "&&") resultBits.And(bits);
+            else if (op == "||") resultBits.Or(bits);
             op = null;
         }
 
-        if (result == null) return false;
-        var found = Enumerable.Range(0, nextDocumentId).Where(i => result.Get(i)).ToList();
-        if (!found.Any())
+        if (resultBits != null)
         {
-            Console.WriteLine("No matches.");
-            return false;
+            for (int i = 0; i < nextDocumentId; i++)
+            {
+                if (resultBits[i])
+                {
+                    results.Add(documentTitles[i]);
+                }
+            }
+            
         }
 
-        Console.WriteLine($"Bitset Index results for '{SearchStr}':");
-        foreach (int id in found)
-            Console.WriteLine(documentTitles[id]);
-        return true;
+        return results;
     }
 
-    public bool BooleanSearchNaiveTrie(string SearchStr)
+    public List<string> BooleanSearchNaiveTrie(string searchStr)
     {
-        var words = SearchStr.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        HashSet<int> result = null;
+        var results = new List<string>();
+        var words = searchStr.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        HashSet<int> resultSet = null;
         string op = null;
 
-        foreach (var word in words)
+        foreach (var w in words)
         {
-            if (word == "&&" || word == "||") { op = word; continue; }
+            if (w == "&&" || w == "||")
+            {
+                op = w;
+                continue;
+            }
 
-            string filterWord = FilterWord(word);
+            string filterWord = FilterWord(w);
             TrieNode node = FindWord(filterWord);
+
             var docs = new HashSet<int>();
             if (node != null)
             {
                 for (var log = node.Log; log != null; log = log.Next)
+                {
                     docs.Add(log.DocumentId);
+                }
             }
-            if (result == null) result = docs;
-            else if (op == "&&") result.IntersectWith(docs);
-            else if (op == "||") result.UnionWith(docs);
+
+            if (resultSet == null)
+            {
+                resultSet = docs;
+            // Build a bit array for matches
+            }
+            else if (op == "&&")
+            {
+                resultSet.IntersectWith(docs);
+            }
+            else if (op == "||")
+            {
+                resultSet.UnionWith(docs);
+            }
+
             op = null;
         }
 
-        if (result == null || result.Count == 0)
+        if (resultSet != null)
         {
-            Console.WriteLine("No matches.");
-            return false;
+            foreach (var id in resultSet)
+            {
+                results.Add(documentTitles[id]);
+            }
         }
-        Console.WriteLine($"Naive Trie results for '{SearchStr}':");
-        foreach (var id in result)
-            Console.WriteLine(documentTitles[id]);
-        return true;
+        return results;
     }
 
-    public bool BooleanSearchBitsetTrie(string SearchStr)
+    public List<string> BooleanSearchBitsetTrie(string searchStr)
     {
+        var results = new List<string>();
         BuildBitIndex();
-        var words = SearchStr.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        BitArray result = null;
+
+        var words = searchStr.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        BitArray resultBits = null;
         string op = null;
 
-        foreach (var word in words)
+        foreach (var w in words)
         {
-            if (word == "&&" || word == "||") { op = word; continue; }
+            if (w == "&&" || w == "||")
+            {
+                op = w;
+                continue;
+            }
 
-            string filterWord = FilterWord(word);
+            string filterWord = FilterWord(w);
             TrieNode node = FindWord(filterWord);
             var bits = new BitArray(nextDocumentId);
             if (node != null)
             {
                 for (var log = node.Log; log != null; log = log.Next)
+                {
                     bits.Set(log.DocumentId, true);
+                }
             }
 
-            if (result == null) result = bits;
-            else if (op == "&&") result.And(bits);
-            else if (op == "||") result.Or(bits);
+            if (resultBits == null)
+            {
+                resultBits = bits;
+            }
+            else if (op == "&&")
+            {
+                resultBits.And(bits);
+            }
+            else if (op == "||")
+            {
+                resultBits.Or(bits);
+            }
             op = null;
         }
-        if (result == null) return false;
-        var found = Enumerable.Range(0, nextDocumentId).Where(i => result.Get(i)).ToList();
-        if (!found.Any())
+
+        if (resultBits == null) return results;
+
+        var foundDocs = Enumerable.Range(0, nextDocumentId).Where(i => resultBits.Get(i)).ToList();
+        foreach (int docId in foundDocs)
         {
-            Console.WriteLine("No matches.");
-            return false;
+            results.Add(documentTitles[docId]);
         }
 
-        Console.WriteLine($"Bitset Trie results for '{SearchStr}':");
-        foreach (var id in found) 
-            Console.WriteLine(documentTitles[id]);
-        return true;
+        return results;
     }
+
     
     public void AddPublication(string title, string content)
     {
@@ -1088,29 +1158,30 @@ public async Task AddPublicationFromWikipediaAsync(string title)
     }
 }
 
-    public bool RemovePublication(string title)
+public bool RemovePublication(string title)
+{
+    int docId = documentTitles.IndexOf(title);
+    if (docId == -1)
+        return false;
+    
+    foreach (var term in invertedIndex.Keys.ToList())
     {
-        int docId = documentTitles.IndexOf(title);
-        if (docId == -1)
-            return false;
+        var postings = invertedIndex[term];
+        postings.RemoveAll(p => p.DocumentId == docId);
 
-        // remove from inverted index:
-        foreach (var word in invertedIndex.Keys.ToList())
-        {
-            if (invertedIndex[word].ContainsKey(docId))
-            {
-                invertedIndex[word].Remove(docId);
-                if (invertedIndex[word].Count == 0)
-                    invertedIndex.Remove(word);
-            }
-        }
-        RemovePublicationFromTrie(root, docId);
-
-        documentTitles[docId] = null;
-        documentIdMap.Remove(docId);
-
-        return true;
+        // if no postings remain for the term, drop the term entirely
+        if (postings.Count == 0)
+            invertedIndex.Remove(term);
     }
+    RemovePublicationFromTrie(root, docId);
+
+    // mark title slot as deleted
+    documentTitles[docId] = null;
+    documentIdMap.Remove(docId);
+
+    return true;
+}
+
 
 // helper method to remove a publication's document logs from the trie recursively.
     private void RemovePublicationFromTrie(TrieNode node, int docId)
@@ -1204,35 +1275,50 @@ private (int nodeCount, long nodeBytes, long stringBytes, long dictBytes, long d
             childNodeBytes + childStringBytes + childDictBytes + childDocLogBytes + childPositionBytes);
 }
 
-public (int wordCount, int entryCount, long dictBytes, long stringBytes, long entryBytes, long positionBytes, long totalBytes) GetInvertedIndexStats()
+public (int wordCount, int entryCount, long dictBytes,
+    long stringBytes, long entryBytes, long positionBytes, long totalBytes)
+    GetInvertedIndexStats()
 {
     int wordCount = invertedIndex.Count;
     int entryCount = 0;
-    long dictBytes = 24; // main dictionary overhead
+
+    // overhead of the outer Dictionary itself
+    long dictBytes = 24;
+    // one List<Posting> per term
+    long listOverheadBytes = 0;
     long stringBytes = 0;
     long entryBytes = 0;
     long positionBytes = 0;
-
-    foreach (var wordEntry in invertedIndex)
+    foreach (var kv in invertedIndex)
     {
-        // word string
-        stringBytes += wordEntry.Key.Length * 2; // 2 bytes per char
-        dictBytes += 16; // dictionary overhead for inner dict
+        string term = kv.Key;
+        var postings = kv.Value;
+        // account for the term string
+        stringBytes += term.Length * 2;
+        // account for the postings list object overhead
+        // List<T> has ~16 B object header + array reference + count/int fields
+        listOverheadBytes += 16;
 
-        foreach (var docEntry in wordEntry.Value)
+        // each Posting in the list
+        foreach (var p in postings)
         {
             entryCount++;
-
-            // document entry
-            entryBytes += 4 + 16 + 4; // int key (document id) + tuple overhead + count value
-            positionBytes += 16 + docEntry.Value.Positions.Count * 4; // list overhead + int positions
+            // posting object: assuming 16 B header + 2 ints (DocumentId,Count = 8 B)
+            entryBytes += 16 + 8;
+            // positions list overhead + 4 B per stored int
+            positionBytes += 16 + p.Positions.Count * 4;
         }
     }
-
+    dictBytes += listOverheadBytes;
     long totalBytes = dictBytes + stringBytes + entryBytes + positionBytes;
-    return (wordCount, entryCount, dictBytes, stringBytes, entryBytes, positionBytes, totalBytes);
+    return (wordCount, entryCount, dictBytes,
+        stringBytes, entryBytes, positionBytes, totalBytes);
 }
 
+public int getTotalUniqueWordCount()
+{
+    return invertedIndex.Count;
+}
 public void CompareDataStructures()
 {
     var (trieNodes, trieNodeBytes, trieStringBytes, trieDictBytes, trieDocLogBytes, triePositionBytes, trieTotalBytes) = GetTrieStats();

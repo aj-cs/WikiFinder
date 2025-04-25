@@ -9,6 +9,7 @@
 
     <ItemGroup>
       <PackageReference Include="BenchmarkDotNet" Version="0.14.0" />
+      <PackageReference Include="Porter2Stemmer" Version="1.0.0" />
     </ItemGroup>
 
 </Project>

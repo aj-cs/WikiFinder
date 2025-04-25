@@ -340,8 +340,8 @@ namespace SearchEngineProject
 
             index.CompareDataStructures();
             
-            index.AddPublicationFromWikipediaAsync("raccoon").Wait();
-
+            index.AddPublicationFromWikipediaAsync("Birds").Wait();
+            Console.WriteLine(index.getTotalUniqueWordCount());
             while (true)
             {
                 Console.WriteLine("Input search string or type exit to stop");
@@ -352,7 +352,12 @@ namespace SearchEngineProject
                     break;
                 }
 
-                index.Search(searchStr);
+                var results = index.Search(searchStr);
+                foreach (var result in results)
+                {
+                    Console.WriteLine(result);
+                }
+                
             }
         }
     }
