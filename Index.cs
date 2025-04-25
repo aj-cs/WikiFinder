@@ -587,7 +587,7 @@ public class Index
 
         if (node != null)
         {
-            // Collect all document IDs from this node’s DocumentLog chain
+            // collect all document IDs from this node’s DocumentLog chain
             for (var log = node.Log; log != null; log = log.Next)
             {
                 results.Add(documentTitles[log.DocumentId]);
