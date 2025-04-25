@@ -31,8 +31,8 @@ public class Index
     private readonly BloomFilter _bloomFilter;
     private class BloomFilter
     {
-        private readonly BitArray bits;
-        private readonly int m, k, n;
+        public readonly BitArray bits;
+        public readonly int m, k, n;
 
         public BloomFilter(int expectedItems, double falsePositiveRate)
         {
@@ -43,26 +43,7 @@ public class Index
             k = (int)Math.Round((m / (double)n) * Math.Log(2));
             bits = new BitArray(m);
         }
-
-        public void Add(string word)
-        {
-            var data = System.Text.Encoding.UTF8.GetBytes(word);
-            uint hash1 = MurmurHash3(data, 0);
-            uint hash2 = MurmurHash3(data, 1);
-            for (int i = 0; i < k; i++)
-                bits[(int)((hash1 + (uint)i * hash2) % (uint)m)] = true;
-        }
-
-        public bool MayContain(string word)
-        {
-            var data = System.Text.Encoding.UTF8.GetBytes(word);
-            uint hash1 = MurmurHash3(data, 0);
-            uint hash2 = MurmurHash3(data, 1);
-            for (int i = 0; i < k; i++)
-                if (!bits[(int)((hash1 + (uint)i * hash2) % (uint)m)])
-                    return false;
-            return true;
-        }
+        
     }
     private class TrieNode
     {
@@ -279,7 +260,7 @@ public class Index
             p.Count++;
         }
         
-        _bloomFilter.Add(t.Norm);
+        InsertBloom(t.Norm);
         // InsertIntoTrie(root, t.Norm, documentTitles[t.DocId], t.TermPos);
     }
     private static string FilterWord(string input)
@@ -340,6 +321,28 @@ public class Index
             decoded.Add(current);
         }
         return decoded;
+    }
+    
+    public void InsertBloom(string word)
+    {
+        BloomFilter bloom = _bloomFilter;
+        var data = System.Text.Encoding.UTF8.GetBytes(word);
+        uint hash1 = MurmurHash3(data, 0);
+        uint hash2 = MurmurHash3(data, 1);
+        for (int i = 0; i < bloom.k; i++)
+            bloom.bits[(int)((hash1 + (uint)i * hash2) % (uint)bloom.m)] = true;
+    }
+
+    public bool MayContain(string word)
+    {
+        BloomFilter bloom = _bloomFilter;
+        var data = System.Text.Encoding.UTF8.GetBytes(word);
+        uint hash1 = MurmurHash3(data, 0);
+        uint hash2 = MurmurHash3(data, 1);
+        for (int i = 0; i < bloom.k; i++)
+            if (!bloom.bits[(int)((hash1 + (uint)i * hash2) % (uint)bloom.m)])
+                return false;
+        return true;
     }
 
     //recursive insertion into the tree
