@@ -224,12 +224,12 @@ public class Index
             string norm = Stemmer.Stem(raw.ToLowerInvariant()).Value;
 
             if (StopWords.Contains(norm) || norm.Length == 0)
-                continue;                              // drop stop-words
+                continue;
 
-            int termPos   = documentPositionCounter++;
-            var token     = new Token(raw, norm, docId, termPos, m.Index, m.Index + raw.Length);
+            int termPos= documentPositionCounter++;
+            var token = new Token(raw, norm, docId, termPos, m.Index, m.Index + raw.Length);
 
-            InsertToken(token);                        // one unified entry point
+            InsertToken(token); 
         }
     }
     private int GetOrCreateDocId(string title)
