@@ -5,6 +5,7 @@ using BenchmarkDotNet.Exporters.Csv;
 using BenchmarkDotNet.Running;
 using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Jobs;
+using System.Diagnostics;
 
 namespace SearchEngineProject;
 /*
@@ -124,9 +125,12 @@ public class Program
             Console.WriteLine("Usage: Index1 <filename>");
             return;
         }
-
+        var stopwatch = new Stopwatch();
         Console.WriteLine("Preprocessing " + args[0]);
+        stopwatch.Start();
         Index index = new Index(args[0]);
+        stopwatch.Stop();
+        Console.WriteLine($"Pre-process time(s) {stopwatch.ElapsedMilliseconds / 1000}");
 
         while (true)
         {
