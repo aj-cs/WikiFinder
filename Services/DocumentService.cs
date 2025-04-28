@@ -11,12 +11,12 @@ namespace SearchEngineProject.Services;
 public class DocumentService : IDocumentService
 {
     private readonly DocumentRepository _docs;
-    private readonly DocumentTokenRepository _tokens;
+    private readonly DocumentTermRepository _terms;
 
-    public DocumentService(DocumentRepository docs, DocumentTokenRepository tokens)
+    public DocumentService(DocumentRepository docs, DocumentTermRepository terms)
     {
         _docs = docs;
-        _tokens = tokens;
+        _terms = terms;
     }
 
     public Task<int> CreateAsync(string title)
@@ -38,20 +38,28 @@ public class DocumentService : IDocumentService
     {
         return _docs.GetAllAsync();
     }
-
-
-    public Task InsertTokensAsync(int docId, IEnumerable<Token> tokens)
+    public Task UpsertTermsAsync(int docId, IEnumerable<Token> tokens)
     {
-        return _tokens.InsertManyAsync(docId, tokens);
+        return _terms.UpsertManyAsync(docId, tokens);
     }
 
-    public Task DeleteTokensAsync(int docId)
+    public async Task<List<Token>> GetIndexedTokensAsync(int docId)
     {
-        return _tokens.DeleteByDocIdAsync(docId);
+        // Load each distinct term's positions, but for indexing we only need the term itself
+        var termMap = await _terms.GetByDocumentAsync(docId);
+        return termMap.Keys
+            .Select(term => new Token
+            {
+                Term = term,
+                Position = 0,
+                StartOffset = 0,
+                EndOffset = 0
+            })
+        .ToList();
     }
 
-    public Task<List<Token>> GetTokensAsync(int docId)
+    public Task DeleteTermsAsync(int docId)
     {
-        return _tokens.GetByDocIdAsync(docId);
+        return _terms.DeleteByDocumentAsync(docId);
     }
 }
