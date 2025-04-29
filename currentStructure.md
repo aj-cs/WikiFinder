@@ -14,18 +14,18 @@ SearchEngine.sln
     │   ├── SearchEngine.Analysis.csproj
     │   ├── Token.cs
     │   ├── ITokenizer.cs
-    │   ├── StandardTokenizer.cs
+    │   ├── MinimalTokenizer.cs
     │   ├── ITokenFilter.cs
     │   ├── StopWordFilter.cs <- we should have this
     │   ├── PorterStemFilter.cs <- we should have this
     │   ├── SynonymFilter.cs <- we should have this
-    │   ├── ShingleFilter.cs <- example
-    │   ├── SoundexFilter.cs <- example
+    │   ├── ShingleFilter.cs <- example extension
+    │   ├── SoundexFilter.cs <- example extension
     │   └── Analyzer.cs
     ├── /Persistence          ← EF Core and/or custom repositories
     │   ├── SearchEngine.Persistence.csproj
-    │   ├── DocumentRepository.cs       ← Documents (Title, Url,…)
-    │   └── DocumentTokensRepository.cs ← Token metadata per doc
+    │   ├── DocumentRepository.cs       ← Documents (Title, Url,…) DocumentEntity
+    │   └── DocumentTermsRepository.cs ← Token metadata per doc
     └── /Documents            ← high‐level doc ingestion
         ├── SearchEngine.Documents.csproj
         ├── DocumentManager.cs

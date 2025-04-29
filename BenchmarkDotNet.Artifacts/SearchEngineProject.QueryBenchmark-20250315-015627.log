@@ -1,0 +1,253 @@
+// Validating benchmarks:
+// Benchmark QueryBenchmark.BenchmarkPrefixSearch: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=100KB.txt, Query=and]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark QueryBenchmark.BenchmarkPrefixSearchDocuments: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=100KB.txt, Query=and]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark QueryBenchmark.BenchmarkNormalSearchDocuments: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=100KB.txt, Query=and]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark QueryBenchmark.BenchmarkPrefixSearch: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=100KB.txt, Query=bread]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark QueryBenchmark.BenchmarkPrefixSearchDocuments: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=100KB.txt, Query=bread]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark QueryBenchmark.BenchmarkNormalSearchDocuments: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=100KB.txt, Query=bread]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark QueryBenchmark.BenchmarkPrefixSearch: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=100KB.txt, Query=cat]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark QueryBenchmark.BenchmarkPrefixSearchDocuments: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=100KB.txt, Query=cat]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark QueryBenchmark.BenchmarkNormalSearchDocuments: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=100KB.txt, Query=cat]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark QueryBenchmark.BenchmarkPrefixSearch: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=100KB.txt, Query=or]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark QueryBenchmark.BenchmarkPrefixSearchDocuments: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=100KB.txt, Query=or]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark QueryBenchmark.BenchmarkNormalSearchDocuments: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=100KB.txt, Query=or]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark QueryBenchmark.BenchmarkPrefixSearch: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=10MB.txt, Query=and]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark QueryBenchmark.BenchmarkPrefixSearchDocuments: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=10MB.txt, Query=and]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark QueryBenchmark.BenchmarkNormalSearchDocuments: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=10MB.txt, Query=and]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark QueryBenchmark.BenchmarkPrefixSearch: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=10MB.txt, Query=bread]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark QueryBenchmark.BenchmarkPrefixSearchDocuments: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=10MB.txt, Query=bread]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark QueryBenchmark.BenchmarkNormalSearchDocuments: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=10MB.txt, Query=bread]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark QueryBenchmark.BenchmarkPrefixSearch: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=10MB.txt, Query=cat]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark QueryBenchmark.BenchmarkPrefixSearchDocuments: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=10MB.txt, Query=cat]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark QueryBenchmark.BenchmarkNormalSearchDocuments: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=10MB.txt, Query=cat]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark QueryBenchmark.BenchmarkPrefixSearch: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=10MB.txt, Query=or]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark QueryBenchmark.BenchmarkPrefixSearchDocuments: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=10MB.txt, Query=or]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark QueryBenchmark.BenchmarkNormalSearchDocuments: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=10MB.txt, Query=or]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark QueryBenchmark.BenchmarkPrefixSearch: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=1MB.txt, Query=and]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark QueryBenchmark.BenchmarkPrefixSearchDocuments: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=1MB.txt, Query=and]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark QueryBenchmark.BenchmarkNormalSearchDocuments: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=1MB.txt, Query=and]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark QueryBenchmark.BenchmarkPrefixSearch: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=1MB.txt, Query=bread]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark QueryBenchmark.BenchmarkPrefixSearchDocuments: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=1MB.txt, Query=bread]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark QueryBenchmark.BenchmarkNormalSearchDocuments: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=1MB.txt, Query=bread]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark QueryBenchmark.BenchmarkPrefixSearch: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=1MB.txt, Query=cat]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark QueryBenchmark.BenchmarkPrefixSearchDocuments: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=1MB.txt, Query=cat]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark QueryBenchmark.BenchmarkNormalSearchDocuments: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=1MB.txt, Query=cat]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark QueryBenchmark.BenchmarkPrefixSearch: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=1MB.txt, Query=or]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark QueryBenchmark.BenchmarkPrefixSearchDocuments: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=1MB.txt, Query=or]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark QueryBenchmark.BenchmarkNormalSearchDocuments: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=1MB.txt, Query=or]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark QueryBenchmark.BenchmarkPrefixSearch: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=20MB.txt, Query=and]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark QueryBenchmark.BenchmarkPrefixSearchDocuments: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=20MB.txt, Query=and]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark QueryBenchmark.BenchmarkNormalSearchDocuments: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=20MB.txt, Query=and]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark QueryBenchmark.BenchmarkPrefixSearch: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=20MB.txt, Query=bread]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark QueryBenchmark.BenchmarkPrefixSearchDocuments: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=20MB.txt, Query=bread]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark QueryBenchmark.BenchmarkNormalSearchDocuments: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=20MB.txt, Query=bread]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark QueryBenchmark.BenchmarkPrefixSearch: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=20MB.txt, Query=cat]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark QueryBenchmark.BenchmarkPrefixSearchDocuments: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=20MB.txt, Query=cat]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark QueryBenchmark.BenchmarkNormalSearchDocuments: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=20MB.txt, Query=cat]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark QueryBenchmark.BenchmarkPrefixSearch: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=20MB.txt, Query=or]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark QueryBenchmark.BenchmarkPrefixSearchDocuments: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=20MB.txt, Query=or]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark QueryBenchmark.BenchmarkNormalSearchDocuments: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=20MB.txt, Query=or]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark QueryBenchmark.BenchmarkPrefixSearch: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=2MB.txt, Query=and]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark QueryBenchmark.BenchmarkPrefixSearchDocuments: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=2MB.txt, Query=and]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark QueryBenchmark.BenchmarkNormalSearchDocuments: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=2MB.txt, Query=and]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark QueryBenchmark.BenchmarkPrefixSearch: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=2MB.txt, Query=bread]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark QueryBenchmark.BenchmarkPrefixSearchDocuments: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=2MB.txt, Query=bread]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark QueryBenchmark.BenchmarkNormalSearchDocuments: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=2MB.txt, Query=bread]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark QueryBenchmark.BenchmarkPrefixSearch: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=2MB.txt, Query=cat]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark QueryBenchmark.BenchmarkPrefixSearchDocuments: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=2MB.txt, Query=cat]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark QueryBenchmark.BenchmarkNormalSearchDocuments: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=2MB.txt, Query=cat]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark QueryBenchmark.BenchmarkPrefixSearch: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=2MB.txt, Query=or]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark QueryBenchmark.BenchmarkPrefixSearchDocuments: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=2MB.txt, Query=or]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark QueryBenchmark.BenchmarkNormalSearchDocuments: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=2MB.txt, Query=or]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark QueryBenchmark.BenchmarkPrefixSearch: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=50MB.txt, Query=and]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark QueryBenchmark.BenchmarkPrefixSearchDocuments: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=50MB.txt, Query=and]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark QueryBenchmark.BenchmarkNormalSearchDocuments: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=50MB.txt, Query=and]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark QueryBenchmark.BenchmarkPrefixSearch: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=50MB.txt, Query=bread]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark QueryBenchmark.BenchmarkPrefixSearchDocuments: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=50MB.txt, Query=bread]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark QueryBenchmark.BenchmarkNormalSearchDocuments: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=50MB.txt, Query=bread]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark QueryBenchmark.BenchmarkPrefixSearch: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=50MB.txt, Query=cat]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark QueryBenchmark.BenchmarkPrefixSearchDocuments: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=50MB.txt, Query=cat]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark QueryBenchmark.BenchmarkNormalSearchDocuments: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=50MB.txt, Query=cat]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark QueryBenchmark.BenchmarkPrefixSearch: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=50MB.txt, Query=or]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark QueryBenchmark.BenchmarkPrefixSearchDocuments: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=50MB.txt, Query=or]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark QueryBenchmark.BenchmarkNormalSearchDocuments: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=50MB.txt, Query=or]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark QueryBenchmark.BenchmarkPrefixSearch: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=5MB.txt, Query=and]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark QueryBenchmark.BenchmarkPrefixSearchDocuments: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=5MB.txt, Query=and]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark QueryBenchmark.BenchmarkNormalSearchDocuments: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=5MB.txt, Query=and]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark QueryBenchmark.BenchmarkPrefixSearch: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=5MB.txt, Query=bread]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark QueryBenchmark.BenchmarkPrefixSearchDocuments: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=5MB.txt, Query=bread]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark QueryBenchmark.BenchmarkNormalSearchDocuments: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=5MB.txt, Query=bread]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark QueryBenchmark.BenchmarkPrefixSearch: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=5MB.txt, Query=cat]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark QueryBenchmark.BenchmarkPrefixSearchDocuments: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=5MB.txt, Query=cat]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark QueryBenchmark.BenchmarkNormalSearchDocuments: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=5MB.txt, Query=cat]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark QueryBenchmark.BenchmarkPrefixSearch: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=5MB.txt, Query=or]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark QueryBenchmark.BenchmarkPrefixSearchDocuments: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=5MB.txt, Query=or]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark QueryBenchmark.BenchmarkNormalSearchDocuments: QueryJob(InvocationCount=1, IterationCount=3, WarmupCount=1) [FileName=5MB.txt, Query=or]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+

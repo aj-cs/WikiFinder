@@ -24,6 +24,7 @@ using SearchEngineProject.Persistence;
 using SearchEngineProject.Services;
 using SearchEngineProject.Services.Interfaces;
 using SearchEngineProject.Analysis.Tokenizers;
+using SearchEngineProject.Analysis.Filters;
 
 var host = Host.CreateDefaultBuilder(args)
                .ConfigureAppConfiguration((ctx, cfg) =>
@@ -39,23 +40,28 @@ var host = Host.CreateDefaultBuilder(args)
                    services.AddScoped<DocumentRepository>();
                    services.AddScoped<DocumentTermRepository>();
                    services.AddScoped<IDocumentService, DocumentService>();
+                   var stopWords = new List<string>{"a", "the", "and", "or", "of", "on", "this", "we", "were",
+                           "is", "not"};
+                   services.AddScoped<ITokenFilter, StopWordFilter>();
 
                    //analysis pipeline
                    services.AddSingleton<Analyzer>(sp =>
                        new Analyzer(
                            new MinimalTokenizer()
                        // add filters here later
+
                        )
                    );
                    // indexingdd and search
                    services.AddSingleton<IExactPrefixIndex, CompactTrieIndex>();
+                   // services.AddSingleton<IFullTextIndex, InvertedIndex>();
                    //add inverted index here later
                    services.AddScoped<IIndexingService, IndexingService>();
 
                    //extensible search operations go here, facade pattern i think
                    services.AddSingleton<ISearchOperation, ExactSearchOperation>();
                    services.AddSingleton<ISearchOperation, PrefixDocsSearchOperation>();
-                   services.AddSingleton<ISearchOperation, AutoComlpeteSearchOperation>();
+                   services.AddSingleton<ISearchOperation, AutoCompleteSearchOperation>();
                    services.AddScoped<ISearchService, SearchService>();
 
                })

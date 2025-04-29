@@ -2,11 +2,11 @@ using System.Threading.Tasks;
 using SearchEngineProject.Core.Interfaces;
 namespace SearchEngineProject.Core;
 
-public class AutoComlpeteSearchOperation : ISearchOperation
+public class AutoCompleteSearchOperation : ISearchOperation
 {
     public string Name => "autocomplete";
     private readonly IExactPrefixIndex _trie;
-    public AutoComlpeteSearchOperation(IExactPrefixIndex trie)
+    public AutoCompleteSearchOperation(IExactPrefixIndex trie)
     {
         _trie = trie;
     }

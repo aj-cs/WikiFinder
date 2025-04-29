@@ -5,6 +5,6 @@ public class DocumentEntity
 {
     public int Id { get; set; }
     public string Title { get; set; }
-    public ICollection<DocumentTokenEntity> Tokens { get; set; } = new List<DocumentTokenEntity>();
+    public ICollection<DocumentTermEntity> Terms { get; set; } = new List<DocumentTermEntity>();
 }
 

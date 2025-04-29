@@ -12,9 +12,10 @@ public interface ISearchOperation
 
     /// <summary>
     /// Run the search. Returns:
-    /// • bool              for "exact"
-    /// • List<int>         for "prefixDocs"
-    /// • List<(string, List<int>)> for "autocomplete"
+    /// bool              for "exact"
+    /// List<int>         for "prefixDocs"
+    /// List<(string, List<int>)> for "autocomplete"
     /// </summary>
     Task<object> SearchAsync(string query);
 }
+

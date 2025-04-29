@@ -390,10 +390,10 @@ public class CompactTrieIndex : IExactPrefixIndex
         }
     }
 
-    private string Normalize(string raw)
-    {
-        return raw.Trim().ToLowerInvariant();
-    }
+    // private string Normalize(string raw)
+    // {
+    //     return raw.Trim().ToLowerInvariant();
+    // }
     public void PrintDemo(string term, string prefix)
     {
         Console.WriteLine($"Search(\"{term}\") → {Search(term)}");

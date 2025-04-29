@@ -40,7 +40,7 @@ public class DocumentService : IDocumentService
     }
     public Task UpsertTermsAsync(int docId, IEnumerable<Token> tokens)
     {
-        return _terms.UpsertManyAsync(docId, tokens);
+        return _terms.BulkUpsertTermsAsync(docId, tokens);
     }
 
     public async Task<List<Token>> GetIndexedTokensAsync(int docId)

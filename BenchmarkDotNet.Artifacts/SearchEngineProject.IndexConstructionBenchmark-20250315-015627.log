@@ -1,0 +1,22 @@
+// Validating benchmarks:
+// Benchmark IndexConstructionBenchmark.BenchmarkIndexConstruction: IndexConstructionJob(InvocationCount=1, IterationCount=1, WarmupCount=1) [FileName=100KB.txt]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark IndexConstructionBenchmark.BenchmarkIndexConstruction: IndexConstructionJob(InvocationCount=1, IterationCount=1, WarmupCount=1) [FileName=10MB.txt]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark IndexConstructionBenchmark.BenchmarkIndexConstruction: IndexConstructionJob(InvocationCount=1, IterationCount=1, WarmupCount=1) [FileName=1MB.txt]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark IndexConstructionBenchmark.BenchmarkIndexConstruction: IndexConstructionJob(InvocationCount=1, IterationCount=1, WarmupCount=1) [FileName=20MB.txt]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark IndexConstructionBenchmark.BenchmarkIndexConstruction: IndexConstructionJob(InvocationCount=1, IterationCount=1, WarmupCount=1) [FileName=2MB.txt]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark IndexConstructionBenchmark.BenchmarkIndexConstruction: IndexConstructionJob(InvocationCount=1, IterationCount=1, WarmupCount=1) [FileName=50MB.txt]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+
+// Benchmark IndexConstructionBenchmark.BenchmarkIndexConstruction: IndexConstructionJob(InvocationCount=1, IterationCount=1, WarmupCount=1) [FileName=5MB.txt]
+//    * Specified InvocationCount (1) must be a multiple of UnrollFactor (16)
+

@@ -15,8 +15,8 @@ public class SynonymFilter : ITokenFilter
     {
         foreach (var tok in input)
         {
-            // we always yield the og token
-            yield return tok;
+            // // we always yield the og token
+            // yield return tok;
             //  if we have synonyms for this term then we yield one token per synonym
             if (_synonyms.TryGetValue(tok.Term, out var arr))
             {

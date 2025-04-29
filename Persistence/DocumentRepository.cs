@@ -37,6 +37,7 @@ public class DocumentRepository
         {
             return false;
         }
+        // delete by document 
         _context.Documents.Remove(doc);
         await _context.SaveChangesAsync();
         return true;
