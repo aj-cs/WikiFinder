@@ -1,5 +1,5 @@
-using SearchEngineProject.Analysis;
-namespace SearchEngineProject.Persistence.Entities;
+using SearchEngine.Analysis;
+namespace SearchEngine.Persistence.Entities;
 
 public class DocumentEntity
 {

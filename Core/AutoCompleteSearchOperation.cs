@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
-using SearchEngineProject.Core.Interfaces;
-namespace SearchEngineProject.Core;
+using SearchEngine.Core.Interfaces;
+namespace SearchEngine.Core;
 
 public class AutoCompleteSearchOperation : ISearchOperation
 {

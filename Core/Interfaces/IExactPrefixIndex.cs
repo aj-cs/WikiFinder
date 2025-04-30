@@ -1,5 +1,5 @@
-using SearchEngineProject.Analysis;
-namespace SearchEngineProject.Core.Interfaces;
+using SearchEngine.Analysis;
+namespace SearchEngine.Core.Interfaces;
 
 public interface IExactPrefixIndex
 // might refactor (Add/Remove)Document to a separate interface

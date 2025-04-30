@@ -1,4 +1,4 @@
-namespace SearchEngineProject.Analysis;
+namespace SearchEngine.Analysis;
 
 public class Token
 {

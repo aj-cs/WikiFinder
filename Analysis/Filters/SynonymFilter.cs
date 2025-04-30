@@ -1,7 +1,7 @@
-using SearchEngineProject.Analysis.Interfaces;
+using SearchEngine.Analysis.Interfaces;
 using System.Collections;
 
-namespace SearchEngineProject.Analysis.Filters;
+namespace SearchEngine.Analysis.Filters;
 
 public class SynonymFilter : ITokenFilter
 {

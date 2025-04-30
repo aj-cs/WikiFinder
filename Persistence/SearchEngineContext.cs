@@ -1,9 +1,9 @@
 // Persistence/SearchEngineContext.cs
 using EFCore.BulkExtensions;
 using Microsoft.EntityFrameworkCore;
-using SearchEngineProject.Persistence.Entities;
+using SearchEngine.Persistence.Entities;
 
-namespace SearchEngineProject.Persistence;
+namespace SearchEngine.Persistence;
 
 public class SearchEngineContext : DbContext
 {

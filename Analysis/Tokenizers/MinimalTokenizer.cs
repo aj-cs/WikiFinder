@@ -1,6 +1,6 @@
-using SearchEngineProject.Analysis.Interfaces;
+using SearchEngine.Analysis.Interfaces;
 
-namespace SearchEngineProject.Analysis.Tokenizers;
+namespace SearchEngine.Analysis.Tokenizers;
 
 public class MinimalTokenizer : ITokenizer
 {

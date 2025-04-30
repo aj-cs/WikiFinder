@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
-using SearchEngineProject.Analysis;
-using SearchEngineProject.Core.Interfaces;
+using SearchEngine.Analysis;
+using SearchEngine.Core.Interfaces;
 
-namespace SearchEngineProject.Core;
+namespace SearchEngine.Core;
 
 public class CompactTrieIndex : IExactPrefixIndex
 {

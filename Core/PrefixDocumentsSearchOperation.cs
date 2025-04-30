@@ -1,8 +1,8 @@
 using System.Threading.Tasks;
-using SearchEngineProject.Core.Interfaces;
+using SearchEngine.Core.Interfaces;
 using System.Collections.Generic;
 
-namespace SearchEngineProject.Core;
+namespace SearchEngine.Core;
 
 public class PrefixDocsSearchOperation : ISearchOperation
 {

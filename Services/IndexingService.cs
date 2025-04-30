@@ -1,13 +1,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using SearchEngineProject.Analysis;
-using SearchEngineProject.Core.Interfaces;
-using SearchEngineProject.Persistence;
-using SearchEngineProject.Persistence.Entities;
-using SearchEngineProject.Services.Interfaces;
+using SearchEngine.Analysis;
+using SearchEngine.Core.Interfaces;
+using SearchEngine.Persistence;
+using SearchEngine.Persistence.Entities;
+using SearchEngine.Services.Interfaces;
 
-namespace SearchEngineProject.Services;
+namespace SearchEngine.Services;
 /// <summary>
 /// Responsible for tokenization, persistence (via bulk ops), and in-memory indexing.
 /// </summary>
