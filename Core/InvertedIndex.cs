@@ -53,8 +53,7 @@ public sealed class InvertedIndex : IFullTextIndex
             }
         }
         _bitBuilt = false;
-        
-        // Update next document ID for bit array sizing
+    
         if (docId >= _nextDocId)
         {
             _nextDocId = docId + 1;

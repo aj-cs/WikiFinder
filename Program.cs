@@ -73,6 +73,10 @@ var docService = scope.ServiceProvider.GetRequiredService<IDocumentService>();
 var indexer = scope.ServiceProvider.GetRequiredService<IIndexingService>();
 var searchService = scope.ServiceProvider.GetRequiredService<ISearchService>();
 
+// ensure database is created
+var dbContext = scope.ServiceProvider.GetRequiredService<SearchEngineContext>();
+dbContext.Database.EnsureCreated();
+
 if (args.Length < 1)
 {
     Console.WriteLine("Usage: dotnet run <filename>");

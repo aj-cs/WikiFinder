@@ -15,7 +15,7 @@ public class BloomFilterSearchOperation : ISearchOperation
 
     public Task<object> SearchAsync(string query)
     {
-        // Return true if the term might exist, false if it definitely doesn't
+        // return true if the term might exist, false if it definitely doesn't
         return Task.FromResult<object>(_bloomFilter.MightContain(query));
     }
 } 
