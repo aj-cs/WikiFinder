@@ -2,9 +2,9 @@
     using System.Net.Http;
     using System.Text.Json;
     using System.Threading.Tasks;
-    using SearchEngineProject.Services.Interfaces;
+    using SearchEngine.Services.Interfaces;
 
-    namespace SearchEngineProject.Services;
+    namespace SearchEngine.Services;
 
     public class WikipediaService : IWikipediaService
     {

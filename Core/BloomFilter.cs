@@ -1,8 +1,8 @@
 using System.Collections;
 using System.Text;
-using SearchEngineProject.Core.Interfaces;
+using SearchEngine.Core.Interfaces;
 
-namespace SearchEngineProject.Core;
+namespace SearchEngine.Core;
 
 public class BloomFilter : IBloomFilter  
 {  

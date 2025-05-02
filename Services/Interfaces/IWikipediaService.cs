@@ -1,4 +1,4 @@
-namespace SearchEngineProject.Services.Interfaces;
+namespace SearchEngine.Services.Interfaces;
 
 public interface IWikipediaService
 {

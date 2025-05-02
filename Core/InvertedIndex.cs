@@ -1,10 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using SearchEngineProject.Analysis;
-using SearchEngineProject.Core.Interfaces;
-
-namespace SearchEngineProject.Core;
+using SearchEngine.Analysis;
+using SearchEngine.Core.Interfaces;
 
 public sealed class InvertedIndex : IFullTextIndex
 {

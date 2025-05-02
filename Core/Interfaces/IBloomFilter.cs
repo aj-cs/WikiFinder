@@ -1,4 +1,4 @@
-namespace SearchEngineProject.Core.Interfaces;
+namespace SearchEngine.Core.Interfaces;
 
 public interface IBloomFilter  
 {  

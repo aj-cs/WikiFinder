@@ -1,5 +1,5 @@
-namespace SearchEngineProject.Core.Interfaces;
-
+namespace SearchEngine.Core.Interfaces;
+using SearchEngine.Analysis;
 public interface IFullTextIndex
 {
     void AddDocument(int docId, IEnumerable<Token> tokens);
