@@ -54,14 +54,16 @@ var host = Host.CreateDefaultBuilder(args)
                    );
                    // indexingdd and search
                    services.AddSingleton<IExactPrefixIndex, CompactTrieIndex>();
-                   // services.AddSingleton<IFullTextIndex, InvertedIndex>();
-                   //add inverted index here later
+                   services.AddSingleton<IFullTextIndex, InvertedIndex>();
+                   services.AddSingleton<IBloomFilter>(sp => new BloomFilter(1000000, 0.01)); // 1M expected items, 1% false positive rate
                    services.AddScoped<IIndexingService, IndexingService>();
 
                    //extensible search operations go here, facade pattern i think
                    services.AddSingleton<ISearchOperation, ExactSearchOperation>();
                    services.AddSingleton<ISearchOperation, PrefixDocsSearchOperation>();
                    services.AddSingleton<ISearchOperation, AutoCompleteSearchOperation>();
+                   services.AddSingleton<ISearchOperation, FullTextSearchOperation>();
+                   services.AddSingleton<ISearchOperation, BloomFilterSearchOperation>();
                    services.AddScoped<ISearchService, SearchService>();
 
                })
@@ -118,7 +120,7 @@ while ((line = reader.ReadLine()) != null)
     }
 }
 
-// flush last document if file didn’t end with the marker
+// flush last document if file didn't end with the marker
 if (titleRead && currentTitle is not null)
 {
     await indexer.AddDocumentAsync(currentTitle, sb.ToString());

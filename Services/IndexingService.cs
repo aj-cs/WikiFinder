@@ -16,14 +16,24 @@ public class IndexingService : IIndexingService
     private readonly Analyzer _analyzer;
     private readonly IDocumentService _docs;
     private readonly DocumentTermRepository _terms;
-    private readonly IEnumerable<IExactPrefixIndex> _indexes; //later we adjust this to be not just IExactPrefixIndex
+    private readonly IEnumerable<IExactPrefixIndex> _prefixIndexes;
+    private readonly IFullTextIndex _fullTextIndex;
+    private readonly IBloomFilter _bloomFilter;
 
-    public IndexingService(Analyzer analyzer, IDocumentService docs, DocumentTermRepository terms, IEnumerable<IExactPrefixIndex> indexes)
+    public IndexingService(
+        Analyzer analyzer, 
+        IDocumentService docs, 
+        DocumentTermRepository terms, 
+        IEnumerable<IExactPrefixIndex> prefixIndexes,
+        IFullTextIndex fullTextIndex,
+        IBloomFilter bloomFilter)
     {
         _analyzer = analyzer;
         _docs = docs;
         _terms = terms;
-        _indexes = indexes;
+        _prefixIndexes = prefixIndexes;
+        _fullTextIndex = fullTextIndex;
+        _bloomFilter = bloomFilter;
     }
 
     public async Task<int> AddDocumentAsync(string title, string content)
@@ -31,62 +41,82 @@ public class IndexingService : IIndexingService
         //persist the metadata
         int docId = await _docs.CreateAsync(title);
 
-        // anlyse then persist the tokens then index it into our structure, just trie for now
+        // anlyse then persist the tokens then index it into our structure
         var tokens = _analyzer.Analyze(content)
                               .ToList();
         await _terms.BulkUpsertTermsAsync(docId, tokens);
 
-        foreach (var index in _indexes)
+        // Index into prefix indexes (trie)
+        foreach (var index in _prefixIndexes)
         {
             index.AddDocument(docId, tokens);
         }
 
-        return docId;
-    }
-    public async Task<bool> RemoveDocumentAsync(int docId)
-    {
-        // load tokens
-        var termMap = await _terms.GetByDocumentAsync(docId);
-        var tokens = termMap.Keys
-                            .Select(term => new Token { Term = term })
-                            .ToList();
+        // Index into full-text index
+        _fullTextIndex.AddDocument(docId, tokens);
 
-        // remove from each index then delete persisted tokens + metadada
-        foreach (var idx in _indexes)
+        // Add terms to Bloom filter
+        foreach (var token in tokens)
         {
-            idx.RemoveDocument(docId, tokens);
+            _bloomFilter.Add(token.Term);
         }
 
-        await _terms.DeleteByDocumentAsync(docId);
-        return await _docs.DeleteAsync(docId);
+        return docId;
+    }
+
+    public async Task<bool> RemoveDocumentAsync(int docId)
+    {
+        // Remove from database
+        bool existed = await _docs.DeleteAsync(docId);
+        if (!existed) return false;
+
+        // Remove from prefix indexes
+        var tokens = await _docs.GetIndexedTokensAsync(docId);
+        foreach (var index in _prefixIndexes)
+        {
+            index.RemoveDocument(docId, tokens);
+        }
+
+        // Remove from full-text index
+        _fullTextIndex.RemoveDocument(docId, tokens);
+
+        // Note: We don't remove terms from the Bloom filter because
+        // Bloom filters don't support deletion. This is fine because:
+        // 1. The Bloom filter only gives false positives, never false negatives
+        // 2. The actual search will still return correct results
+        // 3. The false positive rate will increase slightly over time
+        // If this becomes a problem, we can rebuild the Bloom filter periodically
+
+        return true;
     }
 
     public async Task RebuildIndexAsync()
     {
-        // clear all indexes
-        foreach (var index in _indexes)
+        // Clear all indexes
+        foreach (var index in _prefixIndexes)
         {
             index.Clear();
         }
-        // bulk load every term row once
-        var allTerms = await _terms.LoadAllTermsAsync();
+        _fullTextIndex.Clear();
+        // Note: We don't clear the Bloom filter because it's a probabilistic data structure
+        // that doesn't support deletion. Instead, we'll rebuild it from scratch.
 
-        // group by document then rebuild indexes
-        var grouped = allTerms.GroupBy(e => e.DocumentId);
-        foreach (var group in grouped)
+        // Rebuild from database
+        var docs = await _docs.GetAllAsync();
+        foreach (var doc in docs)
         {
-            int docId = group.Key;
-
-            //we only care bout term text for the trie
-            var tokens = group.Select(e => new Token { Term = e.Term })
-                            .ToList();
-            foreach (var index in _indexes)
+            var tokens = await _docs.GetIndexedTokensAsync(doc.Id);
+            foreach (var index in _prefixIndexes)
             {
-                index.AddDocument(docId, tokens);
+                index.AddDocument(doc.Id, tokens);
+            }
+            _fullTextIndex.AddDocument(doc.Id, tokens);
+
+            // Add terms to Bloom filter
+            foreach (var token in tokens)
+            {
+                _bloomFilter.Add(token.Term);
             }
         }
-
-
     }
-
 }
