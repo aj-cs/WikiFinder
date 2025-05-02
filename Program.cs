@@ -16,15 +16,15 @@ using Microsoft.EntityFrameworkCore.SqlServer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using SearchEngineProject.Analysis;
-using SearchEngineProject.Analysis.Interfaces;
-using SearchEngineProject.Core;
-using SearchEngineProject.Core.Interfaces;
-using SearchEngineProject.Persistence;
-using SearchEngineProject.Services;
-using SearchEngineProject.Services.Interfaces;
-using SearchEngineProject.Analysis.Tokenizers;
-using SearchEngineProject.Analysis.Filters;
+using SearchEngine.Analysis;
+using SearchEngine.Analysis.Interfaces;
+using SearchEngine.Core;
+using SearchEngine.Core.Interfaces;
+using SearchEngine.Persistence;
+using SearchEngine.Services;
+using SearchEngine.Services.Interfaces;
+using SearchEngine.Analysis.Tokenizers;
+using SearchEngine.Analysis.Filters;
 
 var host = Host.CreateDefaultBuilder(args)
                .ConfigureAppConfiguration((ctx, cfg) =>

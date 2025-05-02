@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using SearchEngineProject.Persistence;
+using SearchEngine.Persistence;
 
 #nullable disable
 
@@ -19,7 +19,7 @@ namespace SearchEngine.Persistence.Persistence.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.4");
 
-            modelBuilder.Entity("SearchEngineProject.Persistence.Entities.DocumentEntity", b =>
+            modelBuilder.Entity("SearchEngine.Persistence.Entities.DocumentEntity", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -35,7 +35,7 @@ namespace SearchEngine.Persistence.Persistence.Migrations
                     b.ToTable("Documents");
                 });
 
-            modelBuilder.Entity("SearchEngineProject.Persistence.Entities.DocumentTermEntity", b =>
+            modelBuilder.Entity("SearchEngine.Persistence.Entities.DocumentTermEntity", b =>
                 {
                     b.Property<int>("DocumentId")
                         .HasColumnType("INTEGER");
@@ -53,9 +53,9 @@ namespace SearchEngine.Persistence.Persistence.Migrations
                     b.ToTable("DocumentTerms");
                 });
 
-            modelBuilder.Entity("SearchEngineProject.Persistence.Entities.DocumentTermEntity", b =>
+            modelBuilder.Entity("SearchEngine.Persistence.Entities.DocumentTermEntity", b =>
                 {
-                    b.HasOne("SearchEngineProject.Persistence.Entities.DocumentEntity", "Document")
+                    b.HasOne("SearchEngine.Persistence.Entities.DocumentEntity", "Document")
                         .WithMany("Terms")
                         .HasForeignKey("DocumentId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -64,7 +64,7 @@ namespace SearchEngine.Persistence.Persistence.Migrations
                     b.Navigation("Document");
                 });
 
-            modelBuilder.Entity("SearchEngineProject.Persistence.Entities.DocumentEntity", b =>
+            modelBuilder.Entity("SearchEngine.Persistence.Entities.DocumentEntity", b =>
                 {
                     b.Navigation("Terms");
                 });

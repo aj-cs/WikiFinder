@@ -1,6 +1,6 @@
 using System.Text.RegularExpressions;
 
-namespace SearchEngineProject.Analysis.Interfaces;
+namespace SearchEngine.Analysis.Interfaces;
 
 public interface ITokenizer
 {

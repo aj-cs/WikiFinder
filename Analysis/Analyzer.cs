@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
-using SearchEngineProject.Analysis.Interfaces;
+using SearchEngine.Analysis.Interfaces;
 
-namespace SearchEngineProject.Analysis;
+namespace SearchEngine.Analysis;
 
 public class Analyzer
 {

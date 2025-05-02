@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Linq;
 using EFCore.BulkExtensions;
-using SearchEngineProject.Analysis;
-using SearchEngineProject.Persistence.Entities;
+using SearchEngine.Analysis;
+using SearchEngine.Persistence.Entities;
 using System.Text.Json;
-namespace SearchEngineProject.Persistence;
+namespace SearchEngine.Persistence;
 
 public class DocumentTermRepository
 {

@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace SearchEngineProject.Services.Interfaces;
+namespace SearchEngine.Services.Interfaces;
 
 public interface ISearchService
 {

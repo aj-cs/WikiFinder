@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using SearchEngineProject.Persistence.Entities;
+using SearchEngine.Persistence.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace SearchEngineProject.Persistence;
+namespace SearchEngine.Persistence;
 
 
 public class DocumentRepository

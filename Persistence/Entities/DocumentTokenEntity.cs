@@ -1,4 +1,4 @@
-namespace SearchEngineProject.Persistence.Entities;
+namespace SearchEngine.Persistence.Entities;
 
 public class DocumentTokenEntity
 {

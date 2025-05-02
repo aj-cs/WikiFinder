@@ -1,6 +1,6 @@
-using SearchEngineProject.Analysis.Interfaces;
+using SearchEngine.Analysis.Interfaces;
 using Porter2StemmerStandard;
-namespace SearchEngineProject.Analysis.Filters;
+namespace SearchEngine.Analysis.Filters;
 
 public class StemAndKeepOriginalFilter : ITokenFilter
 {

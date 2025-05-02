@@ -1,4 +1,4 @@
-namespace SearchEngineProject.Core.Interfaces;
+namespace SearchEngine.Core.Interfaces;
 /// <summary>
 /// A single named search operation (exact, prefix‐docs, autocomplete…).
 /// </summary>

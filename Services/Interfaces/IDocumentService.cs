@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using SearchEngineProject.Analysis;
-using SearchEngineProject.Persistence.Entities;
+using SearchEngine.Analysis;
+using SearchEngine.Persistence.Entities;
 
-namespace SearchEngineProject.Services.Interfaces;
+namespace SearchEngine.Services.Interfaces;
 
 public interface IDocumentService
 {

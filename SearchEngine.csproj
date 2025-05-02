@@ -10,7 +10,6 @@
     </PropertyGroup>
     <ItemGroup>
      <Compile Include="Program.cs" />
-     <!-- other root‐level .cs files  o here too-->
     </ItemGroup>
 
     <ItemGroup>

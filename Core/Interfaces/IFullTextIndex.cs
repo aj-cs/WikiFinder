@@ -1,5 +1,4 @@
 namespace SearchEngineProject.Core.Interfaces;
-using SearchEngineProject.Analysis;
 
 public interface IFullTextIndex
 {

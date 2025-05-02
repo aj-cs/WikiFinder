@@ -1,13 +1,14 @@
 using System.Threading.Tasks;
-using SearchEngineProject.Core.Interfaces;
+using SearchEngine.Core.Interfaces;
 
-namespace SearchEngineProject.Core;
+namespace SearchEngine.Core;
 
 public class ExactSearchOperation : ISearchOperation
 {
     public string Name => "exact";
     private readonly IExactPrefixIndex _trie;
-    public ExactSearchOperation(IExactPrefixIndex trie){
+    public ExactSearchOperation(IExactPrefixIndex trie)
+    {
         _trie = trie;
     }
 

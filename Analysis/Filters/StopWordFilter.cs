@@ -1,6 +1,6 @@
 using System.Linq;
-using SearchEngineProject.Analysis.Interfaces;
-namespace SearchEngineProject.Analysis.Filters;
+using SearchEngine.Analysis.Interfaces;
+namespace SearchEngine.Analysis.Filters;
 
 public class StopWordFilter : ITokenFilter
 {
