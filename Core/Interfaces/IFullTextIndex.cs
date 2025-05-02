@@ -1,19 +1,15 @@
 namespace SearchEngineProject.Core.Interfaces;
+using SearchEngineProject.Analysis;
 
 public interface IFullTextIndex
 {
-    ///<summary>
-    ///Boolean search: ("foo AND bar") → docIds
-    ///</summary>
-    List<int> BooleanSearch(string booleanQuery);
+    void AddDocument(int docId, IEnumerable<Token> tokens);
+    void RemoveDocument(int docId, IEnumerable<Token> tokens);
+    void Clear();
 
-    ///<summary>
-    ///Phrase search: ("\"quick brown fox\"") → docIds
-    ///</summary>
-    List<int> PhraseSearch(string phrase);
-
-    ///<summary>
-    ///Ranked search: ("fox jumps") → [(docId, score)]
-    ///</summary>
-    List<(int docId, double score)> RankedSearch(string query);
+    // queries -----------------------------------------------------------------
+    List<int> ExactSearch(string term);                   // exact word
+    List<int> PhraseSearch(string phrase);               // "foo bar"
+    List<int> BooleanSearch(string expr);                // foo && bar || baz
+    List<(int docId, double score)> RankedSearch(string termWithHash); // foo#
 }
