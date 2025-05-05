@@ -82,10 +82,22 @@ public sealed class InvertedIndex : IFullTextIndex
     
 
     // ------------------------------------------------------------------------
-    public List<int> ExactSearch(string term)
-        => _map.TryGetValue(term, out var p)
-           ? p.Select(x => x.DocId).ToList()
-           : new List<int>();
+    public List<int> ExactSearch(string searchStr)
+    {
+        var results = new List<int>();
+        string word = searchStr;
+        if (!_map.TryGetValue(word, out var postings))
+        {
+            return results;
+        }
+
+        //adds all matching doc IDs
+        foreach (var posting in postings)
+        {
+            results.Add(posting.DocId);
+        }
+        return results;
+    }
 
     public List<int> PhraseSearch(string phrase)
     {

@@ -25,6 +25,7 @@ using SearchEngine.Services;
 using SearchEngine.Services.Interfaces;
 using SearchEngine.Analysis.Tokenizers;
 using SearchEngine.Analysis.Filters;
+using Porter2StemmerStandard;
 
 var host = Host.CreateDefaultBuilder(args)
                .ConfigureAppConfiguration((ctx, cfg) =>
@@ -47,8 +48,9 @@ var host = Host.CreateDefaultBuilder(args)
                    //analysis pipeline
                    services.AddSingleton<Analyzer>(sp =>
                        new Analyzer(
-                           new MinimalTokenizer()
+                           new MinimalTokenizer(),
                        // add filters here later
+                       new PorterStemFilter(new EnglishPorter2Stemmer())
 
                        )
                    );

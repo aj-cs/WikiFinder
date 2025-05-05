@@ -4,9 +4,13 @@ namespace SearchEngine.Analysis.Tokenizers;
 
 public class MinimalTokenizer : ITokenizer
 {
-
     public IEnumerable<Token> Tokenize(string text)
     {
+        if (string.IsNullOrEmpty(text))
+        {
+            yield break;
+        }
+
         // normalise 
         var normalized = text.Normalize(System.Text.NormalizationForm.FormC)
                              .ToLowerInvariant();
@@ -36,17 +40,20 @@ public class MinimalTokenizer : ITokenizer
             }
             int end = i;
 
-            // slice otu the token, we allocate ONE string for every token
+            // slice out the token, we allocate ONE string for every token
             string term = normalized.Substring(start, end - start);
-            yield return new Token
+            if (!string.IsNullOrEmpty(term))
             {
-                Term = term,
-                Position = position++,
-                StartOffset = start,
-                EndOffset = end
-            };
+                yield return new Token
+                {
+                    Term = term,
+                    Position = position++,
+                    StartOffset = start,
+                    EndOffset = end
+                };
+            }
         }
-
     }
+
     private static bool IsWordChar(char c) => char.IsLetter(c) || char.IsDigit(c);
 }
