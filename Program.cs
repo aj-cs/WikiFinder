@@ -25,7 +25,6 @@ using SearchEngine.Services;
 using SearchEngine.Services.Interfaces;
 using SearchEngine.Analysis.Tokenizers;
 using SearchEngine.Analysis.Filters;
-using Porter2StemmerStandard;
 
 var host = Host.CreateDefaultBuilder(args)
                .ConfigureAppConfiguration((ctx, cfg) =>
