@@ -48,9 +48,8 @@ var host = Host.CreateDefaultBuilder(args)
                    //analysis pipeline
                    services.AddSingleton<Analyzer>(sp =>
                        new Analyzer(
-                           new MinimalTokenizer(),
+                           new MinimalTokenizer()
                        // add filters here later
-                       new PorterStemFilter(new EnglishPorter2Stemmer())
 
                        )
                    );
