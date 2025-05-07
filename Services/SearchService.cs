@@ -12,14 +12,16 @@ public class SearchService : ISearchService
 {
     private readonly IDictionary<string, ISearchOperation> _ops;
     private readonly IDocumentService _docs;
+    private readonly Analyzer _analyzer;
 
-    public SearchService(IEnumerable<ISearchOperation> ops, IDocumentService docs)
+    public SearchService(IEnumerable<ISearchOperation> ops, IDocumentService docs, Analyzer analyzer)
     {
         _ops = ops.ToDictionary(
                 op => op.Name,
                 op => op,
                 StringComparer.OrdinalIgnoreCase);
         _docs = docs;
+        _analyzer = analyzer;
     }
 
     public async Task<object> SearchAsync(string operation, string query)
@@ -27,9 +29,22 @@ public class SearchService : ISearchService
         if (!_ops.TryGetValue(operation, out var op))
             throw new InvalidOperationException($"Unknown search operation '{operation}'");
 
-        var raw = await op.SearchAsync(query);
+        string normalizedQuery = NormalizeQuery(query);
+        
+        if (operation.Equals("autocomplete", StringComparison.OrdinalIgnoreCase))
+        {
+            normalizedQuery = query;
+        }
 
-        // if its a List<int> thenmap to titles
+        var raw = await op.SearchAsync(normalizedQuery);
+
+        // handle count-based results (from any search type)
+        if (raw is List<(int docId, int count)> countResults)
+        {
+            // just return the raw count results without normalization
+            return countResults;
+        }
+        
         if (raw is List<int> ids)
         {
             var titles = new List<string>(ids.Count);
@@ -38,7 +53,6 @@ public class SearchService : ISearchService
             return titles;
         }
 
-        // if its List<(string,List<int>)> then we  map doc‐IDs to titles
         if (raw is List<(string word, List<int> ids)> ac)
         {
             var output = new List<(string word, List<string> titles)>(ac.Count);
@@ -52,8 +66,105 @@ public class SearchService : ISearchService
             return output;
         }
 
-        // Otherwise it's a bool or some other scalar—just return it
         return raw;
     }
 
+    private string NormalizeQuery(string query)
+    {
+        if (string.IsNullOrWhiteSpace(query))
+            return query;
+            
+        bool isPrefix = query.EndsWith("*");
+        bool containsOperators = query.Contains("&&") || query.Contains("||");
+        
+        string cleanQuery = query;
+        
+        // remove special characters before analysis
+        if (isPrefix)
+            cleanQuery = query.Substring(0, query.Length - 1);
+        else if (query.EndsWith("#"))
+            cleanQuery = query.Substring(0, query.Length - 1);
+            
+        // if the query has boolean operators, we need to process each term separately
+        if (containsOperators)
+        {
+            var parts = new List<string>();
+            var terms = cleanQuery.Split(new[] { "&&", "||" }, StringSplitOptions.RemoveEmptyEntries);
+            
+            string[] operators = ExtractOperators(query);
+            
+            for (int i = 0; i < terms.Length; i++)
+            {
+                var normalized = NormalizeQueryTerm(terms[i].Trim());
+                parts.Add(normalized);
+                
+                if (i < operators.Length)
+                    parts.Add(operators[i]);
+            }
+            
+            return string.Join(" ", parts);
+        }
+        
+        // for phrase queries, normalize each word while preserving spaces
+        if (cleanQuery.Contains(" "))
+        {
+            var words = cleanQuery.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            var normalizedWords = words.Select(NormalizeQueryTerm);
+            cleanQuery = string.Join(" ", normalizedWords);
+        }
+        else
+        {
+            // for simple queries, just normalize the whole query
+            cleanQuery = NormalizeQueryTerm(cleanQuery);
+        }
+        
+        if (isPrefix)
+            cleanQuery += "*";
+            
+        return cleanQuery;
+    }
+    
+    private string NormalizeQueryTerm(string term)
+    {
+        if (string.IsNullOrWhiteSpace(term))
+            return term;
+            
+        var tokens = _analyzer.Analyze(term).ToList();
+        
+        if (tokens.Count == 0)
+            return term.ToLowerInvariant();
+            
+        return tokens[0].Term;
+    }
+    
+    private string[] ExtractOperators(string query)
+    {
+        var operators = new List<string>();
+        int i = 0;
+        
+        while (i < query.Length - 1)
+        {
+            if (i + 2 <= query.Length && query.Substring(i, 2) == "&&")
+            {
+                operators.Add("&&");
+                i += 2;
+            }
+            else if (i + 2 <= query.Length && query.Substring(i, 2) == "||")
+            {
+                operators.Add("||");
+                i += 2;
+            }
+            else
+            {
+                i++;
+            }
+        }
+        
+        return operators.ToArray();
+    }
+
+    public async Task<string> GetTitleAsync(int documentId)
+    {
+        return await _docs.GetTitleAsync(documentId);
+    }
 }

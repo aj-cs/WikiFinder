@@ -21,14 +21,8 @@ public class FullTextSearchOperation : ISearchOperation
         {
             return Task.FromResult<object>(_index.BooleanSearch(query));
         }
-        // check if it's a phrase search (contains spaces)
-        
-        // check if it's a ranked search (ends with #)
-        if (query.EndsWith('#'))
-        {
-            return Task.FromResult<object>(_index.RankedSearch(query));
-        }
 
+        // check if it's a phrase search (contains spaces)
         if (query.Contains(' '))
         {
             return Task.FromResult<object>(_index.PhraseSearch(query));

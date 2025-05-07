@@ -253,12 +253,64 @@ public class CompactTrieIndex : IExactPrefixIndex
 
     public List<(string word, List<int> docIds)> PrefixSearch(string prefix)
     {
-        prefix = prefix.ToLowerInvariant(); // might remove this cuz we do it in tokenizer
+        prefix = prefix.ToLowerInvariant(); 
         var results = new List<(string, List<int>)>();
+        
+        // Empty prefix should return limited set of all words
+        if (string.IsNullOrWhiteSpace(prefix))
+        {
+            CollectAllWords(root, "", results, 100); // Limit to 100 words for empty prefix
+            return results;
+        }
+        
         var startNode = FindNode(root, prefix);
         if (startNode != null)
+        {
             CollectWords(startNode, prefix, results);
+            
+            // If no exact matches, try partial matching
+            if (results.Count == 0)
+            {
+                // Try partial matching by getting most common prefix
+                var partialPrefix = prefix.Substring(0, Math.Max(1, prefix.Length - 1));
+                var partialNode = FindNode(root, partialPrefix);
+                if (partialNode != null)
+                {
+                    CollectWords(partialNode, partialPrefix, results);
+                }
+            }
+        }
+        
         return results;
+    }
+
+    // Helper method to collect all words in the trie (used when prefix is empty)
+    private void CollectAllWords(TrieNode node, string current, List<(string, List<int>)> output, int limit)
+    {
+        if (output.Count >= limit)
+            return;
+            
+        if (node.IsEndOfWord)
+        {
+            output.Add((current, new List<int>(node.DocIds)));
+        }
+        
+        foreach (var c in node.ArrayChildren)
+        {
+            if (c != null && output.Count < limit)
+            {
+                var w = wordPool[c.PoolIndex].Substring(c.Offset, c.Length);
+                CollectAllWords(c, current + w, output, limit);
+            }
+        }
+        
+        foreach (var kv in node.DictChildren)
+        {
+            if (output.Count < limit)
+            {
+                CollectAllWords(kv.Value, current + kv.Key, output, limit);
+            }
+        }
     }
 
     private void CollectWords(TrieNode node, string prefix, List<(string, List<int>)> output)
@@ -283,7 +335,7 @@ public class CompactTrieIndex : IExactPrefixIndex
     // helper for RemoveDocument
     ///<summary>
     ///if (length == 0)
-    /// we’re at the “terminal” node for this word.
+    /// we're at the "terminal" node for this word.
     /// remove docId and unmark eow if empty.
     ///else
     /// compute c = next character

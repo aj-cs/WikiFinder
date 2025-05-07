@@ -9,6 +9,11 @@ public interface ISearchService
     /// operation = "exact" | "prefixDocs" | "autocomplete" | any future search name
     /// </summary>
     Task<object> SearchAsync(string operation, string query);
+    
+    /// <summary>
+    /// Gets the title of a document by its ID
+    /// </summary>
+    Task<string> GetTitleAsync(int documentId);
 }
 
 

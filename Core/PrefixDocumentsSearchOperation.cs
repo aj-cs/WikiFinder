@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using SearchEngine.Core.Interfaces;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace SearchEngine.Core;
 

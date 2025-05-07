@@ -25,7 +25,170 @@ using SearchEngine.Services;
 using SearchEngine.Services.Interfaces;
 using SearchEngine.Analysis.Tokenizers;
 using SearchEngine.Analysis.Filters;
+using Microsoft.AspNetCore.Builder;
+using Porter2StemmerStandard;
 
+// create the web application builder
+var builder = WebApplication.CreateBuilder(args);
+
+// Get content file path if provide
+string contentFilePath = args.FirstOrDefault(arg => !arg.StartsWith("--")) ?? "";
+
+// add services to the container
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+builder.Services.AddHttpClient();//HttpClient factory for wikipedia
+
+// configure CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend",
+        policy => policy
+            .AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader());
+});
+
+// add search operations
+builder.Services.AddSingleton<ISearchOperation, ExactSearchOperation>();
+builder.Services.AddSingleton<ISearchOperation>(sp => 
+    new PrefixDocsSearchOperation(
+        sp.GetRequiredService<IExactPrefixIndex>()
+    )
+);
+builder.Services.AddSingleton<ISearchOperation, AutoCompleteSearchOperation>();
+builder.Services.AddSingleton<ISearchOperation, FullTextSearchOperation>();
+builder.Services.AddSingleton<ISearchOperation, BloomFilterSearchOperation>();
+builder.Services.AddScoped<ISearchService, SearchService>();
+builder.Services.AddScoped<IIndexingService, IndexingService>();
+
+// register index implementations
+builder.Services.AddSingleton<IExactPrefixIndex, CompactTrieIndex>();
+builder.Services.AddSingleton<IFullTextIndex, InvertedIndex>();
+builder.Services.AddSingleton<IBloomFilter>(provider => new BloomFilter(100000, 0.01));
+
+// add services
+builder.Services.AddScoped<IWikipediaService, WikipediaService>();
+builder.Services.AddSingleton<FileContentService>(sp => 
+{
+    // use the content file path we extracted
+    return new FileContentService(contentFilePath);
+});
+
+// add database context and repository services
+builder.Services.AddDbContext<SearchEngineContext>(opts => 
+    opts.UseSqlite("Data Source=quicktest.db"));
+builder.Services.AddScoped<DocumentRepository>();
+builder.Services.AddScoped<DocumentTermRepository>();
+builder.Services.AddScoped<IDocumentService, DocumentService>();
+
+// add analyzer pipeline
+builder.Services.AddSingleton<Analyzer>(sp =>
+    new Analyzer(
+        new MinimalTokenizer()
+        //,new PorterStemFilter(new EnglishPorter2Stemmer())
+    )
+);
+
+var app = builder.Build();
+
+// configure the HTTP request pipeline
+if (app.Environment.IsDevelopment())
+{
+    app.UseDeveloperExceptionPage();
+}
+
+app.UseHttpsRedirection();
+app.UseCors("AllowFrontend");
+app.UseAuthorization();
+app.MapControllers();
+
+// initialize the database and preprocess data if command line args are provided
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<SearchEngineContext>();
+    dbContext.Database.EnsureCreated();
+
+    var indexingService = scope.ServiceProvider.GetRequiredService<IIndexingService>();
+    
+    //if a file is specified, preprocess it
+    if (!string.IsNullOrEmpty(contentFilePath))
+    {
+        Console.WriteLine($"Preprocessing {contentFilePath}…");
+        var stopwatch = Stopwatch.StartNew();
+
+        // get the FileContentService to register document positions
+        var fileContentService = scope.ServiceProvider.GetRequiredService<FileContentService>();
+        
+        // clear any existing document positions
+        fileContentService.ClearDocumentPositions();
+
+        using var reader = new StreamReader(contentFilePath, Encoding.UTF8);
+        string? line;
+        string? currentTitle = null;
+        var sb = new StringBuilder();
+        long startPos = 0;
+        long currentPos = 0;
+        
+        while ((line = reader.ReadLine()) != null)
+        {
+            // track current position
+            long lineLength = line.Length + Environment.NewLine.Length;
+            
+            if (currentTitle == null)
+            {
+                // first non-empty line is the title
+                if (!string.IsNullOrWhiteSpace(line))
+                {
+                    currentTitle = line;
+                    startPos = currentPos + lineLength; // start position after the title line
+                }
+            }
+            else if (line.Trim() == "---END.OF.DOCUMENT---")
+            {
+                // end of document 
+                if (sb.Length > 0)
+                {
+                    string content = sb.ToString().Trim();
+                    
+                    // register document position
+                    fileContentService.RegisterDocument(currentTitle, content);
+                    
+                    // add to index
+                    await indexingService.AddDocumentAsync(currentTitle, content);
+                }
+                
+                // reset for next document
+                currentTitle = null;
+                sb.Clear();
+            }
+            else
+            {
+                // regular content line
+                sb.AppendLine(line);
+            }
+            
+            currentPos += lineLength;
+        }
+        
+        // handle last document if no final marker
+        if (currentTitle != null && sb.Length > 0)
+        {
+            string content = sb.ToString().Trim();
+            fileContentService.RegisterDocument(currentTitle, content);
+            await indexingService.AddDocumentAsync(currentTitle, content);
+        }
+
+        stopwatch.Stop();
+        Console.WriteLine($"Pre-process time: {stopwatch.Elapsed.TotalSeconds:F3}s");
+    }
+}
+
+// start the web application
+app.Run();
+
+/* console application code
 var host = Host.CreateDefaultBuilder(args)
                .ConfigureAppConfiguration((ctx, cfg) =>
                {
@@ -48,19 +211,17 @@ var host = Host.CreateDefaultBuilder(args)
                    services.AddSingleton<Analyzer>(sp =>
                        new Analyzer(
                            new MinimalTokenizer()
-                       // add filters here later
-
                        )
                    );
-                   // indexingdd and search
-                   services.AddSingleton<IExactPrefixIndex, CompactTrieIndex>();
-                   services.AddSingleton<IFullTextIndex, InvertedIndex>();
-                   services.AddSingleton<IBloomFilter>(sp => new BloomFilter(1000000, 0.01)); // 1M expected items, 1% false positive rate
-                   services.AddScoped<IIndexingService, IndexingService>();
 
                    //extensible search operations go here, facade pattern i think
                    services.AddSingleton<ISearchOperation, ExactSearchOperation>();
-                   services.AddSingleton<ISearchOperation, PrefixDocsSearchOperation>();
+                   // register PrefixDocsSearchOperation with a factory to provide dependencies
+                   services.AddSingleton<ISearchOperation>(sp => 
+                       new PrefixDocsSearchOperation(
+                           sp.GetRequiredService<IExactPrefixIndex>()
+                       )
+                   );
                    services.AddSingleton<ISearchOperation, AutoCompleteSearchOperation>();
                    services.AddSingleton<ISearchOperation, FullTextSearchOperation>();
                    services.AddSingleton<ISearchOperation, BloomFilterSearchOperation>();
@@ -162,10 +323,30 @@ while (true)
                 Console.WriteLine(string.Join(", ", list));
                 break;
 
+            case List<int> docIds:
+                Console.WriteLine($"Document IDs: {string.Join(", ", docIds)}");
+                break;
+
             case List<(string word, List<string> titles)> ac:
                 foreach (var (word, titles) in ac)
                 {
                     Console.WriteLine($"{word}: {string.Join(", ", titles)}");
+                }
+                break;
+
+            case List<(int docId, int count)> countResults:
+                foreach (var (docId, count) in countResults.OrderByDescending(r => r.count))
+                {
+                    var title = await searchService.GetTitleAsync(docId);
+                    Console.WriteLine($"{title} (ID: {docId}, Count: {count})");
+                }
+                break;
+
+            case List<(int docId, double score)> scoredResults:
+                foreach (var (docId, score) in scoredResults.OrderByDescending(r => r.score))
+                {
+                    var title = await searchService.GetTitleAsync(docId);
+                    Console.WriteLine($"{title} (ID: {docId})");
                 }
                 break;
 
@@ -181,173 +362,4 @@ while (true)
 }
 
 await host.StopAsync();
-
-/*
- * 100KB.txt
-100MB.txt
-10MB.txt
-1GB.txt
-1MB.txt
-200MB.txt
-20MB.txt
-2MB.txt
-400MB.txt
-50MB.txt
-5MB.txt
-800MB.txt*/
-
-// public class IndexConfig : ManualConfig
-// {
-//     public IndexConfig()
-//     {
-//         AddJob(Job.Default
-//                 .WithWarmupCount(1)
-//                 .WithIterationCount(1)
-//                 .WithInvocationCount(1)
-//                 .WithUnrollFactor(1)
-//                 .WithId("IndexConstructionJob"));
-//     }
-// }
-// public class QueryConfig : ManualConfig
-// {
-//     public QueryConfig()
-//     {
-//         AddJob(Job.Default
-//                 .WithWarmupCount(1)
-//                 .WithIterationCount(3)
-//                 .WithInvocationCount(1)
-//                 .WithUnrollFactor(1)
-//                 .WithId("QueryJob"));
-//     }
-// }
-// [CsvExporter]
-// [MemoryDiagnoser]
-// public class IndexConstructionBenchmark
-// {
-//     // Parameterized list of file names.
-//     // (These file names are relative to your project directory.)
-//     [Params("100KB.txt", "1MB.txt", "2MB.txt", "5MB.txt", "10MB.txt", "20MB.txt", "50MB.txt", "100MB.txt")]
-//     public string FileName { get; set; }
-//
-//     [Benchmark]
-//     public Index BenchmarkIndexConstruction()
-//     {
-//         // Use an absolute path to your project directory
-//         string projectDir = "/zhome/79/1/188120/search-engine-project";
-//         string fullPath = System.IO.Path.Combine(projectDir, FileName);
-//         return new Index(fullPath);
-//     }
-// }
-//
-// // This benchmark class measures the time and memory of search queries individually.
-// [CsvExporter]
-// [MemoryDiagnoser]
-// public class QueryBenchmark
-// {
-//     // Parameterized file name for building the index.
-//     [Params("100KB.txt", "1MB.txt", "2MB.txt", "5MB.txt", "10MB.txt", "20MB.txt", "50MB.txt", "100MB.txt")]
-//     public string FileName { get; set; }
-//
-//     // Parameterized query so that each query ("and", "or", "cat", "bread") is benchmarked separately.
-//     [Params("and", "or", "cat", "bread")]
-//     public string Query { get; set; }
-//
-//     private Index index;
-//
-//     [GlobalSetup]
-//     public void Setup()
-//     {
-//         string projectDir = "/zhome/79/1/188120/search-engine-project";
-//         string fullPath = System.IO.Path.Combine(projectDir, FileName);
-//         index = new Index(fullPath);
-//     }
-//
-//     // Measures the time for the PrefixSearch method for a single query.
-//     [Benchmark]
-//     public void BenchmarkPrefixSearch()
-//     {
-//         index.PrefixSearch(Query);
-//     }
-//
-//     // Measures the time for the PrefixSearchDocuments method for a single query.
-//     [Benchmark]
-//     public void BenchmarkPrefixSearchDocuments()
-//     {
-//         index.PrefixSearchDocuments(Query);
-//     }
-//
-//     //Measures the time for the Normal Search
-//     [Benchmark]
-//     public void BenchmarkNormalSearchDocuments()
-//     {
-//         index.PrefixSearchDocuments(Query);
-//     }
-// }
-//
-// // The Program class runs both sets of benchmarks.
-// public class Program
-// {
-//     public static void Main(string[] args)
-//     {
-//         // Run the index construction benchmarks.
-//         // BenchmarkRunner.Run<IndexConstructionBenchmark>();
-//
-//         // Run the query benchmarks
-//         // BenchmarkRunner.Run<QueryBenchmark>();
-//         if (args.Length == 0)
-//         {
-//             Console.WriteLine("Usage: Index1 <filename>");
-//             return;
-//         }
-//         var stopwatch = new Stopwatch();
-//         Console.WriteLine("Preprocessing " + args[0]);
-//         stopwatch.Start();
-//         Index index = new Index(args[0]);
-//         stopwatch.Stop();
-//         Console.WriteLine($"Pre-process time(s) {stopwatch.ElapsedMilliseconds / 1000}");
-//
-//         while (true)
-//         {
-//             Console.WriteLine("Input search string or type exit to stop");
-//             string searchStr = Console.ReadLine();
-//
-//             if (searchStr.Equals("exit", StringComparison.OrdinalIgnoreCase))
-//             {
-//                 break;
-//             }
-//
-//             index.PrintDemo(searchStr, searchStr);
-//         }
-//     }
-// }
-// /*class Program
-// {
-//     static void Main(string[] args)
-//     {
-//         if (args.Length == 0)
-//         {
-//             Console.WriteLine("Usage: Index1 <filename>");
-//             return;
-//         }
-//
-//         Console.WriteLine("Preprocessing " + args[0]);
-//         Index index = new Index(args[0]);
-//
-//         while (true)
-//         {
-//             Console.WriteLine("Input search string or type exit to stop");
-//             string searchStr = Console.ReadLine();
-//
-//             if (searchStr.Equals("exit", StringComparison.OrdinalIgnoreCase))
-//             {
-//                 break;
-//             }
-//
-//             index.PrefixSearchDocuments(searchStr);
-//             Console.WriteLine($"\nAuto-completion of words starting with '{searchStr}': ");
-//             index.PrefixSearch(searchStr);
-//         }
-//     }
-//     
-// }*/
-//
+*/

@@ -82,60 +82,84 @@ public sealed class InvertedIndex : IFullTextIndex
     
 
     // ------------------------------------------------------------------------
-    public List<int> ExactSearch(string searchStr)
+    public List<(int docId, int count)> ExactSearch(string searchStr)
     {
-        var results = new List<int>();
         string word = searchStr;
         if (!_map.TryGetValue(word, out var postings))
         {
-            return results;
+            return new List<(int docId, int count)>();
         }
 
-        //adds all matching doc IDs
-        foreach (var posting in postings)
-        {
-            results.Add(posting.DocId);
-        }
-        return results;
+        // return document ids with their term counts
+        return postings
+            .OrderByDescending(p => p.Count)
+            .Select(p => (p.DocId, p.Count))
+            .ToList();
     }
 
-    public List<int> PhraseSearch(string phrase)
+    public List<(int docId, int count)> PhraseSearch(string phrase)
     {
         var words = phrase.Split(' ', System.StringSplitOptions.RemoveEmptyEntries);
-        if (words.Length == 0) return new List<int>();
+        if (words.Length == 0) return new List<(int docId, int count)>();
 
         if (words.Length == 1) return ExactSearch(words[0]);
 
-        if (!_map.TryGetValue(words[0], out var first)) return new List<int>();
+        if (!_map.TryGetValue(words[0], out var first)) return new List<(int docId, int count)>();
 
         var candidates = first.ToDictionary(p => p.DocId,
                                             p => new List<int>(p.Positions));
+        // track matching counts for scoring
+        var matchCounts = first.ToDictionary(p => p.DocId, p => p.Count);
+                                            
         for (int i = 1; i < words.Length; i++)
         {
-            if (!_map.TryGetValue(words[i], out var next)) return new List<int>();
-            var nextSet = new Dictionary<int,List<int>>();
+            if (!_map.TryGetValue(words[i], out var next)) return new List<(int docId, int count)>();
+            var nextSet = new Dictionary<int, List<int>>();
+            var nextMatchCounts = new Dictionary<int, int>();
+            
             foreach (var p in next)
             {
                 if (!candidates.TryGetValue(p.DocId, out var prev)) continue;
                 var valid = MergePositions(prev, p.Positions);
-                if (valid.Count > 0) nextSet[p.DocId] = valid;
+                if (valid.Count > 0) 
+                {
+                    nextSet[p.DocId] = valid;
+                    // add count from this term if document matched
+                    if (matchCounts.TryGetValue(p.DocId, out var prevCount))
+                    {
+                        nextMatchCounts[p.DocId] = prevCount + p.Count;
+                    }
+                    else
+                    {
+                        nextMatchCounts[p.DocId] = p.Count;
+                    }
+                }
             }
             candidates = nextSet;
-            if (candidates.Count == 0) return new List<int>();
+            matchCounts = nextMatchCounts;
+            if (candidates.Count == 0) return new List<(int docId, int count)>();
         }
-        return candidates.Keys.ToList();
+        
+        // return document ids with their term counts
+        return matchCounts
+            .OrderByDescending(kv => kv.Value)
+            .Select(kv => (kv.Key, kv.Value))
+            .ToList();
     }
 
-    public List<int> BooleanSearch(string expr)
+    public List<(int docId, int count)> BooleanSearch(string expr)
     {
         BuildBits();
 
         BitArray? acc = null;
         string? op   = null;
+        var terms = new List<string>();
+        
         foreach (var token in expr.Split(' ', System.StringSplitOptions.RemoveEmptyEntries))
         {
             if (token is "&&" or "||") { op = token; continue; }
-
+            
+            terms.Add(token);
             _bitIndex.TryGetValue(token, out var bits);
             bits ??= new BitArray(_nextDocId); // all false
 
@@ -146,28 +170,57 @@ public sealed class InvertedIndex : IFullTextIndex
                 : acc;
             op = null;
         }
-        if (acc == null) return new List<int>();
+        if (acc == null) return new List<(int docId, int count)>();
 
-        var hits = new List<int>();
+        var docIds = new List<int>();
         for (int i = 0; i < acc.Length; i++)
-            if (acc[i]) hits.Add(i);
-        return hits;
+            if (acc[i]) docIds.Add(i);
+        if (docIds.Count == 0) return new List<(int docId, int count)>();
+        
+        // calculate term frequency for each matching document
+        var docScores = new Dictionary<int, int>();
+        foreach (var docId in docIds)
+        {
+            int totalCount = 0;
+            foreach (var term in terms)
+            {
+                if (_map.TryGetValue(term, out var postings))
+                {
+                    var posting = postings.FirstOrDefault(p => p.DocId == docId);
+                    if (posting != null)
+                    {
+                        totalCount += posting.Count;
+                    }
+                }
+            }
+            docScores[docId] = totalCount;
+        }
+        
+        // return document ids with their term counts
+        return docScores
+            .OrderByDescending(kv => kv.Value)
+            .Select(kv => (kv.Key, kv.Value))
+            .ToList();
     }
-    // ------------------------------------------------------------------------
-    public List<(int docId, double score)> RankedSearch(string termWithHash)
+
+    private void BuildBits()
     {
-        string term = termWithHash.TrimEnd('#');
-        if (!_map.TryGetValue(term, out var list)) return new List<(int, double)>();
-        return list
-              .OrderByDescending(p => p.Count)
-              .Select(p => (p.DocId, (double)p.Count))
-              .ToList();
+        if (_bitBuilt) return;
+        _bitIndex.Clear();
+
+        foreach (var (term, postings) in _map)
+        {
+            var bits = new BitArray(_nextDocId);
+            foreach (var p in postings) bits[p.DocId] = true;
+            _bitIndex[term] = bits;
+        }
+        _bitBuilt = true;
     }
-    // ------------------------------------------------------------------------
+
     private static List<int> MergePositions(List<int> prev, List<int> cur)
     {
         var outp = new List<int>();
-        // delta-decode
+        // delta decoder
         if (prev.Count > 0 && prev[0] == 0) prev = Decode(prev);
         if (cur.Count  > 0 && cur [0] == 0) cur  = Decode(cur);
 
@@ -187,19 +240,5 @@ public sealed class InvertedIndex : IFullTextIndex
         int cur = 0;
         foreach (var d in deltas) { cur += d; res.Add(cur); }
         return res;
-    }
-
-    private void BuildBits()
-    {
-        if (_bitBuilt) return;
-        _bitIndex.Clear();
-
-        foreach (var (term, postings) in _map)
-        {
-            var bits = new BitArray(_nextDocId);
-            foreach (var p in postings) bits[p.DocId] = true;
-            _bitIndex[term] = bits;
-        }
-        _bitBuilt = true;
     }
 }

@@ -14,6 +14,7 @@ public class ExactSearchOperation : ISearchOperation
 
     public Task<object> SearchAsync(string query)
     {
+        // The query is already normalized by SearchService
         bool found = _trie.Search(query);
         return Task.FromResult<object>(found);
     }

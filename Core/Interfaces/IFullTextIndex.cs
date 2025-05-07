@@ -7,8 +7,7 @@ public interface IFullTextIndex
     void Clear();
 
     // queries -----------------------------------------------------------------
-    List<int> ExactSearch(string term);                   // exact word
-    List<int> PhraseSearch(string phrase);               // "foo bar"
-    List<int> BooleanSearch(string expr);                // foo && bar || baz
-    List<(int docId, double score)> RankedSearch(string termWithHash); // foo#
+    List<(int docId, int count)> ExactSearch(string term);          // exact word
+    List<(int docId, int count)> PhraseSearch(string phrase);       // "foo bar"
+    List<(int docId, int count)> BooleanSearch(string expr);        // foo && bar || baz
 }
