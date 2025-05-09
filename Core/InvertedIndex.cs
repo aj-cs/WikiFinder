@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,18 +24,58 @@ public sealed class InvertedIndex : IFullTextIndex
 
     // ----- fields ------------------------------------------------------------
     private readonly Dictionary<string, List<Posting>> _map = new(StringComparer.Ordinal);
-    private readonly Dictionary<int, string>           _docTitles = new(); // only needed for debug
-    private readonly Dictionary<string, BitArray>       _bitIndex = new(StringComparer.Ordinal);
+    private readonly Dictionary<int, string> _docTitles = new(); // only needed for debug
+    private readonly Dictionary<string, BitArray> _bitIndex = new(StringComparer.Ordinal);
+    
+    // BM25 specific fields
+    private readonly Dictionary<int, int> _docLengths = new();
+    private double _avgDocLength = 0;
+    private int _totalDocs = 0;
+    private double _k1 = 1.2; // BM25 parameter: term frequency saturation
+    private double _b = 0.75; // BM25 parameter: document length normalization
+    
     private bool _bitBuilt;
-    private int  _nextDocId;
+    private int _nextDocId;
 
     private bool _delta = true;            
     public void SetDeltaEncoding(bool on) => _delta = on;
+    
+    // methods to tune BM25 parameters
+    public void SetBM25Params(double k1, double b)
+    {
+        if (k1 < 0) throw new ArgumentException("k1 must be non-negative");
+        if (b < 0 || b > 1) throw new ArgumentException("b must be between 0 and 1");
+        
+        _k1 = k1;
+        _b = b;
+    }
+    
+    public (double k1, double b) GetBM25Params() => (_k1, _b);
 
     // ------------------------------------------------------------------------
     public void AddDocument(int docId, IEnumerable<Token> tokens)
     {
-        foreach (var t in tokens)
+        // track document length for BM25
+        var tokenList = tokens.ToList();
+        int docLength = tokenList.Count;
+        
+        // update document length stats
+        if (_docLengths.ContainsKey(docId))
+        {
+            // if we are updating a document, first remove its old length from the average
+            _avgDocLength = (_avgDocLength * _totalDocs - _docLengths[docId]) / (_totalDocs - 1);
+            _docLengths[docId] = docLength;
+        }
+        else
+        {
+            _docLengths[docId] = docLength;
+            _totalDocs++;
+        }
+        
+        // recalculate average document length
+        _avgDocLength = _docLengths.Values.Sum() / (double)_totalDocs;
+
+        foreach (var t in tokenList)
         {
             if (string.IsNullOrEmpty(t.Term)) continue;
 
@@ -62,6 +103,24 @@ public sealed class InvertedIndex : IFullTextIndex
 
     public void RemoveDocument(int docId, IEnumerable<Token> tokens)
     {
+        // update document length stats
+        if (_docLengths.ContainsKey(docId))
+        {
+            // emove document length from average calculation
+            if (_totalDocs > 1)
+            {
+                _avgDocLength = (_avgDocLength * _totalDocs - _docLengths[docId]) / (_totalDocs - 1);
+            }
+            else
+            {
+                _avgDocLength = 0;
+            }
+            
+            _docLengths.Remove(docId);
+            _totalDocs--;
+        }
+        
+        // remove document from all term postings
         foreach (var t in tokens)
         {
             if (!_map.TryGetValue(t.Term, out var list)) continue;
@@ -76,10 +135,33 @@ public sealed class InvertedIndex : IFullTextIndex
         _map.Clear();           // remove all postings
         _bitIndex.Clear();      // remove all bit-vectors
         _docTitles.Clear();     // forget any stored titles/debug info
+        _docLengths.Clear();    // clear document lengths
+        _avgDocLength = 0;      // reset average document length
+        _totalDocs = 0;         // reset total document count
         _nextDocId = 0;         // reset doc-id counter
         _bitBuilt = false;      // mark bits as needing rebuild
     }
     
+    // ------------------------------------------------------------------------
+    // BM25 scoring function
+    private double CalculateBM25Score(string term, int docId, int termFrequency)
+    {
+        if (!_map.TryGetValue(term, out var postings) || postings.Count == 0 || !_docLengths.TryGetValue(docId, out var docLength))
+            return 0;
+            
+        // IDF component: log((N-n+0.5)/(n+0.5))
+        double N = _totalDocs;
+        double n = postings.Count; // number of documents containing the term
+        double idf = Math.Log((N - n + 0.5) / (n + 0.5) + 1.0);
+        
+        // normalized term frequency
+        double normalizedTF = termFrequency / (1.0 - _b + _b * (docLength / _avgDocLength));
+        
+        // BM25 score
+        double score = idf * (normalizedTF * (_k1 + 1)) / (normalizedTF + _k1);
+        
+        return score;
+    }
 
     // ------------------------------------------------------------------------
     public List<(int docId, int count)> ExactSearch(string searchStr)
@@ -90,10 +172,18 @@ public sealed class InvertedIndex : IFullTextIndex
             return new List<(int docId, int count)>();
         }
 
-        // return document ids with their term counts
-        return postings
-            .OrderByDescending(p => p.Count)
-            .Select(p => (p.DocId, p.Count))
+        // score using BM25
+        var results = new List<(int docId, double score)>();
+        foreach (var posting in postings)
+        {
+            double score = CalculateBM25Score(word, posting.DocId, posting.Count);
+            results.Add((posting.DocId, score));
+        }
+
+        // return document ids with their BM25 scores (converted to int)
+        return results
+            .OrderByDescending(r => r.score)
+            .Select(r => (r.docId, (int)(r.score * 1000))) // Scaled
             .ToList();
     }
 
@@ -140,10 +230,31 @@ public sealed class InvertedIndex : IFullTextIndex
             if (candidates.Count == 0) return new List<(int docId, int count)>();
         }
         
-        // return document ids with their term counts
-        return matchCounts
-            .OrderByDescending(kv => kv.Value)
-            .Select(kv => (kv.Key, kv.Value))
+        // score using combined BM25
+        var results = new List<(int docId, double score)>();
+        foreach (var docId in candidates.Keys)
+        {
+            double totalScore = 0;
+            for (int i = 0; i < words.Length; i++)
+            {
+                if (_map.TryGetValue(words[i], out var termPostings))
+                {
+                    var posting = termPostings.FirstOrDefault(p => p.DocId == docId);
+                    if (posting != null)
+                    {
+                        totalScore += CalculateBM25Score(words[i], docId, posting.Count);
+                    }
+                }
+            }
+            // boost phrase matches
+            totalScore *= 1.2;
+            results.Add((docId, totalScore));
+        }
+        
+        // return document ids with their BM25 scores (converted to int for backward compatibility)
+        return results
+            .OrderByDescending(r => r.score)
+            .Select(r => (r.docId, (int)(r.score * 1000))) // Scaled
             .ToList();
     }
 
@@ -177,11 +288,11 @@ public sealed class InvertedIndex : IFullTextIndex
             if (acc[i]) docIds.Add(i);
         if (docIds.Count == 0) return new List<(int docId, int count)>();
         
-        // calculate term frequency for each matching document
-        var docScores = new Dictionary<int, int>();
+        // calculate BM25 scores for each matching document
+        var results = new List<(int docId, double score)>();
         foreach (var docId in docIds)
         {
-            int totalCount = 0;
+            double totalScore = 0;
             foreach (var term in terms)
             {
                 if (_map.TryGetValue(term, out var postings))
@@ -189,17 +300,17 @@ public sealed class InvertedIndex : IFullTextIndex
                     var posting = postings.FirstOrDefault(p => p.DocId == docId);
                     if (posting != null)
                     {
-                        totalCount += posting.Count;
+                        totalScore += CalculateBM25Score(term, docId, posting.Count);
                     }
                 }
             }
-            docScores[docId] = totalCount;
+            results.Add((docId, totalScore));
         }
         
-        // return document ids with their term counts
-        return docScores
-            .OrderByDescending(kv => kv.Value)
-            .Select(kv => (kv.Key, kv.Value))
+        // return document ids with their BM25 scores
+        return results
+            .OrderByDescending(r => r.score)
+            .Select(r => (r.docId, (int)(r.score * 1000))) // Scaled
             .ToList();
     }
 

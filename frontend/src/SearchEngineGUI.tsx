@@ -36,21 +36,25 @@ const fetchSuggestions = async (q: string) => {
 
 // fetch search results
 const fetchResults = async (q: string) => {
-  if (!q.trim()) return { results: [], totalCount: 0, searchTime: 0, query: q, operation: '' };
+  if (!q.trim()) return { results: [], totalCount: 0, searchTime: 0, query: '', operation: '' };
   
   try {
-    const response = await axios.get(`${API_BASE_URL}/search?q=${encodeURIComponent(q)}`);
-    return response.data;
+    let endpoint = 'search';
+    const isPrefix = q.endsWith('*');
+    
+    // use BM25 endpoint for full-text searches
+    if (!isPrefix) {
+      endpoint = 'search/bm25';
+    }
+    
+    const response = await axios.get(`/api/${endpoint}`, { 
+      params: { q }
+    });
+    
+    return response.data as SearchResponse;
   } catch (error) {
-    console.error('Error fetching results:', error);
-    // return empty results on error
-    return { 
-      results: [], 
-      totalCount: 0, 
-      searchTime: 0, 
-      query: q, 
-      operation: 'error' 
-    };
+    console.error('Error fetching search results:', error);
+    return { results: [], totalCount: 0, searchTime: 0, query: q, operation: 'Error' };
   }
 };
 
@@ -82,6 +86,10 @@ interface SearchResponse {
   searchTime: number;
   query: string;
   operation: string;
+  parameters?: {
+    k1: number;
+    b: number;
+  };
 }
 
 export default function SearchEngineGUI() {
@@ -483,29 +491,55 @@ export default function SearchEngineGUI() {
                   {searchResponse.totalCount > 0 ? (
                     <div className="text-sm text-gray-500 dark:text-gray-400 mb-2">
                       Found {searchResponse.totalCount} {searchResponse.totalCount === 1 ? 'match' : 'matches'} for "{searchResponse.query}" using {lastExecutedSearchType || searchResponse.operation || 'Exact'} search in {searchResponse.searchTime.toFixed(2)}s.
+                      {searchResponse.parameters && (
+                        <div className="mt-1">
+                          BM25 Parameters: k1={searchResponse.parameters.k1.toFixed(1)}, b={searchResponse.parameters.b.toFixed(2)}
+                        </div>
+                      )}
                     </div>
                   ) : (
                     <div className="text-sm text-gray-500 dark:text-gray-400 mb-2">
                       No results found for "{searchResponse.query}" using {lastExecutedSearchType || searchResponse.operation || 'Exact'} search.
+                      {searchResponse.parameters && (
+                        <div className="mt-1">
+                          BM25 Parameters: k1={searchResponse.parameters.k1.toFixed(1)}, b={searchResponse.parameters.b.toFixed(2)}
+                        </div>
+                      )}
                     </div>
                   )}
 
-                  {searchResponse.results.slice(0, visibleCount).map((r) => (
-                    <motion.div 
-                      key={r.id} 
-                      whileHover={{ scale: 1.01 }} 
-                      className="transition-transform bg-white dark:bg-gray-800 bg-opacity-70 dark:bg-opacity-70 backdrop-blur-md p-2 rounded-xl shadow-md cursor-pointer hover:shadow-lg" 
-                      onClick={() => openDoc(r.id)}
-                    >
-                      <h3 className="text-lg font-semibold mb-1 text-gray-900 dark:text-gray-100">{r.title}</h3>
-                      <p className="text-sm text-gray-700 dark:text-gray-300 leading-snug line-clamp-2 min-h-[2.5rem]" dangerouslySetInnerHTML={{ __html: r.snippet }} />
-                      {r.score !== undefined && (
-                        <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                          Relevance: {r.score}%
-                        </div>
-                      )}
-                    </motion.div>
-                  ))}
+                  {searchResponse.results.slice(0, visibleCount).map((r) => {
+                    // find max score to normalize against
+                    const maxScore = Math.max(...searchResponse.results.map(result => result.score || 0));
+                    // normalize score to 0-100 scale
+                    const normalizedScore = maxScore > 0 ? Math.min(100, Math.max(1, (r.score || 0) / maxScore * 100)) : 0;
+                    
+                    return (
+                      <motion.div 
+                        key={r.id} 
+                        whileHover={{ scale: 1.01 }} 
+                        className="transition-transform bg-white dark:bg-gray-800 bg-opacity-70 dark:bg-opacity-70 backdrop-blur-md p-2 rounded-xl shadow-md cursor-pointer hover:shadow-lg" 
+                        onClick={() => openDoc(r.id)}
+                      >
+                        <h3 className="text-lg font-semibold mb-1 text-gray-900 dark:text-gray-100">{r.title}</h3>
+                        <p className="text-sm text-gray-700 dark:text-gray-300 leading-snug line-clamp-2 min-h-[2.5rem]" dangerouslySetInnerHTML={{ __html: r.snippet }} />
+                        {r.score !== undefined && (
+                          <div className="text-xs text-gray-500 dark:text-gray-400 mt-1 flex items-center">
+                            <div className="flex items-center">
+                              <span className="mr-1">BM25 Score:</span>
+                              <div className="w-20 h-2 bg-gray-200 dark:bg-gray-600 rounded-full overflow-hidden">
+                                <div 
+                                  className="h-full bg-blue-500 rounded-full"
+                                  style={{ width: `${normalizedScore}%` }}
+                                />
+                              </div>
+                              <span className="ml-1">{Math.round(normalizedScore)}%</span>
+                            </div>
+                          </div>
+                        )}
+                      </motion.div>
+                    );
+                  })}
                 </>
               )}
             </div>

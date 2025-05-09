@@ -275,12 +275,13 @@ namespace SearchEngine.Controllers
                             var title = await _searchService.GetTitleAsync(result.docId);
                             string snippet = await _fileContentService.GetSnippetAsync(title, cleanQuery, operationType);
                             
-                            // for all searches, don't include the score
+                            // include the count as score for BM25 results
                             return new
                             {
                                 id = result.docId.ToString(),
                                 title = title,
-                                snippet = snippet
+                                snippet = snippet,
+                                score = result.count / 10.0 // convert to a normalized score
                             };
                         });
                     
@@ -374,6 +375,53 @@ namespace SearchEngine.Controllers
                 
                 // eturn an empty list in case of error
                 return Ok(new List<string>());
+            }
+        }
+
+        [HttpGet("bm25")]
+        public async Task<IActionResult> BM25Search([FromQuery] string q, [FromQuery] double? k1, [FromQuery] double? b)
+        {
+            if (string.IsNullOrWhiteSpace(q))
+            {
+                return BadRequest("Query parameter 'q' is required");
+            }
+
+            try
+            {
+                var stopwatch = Stopwatch.StartNew();
+                
+                // set BM25 parameters if provided
+                if (k1.HasValue || b.HasValue)
+                {
+                    await _searchService.SetBM25ParamsAsync(k1 ?? 1.2, b ?? 0.75);
+                }
+                
+                // always use the fulltext operation for BM25
+                var results = await _searchService.SearchAsync("fulltext", q);
+                stopwatch.Stop();
+                
+                // get current BM25 parameters
+                var bm25Params = await _searchService.GetBM25ParamsAsync();
+
+                var response = new
+                {
+                    results = await FormatResultsAsync(results, q),
+                    totalCount = GetResultCount(results),
+                    searchTime = stopwatch.Elapsed.TotalSeconds,
+                    query = q,
+                    operation = "BM25",
+                    parameters = new
+                    {
+                        k1 = bm25Params.k1,
+                        b = bm25Params.b
+                    }
+                };
+
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"BM25 search error: {ex.Message}");
             }
         }
 

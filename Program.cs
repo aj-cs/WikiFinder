@@ -186,6 +186,18 @@ using (var scope = app.Services.CreateScope())
 }
 
 // start the web application
+//Console.WriteLine("Search Engine started with BM25 ranking algorithm");
+using (var scope = app.Services.CreateScope())
+{
+    var invertedIndex = scope.ServiceProvider.GetRequiredService<IFullTextIndex>();
+    if (invertedIndex is InvertedIndex bm25Index)
+    {
+        //change parameters using the /api/search/bm25 endpoint
+        var (k1, b) = bm25Index.GetBM25Params();
+        //Console.WriteLine($"BM25 parameters: k1={k1} b={b}");
+        //Console.WriteLine("You can customize these parameters using the /api/search/bm25 endpoint");
+    }
+}
 app.Run();
 
 /* console application code

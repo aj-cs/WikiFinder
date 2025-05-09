@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -13,8 +14,9 @@ public class SearchService : ISearchService
     private readonly IDictionary<string, ISearchOperation> _ops;
     private readonly IDocumentService _docs;
     private readonly Analyzer _analyzer;
+    private readonly IFullTextIndex _invertedIndex;
 
-    public SearchService(IEnumerable<ISearchOperation> ops, IDocumentService docs, Analyzer analyzer)
+    public SearchService(IEnumerable<ISearchOperation> ops, IDocumentService docs, Analyzer analyzer, IFullTextIndex invertedIndex)
     {
         _ops = ops.ToDictionary(
                 op => op.Name,
@@ -22,6 +24,7 @@ public class SearchService : ISearchService
                 StringComparer.OrdinalIgnoreCase);
         _docs = docs;
         _analyzer = analyzer;
+        _invertedIndex = invertedIndex;
     }
 
     public async Task<object> SearchAsync(string operation, string query)
@@ -166,5 +169,23 @@ public class SearchService : ISearchService
     public async Task<string> GetTitleAsync(int documentId)
     {
         return await _docs.GetTitleAsync(documentId);
+    }
+    
+    public Task SetBM25ParamsAsync(double k1, double b)
+    {
+        if (_invertedIndex is InvertedIndex bm25Index)
+        {
+            bm25Index.SetBM25Params(k1, b);
+        }
+        return Task.CompletedTask;
+    }
+    
+    public Task<(double k1, double b)> GetBM25ParamsAsync()
+    {
+        if (_invertedIndex is InvertedIndex bm25Index)
+        {
+            return Task.FromResult(bm25Index.GetBM25Params());
+        }
+        return Task.FromResult((1.2, 0.75)); // default values if not an InvertedIndex
     }
 }
