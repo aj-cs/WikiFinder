@@ -4,6 +4,8 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Linq;
 using System.Text;
+using SearchEngine.Services.Interfaces;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace SearchEngine.Services
 {
@@ -11,11 +13,32 @@ namespace SearchEngine.Services
     {
         private readonly string _filePath;
         private readonly Dictionary<string, string> _documentContents;
+        private readonly IServiceProvider _serviceProvider;
+        private bool _useDatabase;
 
         public FileContentService(string filePath)
         {
             _filePath = filePath;
             _documentContents = new Dictionary<string, string>();
+            _useDatabase = false;
+        }
+        
+        public FileContentService(string filePath, IServiceProvider serviceProvider)
+        {
+            _filePath = filePath;
+            _documentContents = new Dictionary<string, string>();
+            _serviceProvider = serviceProvider;
+            _useDatabase = false;
+        }
+        
+        public void EnableDatabaseMode()
+        {
+            _useDatabase = true;
+        }
+        
+        public void DisableDatabaseMode()
+        {
+            _useDatabase = false;
         }
 
         public void ClearDocumentPositions()
@@ -25,15 +48,64 @@ namespace SearchEngine.Services
         
         public void RegisterDocument(string title, string content)
         {
-            _documentContents[title] = content;
+            if (_useDatabase && _serviceProvider != null)
+            {
+                // store in memory for immediate use
+                _documentContents[title] = content;
+                
+                // async store in database - fire and forget
+                Task.Run(async () => 
+                {
+                    try 
+                    {
+                        using (var scope = _serviceProvider.CreateScope())
+                        {
+                            var documentService = scope.ServiceProvider.GetRequiredService<IDocumentService>();
+                            await documentService.CreateWithContentAsync(title, content);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error storing document content: {ex.Message}");
+                    }
+                });
+            }
+            else
+            {
+                _documentContents[title] = content;
+            }
         }
 
-        public Task<string> GetDocumentContentAsync(string title)
+        public async Task<string> GetDocumentContentAsync(string title)
         {
+            // try memory cache first
             if (_documentContents.TryGetValue(title, out var content))
-                return Task.FromResult(content);
+                return content;
                 
-            return Task.FromResult(string.Empty);
+            // if database persistence is enabled, try to get from database
+            if (_useDatabase && _serviceProvider != null)
+            {
+                try
+                {
+                    using (var scope = _serviceProvider.CreateScope())
+                    {
+                        var documentService = scope.ServiceProvider.GetRequiredService<IDocumentService>();
+                        content = await documentService.GetContentByTitleAsync(title);
+                        if (!string.IsNullOrEmpty(content))
+                        {
+                            // cache in memory for future use
+                            _documentContents[title] = content;
+                            return content;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error retrieving document content: {ex.Message}");
+                }
+            }
+                
+            return string.Empty;
         }
         
         public async Task<string> GetSnippetAsync(string title, string query, string operation)

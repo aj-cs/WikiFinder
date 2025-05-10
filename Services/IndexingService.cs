@@ -119,4 +119,18 @@ public class IndexingService : IIndexingService
             }
         }
     }
+
+    public async Task IndexDocumentByIdAsync(int docId, string content)
+    {
+        var tokens = _analyzer.Analyze(content).ToList();
+        await _terms.BulkUpsertTermsAsync(docId, tokens);
+
+        foreach (var index in _prefixIndexes)
+            index.AddDocument(docId, tokens);
+
+        _fullTextIndex.AddDocument(docId, tokens);
+
+        foreach (var token in tokens)
+            _bloomFilter.Add(token.Term);
+    }
 }

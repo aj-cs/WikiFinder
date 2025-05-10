@@ -27,6 +27,54 @@ public class DocumentRepository
     }
 
     /// <summary>
+    /// Inserts a new document with the given title and compressed content.
+    /// Returns the generated document Id.
+    /// </summary>
+    public async Task<int> InsertWithContentAsync(string title, byte[] compressedContent)
+    {
+        var doc = new DocumentEntity 
+        { 
+            Title = title,
+            CompressedContent = compressedContent
+        };
+        _context.Documents.Add(doc);
+        await _context.SaveChangesAsync();
+        return doc.Id;
+    }
+
+    /// <summary>
+    /// Updates the compressed content for an existing document.
+    /// </summary>
+    public async Task UpdateContentAsync(int docId, byte[] compressedContent)
+    {
+        var doc = await _context.Documents.FindAsync(docId);
+        if (doc != null)
+        {
+            doc.CompressedContent = compressedContent;
+            await _context.SaveChangesAsync();
+        }
+    }
+
+    /// <summary>
+    /// Retrieves the compressed content for a document.
+    /// </summary>
+    public async Task<byte[]> GetCompressedContentAsync(int docId)
+    {
+        var doc = await _context.Documents.FindAsync(docId);
+        return doc?.CompressedContent;
+    }
+
+    /// <summary>
+    /// Retrieves the compressed content for a document by title.
+    /// </summary>
+    public async Task<byte[]> GetCompressedContentByTitleAsync(string title)
+    {
+        var doc = await _context.Documents
+                               .FirstOrDefaultAsync(d => d.Title == title);
+        return doc?.CompressedContent;
+    }
+
+    /// <summary>
     /// Deletes the document with the given Id.
     /// Returns true if a row was deleted.
     /// </summary>

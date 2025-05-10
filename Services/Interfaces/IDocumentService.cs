@@ -13,6 +13,12 @@ public interface IDocumentService
     Task<int> CreateAsync(string title);
 
     /// <summary>
+    /// Persist a new document with content, returning its generated ID.
+    /// The content will be compressed before storage.
+    /// </summary>
+    Task<int> CreateWithContentAsync(string title, string content);
+
+    /// <summary>
     /// Delete the document metadata; returns true if it existed.
     /// </summary>
     Task<bool> DeleteAsync(int docId);
@@ -23,9 +29,25 @@ public interface IDocumentService
     Task<IReadOnlyList<DocumentEntity>> GetAllAsync();
 
     /// <summary>
-    /// Lookup a document’s title by ID.
+    /// Lookup a document's title by ID.
     /// </summary>
     Task<string> GetTitleAsync(int docId);
+
+    /// <summary>
+    /// Get the decompressed content of a document by ID.
+    /// </summary>
+    Task<string> GetContentAsync(int docId);
+
+    /// <summary>
+    /// Get the decompressed content of a document by title.
+    /// </summary>
+    Task<string> GetContentByTitleAsync(string title);
+
+    /// <summary>
+    /// Update the content of an existing document.
+    /// The content will be compressed before storage.
+    /// </summary>
+    Task UpdateContentAsync(int docId, string content);
 
     /// <summary>
     /// Upsert one row per distinct term for this document,

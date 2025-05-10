@@ -68,20 +68,21 @@ builder.Services.AddSingleton<IExactPrefixIndex, CompactTrieIndex>();
 builder.Services.AddSingleton<IFullTextIndex, InvertedIndex>();
 builder.Services.AddSingleton<IBloomFilter>(provider => new BloomFilter(100000, 0.01));
 
-// add services
-builder.Services.AddScoped<IWikipediaService, WikipediaService>();
-builder.Services.AddSingleton<FileContentService>(sp => 
-{
-    // use the content file path we extracted
-    return new FileContentService(contentFilePath);
-});
-
 // add database context and repository services
 builder.Services.AddDbContext<SearchEngineContext>(opts => 
     opts.UseSqlite("Data Source=quicktest.db"));
 builder.Services.AddScoped<DocumentRepository>();
 builder.Services.AddScoped<DocumentTermRepository>();
+builder.Services.AddSingleton<DocumentCompressionService>();
 builder.Services.AddScoped<IDocumentService, DocumentService>();
+
+// add services
+builder.Services.AddScoped<IWikipediaService, WikipediaService>();
+builder.Services.AddSingleton<FileContentService>(sp => 
+{
+    // use the content file path we extracted
+    return new FileContentService(contentFilePath, sp);
+});
 
 // add analyzer pipeline
 builder.Services.AddSingleton<Analyzer>(sp =>
@@ -111,15 +112,17 @@ using (var scope = app.Services.CreateScope())
     dbContext.Database.EnsureCreated();
 
     var indexingService = scope.ServiceProvider.GetRequiredService<IIndexingService>();
+    var fileContentService = scope.ServiceProvider.GetRequiredService<FileContentService>();
+    var documentService = scope.ServiceProvider.GetRequiredService<IDocumentService>();
     
     //if a file is specified, preprocess it
     if (!string.IsNullOrEmpty(contentFilePath))
     {
         Console.WriteLine($"Preprocessing {contentFilePath}…");
         var stopwatch = Stopwatch.StartNew();
-
-        // get the FileContentService to register document positions
-        var fileContentService = scope.ServiceProvider.GetRequiredService<FileContentService>();
+        
+        // enable database mode to store compressed content
+        fileContentService.EnableDatabaseMode();
         
         // clear any existing document positions
         fileContentService.ClearDocumentPositions();
@@ -152,11 +155,9 @@ using (var scope = app.Services.CreateScope())
                 {
                     string content = sb.ToString().Trim();
                     
-                    // register document position
-                    fileContentService.RegisterDocument(currentTitle, content);
-                    
-                    // add to index
-                    await indexingService.AddDocumentAsync(currentTitle, content);
+                    // insert document with content and index it
+                    var docId = await documentService.CreateWithContentAsync(currentTitle, content);
+                    await indexingService.IndexDocumentByIdAsync(docId, content);
                 }
                 
                 // reset for next document
@@ -176,17 +177,48 @@ using (var scope = app.Services.CreateScope())
         if (currentTitle != null && sb.Length > 0)
         {
             string content = sb.ToString().Trim();
-            fileContentService.RegisterDocument(currentTitle, content);
-            await indexingService.AddDocumentAsync(currentTitle, content);
+            var docId = await documentService.CreateWithContentAsync(currentTitle, content);
+            await indexingService.IndexDocumentByIdAsync(docId, content);
         }
 
         stopwatch.Stop();
         Console.WriteLine($"Pre-process time: {stopwatch.Elapsed.TotalSeconds:F3}s");
+/*
+        // debugging: show total uncompressed vs compressed size
+        var allDocs = await documentService.GetAllAsync();
+        long totalCompressed = 0;
+        long totalUncompressed = 0;
+        foreach (var doc in allDocs)
+        {
+            if (doc.CompressedContent != null)
+            {
+                totalCompressed += doc.CompressedContent.Length;
+                var uncompressed = new SearchEngine.Services.DocumentCompressionService().Decompress(doc.CompressedContent);
+                totalUncompressed += System.Text.Encoding.UTF8.GetByteCount(uncompressed);
+            }
+        }
+        Console.WriteLine($"Total uncompressed size: {totalUncompressed:N0} bytes");
+        Console.WriteLine($"Total compressed size:   {totalCompressed:N0} bytes");
+        if (totalUncompressed > 0)
+        {
+            double ratio = (double)totalCompressed / totalUncompressed;
+            Console.WriteLine($"Compression ratio: {ratio:P1}");
+        }
+*/
+    }
+    else
+    {
+        // No file specified, enable database mode and rebuild indexes
+        fileContentService.EnableDatabaseMode();
+        Console.WriteLine("Building search indexes from database...");
+        var stopwatch = Stopwatch.StartNew();
+        await indexingService.RebuildIndexAsync();
+        stopwatch.Stop();
+        Console.WriteLine($"Index rebuild time: {stopwatch.Elapsed.TotalSeconds:F3}s");
     }
 }
 
 // start the web application
-//Console.WriteLine("Search Engine started with BM25 ranking algorithm");
 using (var scope = app.Services.CreateScope())
 {
     var invertedIndex = scope.ServiceProvider.GetRequiredService<IFullTextIndex>();

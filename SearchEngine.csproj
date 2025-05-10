@@ -7,6 +7,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <!-- turn off all the implicit Compile/None/Content globs -->
         <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+        <EnableDefaultContentItems>false</EnableDefaultContentItems>
     </PropertyGroup>
     <ItemGroup>
      <Compile Include="Program.cs" />
@@ -36,6 +37,15 @@
 
     <ItemGroup>
       <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Include="appsettings.json">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+      <Content Include="appsettings.Development.json">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
     </ItemGroup>
 
 </Project>

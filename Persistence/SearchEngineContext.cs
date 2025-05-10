@@ -26,6 +26,9 @@ public class SearchEngineContext : DbContext
             b.Property(d => d.Title)
              .IsRequired()
              .HasMaxLength(200);
+             
+            b.Property(d => d.CompressedContent)
+             .IsRequired(false);
 
             b.HasMany(d => d.Terms)
              .WithOne(t => t.Document)

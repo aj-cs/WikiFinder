@@ -10,6 +10,7 @@ namespace SearchEngine.Services.Interfaces;
 public interface IIndexingService
 {
     Task<int> AddDocumentAsync(string title, string content);
+    Task IndexDocumentByIdAsync(int docId, string content);
     Task<bool> RemoveDocumentAsync(int docId);
     Task RebuildIndexAsync();
 }

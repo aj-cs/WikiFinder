@@ -12,16 +12,27 @@ public class DocumentService : IDocumentService
 {
     private readonly DocumentRepository _docs;
     private readonly DocumentTermRepository _terms;
+    private readonly DocumentCompressionService _compressionService;
 
-    public DocumentService(DocumentRepository docs, DocumentTermRepository terms)
+    public DocumentService(
+        DocumentRepository docs, 
+        DocumentTermRepository terms,
+        DocumentCompressionService compressionService)
     {
         _docs = docs;
         _terms = terms;
+        _compressionService = compressionService;
     }
 
     public Task<int> CreateAsync(string title)
     {
         return _docs.InsertAsync(title);
+    }
+    
+    public async Task<int> CreateWithContentAsync(string title, string content)
+    {
+        var compressedContent = _compressionService.Compress(content);
+        return await _docs.InsertWithContentAsync(title, compressedContent);
     }
 
     public Task<bool> DeleteAsync(int docId)
@@ -33,11 +44,30 @@ public class DocumentService : IDocumentService
     {
         return _docs.GetTitleAsync(docId);
     }
+    
+    public async Task<string> GetContentAsync(int docId)
+    {
+        var compressedContent = await _docs.GetCompressedContentAsync(docId);
+        return _compressionService.Decompress(compressedContent);
+    }
+    
+    public async Task<string> GetContentByTitleAsync(string title)
+    {
+        var compressedContent = await _docs.GetCompressedContentByTitleAsync(title);
+        return _compressionService.Decompress(compressedContent);
+    }
+    
+    public async Task UpdateContentAsync(int docId, string content)
+    {
+        var compressedContent = _compressionService.Compress(content);
+        await _docs.UpdateContentAsync(docId, compressedContent);
+    }
 
     public Task<IReadOnlyList<DocumentEntity>> GetAllAsync()
     {
         return _docs.GetAllAsync();
     }
+    
     public Task UpsertTermsAsync(int docId, IEnumerable<Token> tokens)
     {
         return _terms.BulkUpsertTermsAsync(docId, tokens);
