@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using SearchEngine.Analysis;
 using SearchEngine.Core.Interfaces;
+using System.Linq;
 
 namespace SearchEngine.Core;
 
@@ -267,17 +268,22 @@ public class CompactTrieIndex : IExactPrefixIndex
         if (startNode != null)
         {
             CollectWords(startNode, prefix, results);
-            
-            // If no exact matches, try partial matching
-            if (results.Count == 0)
+        }
+        
+        // if no exact matches, try partial matching
+        if (results.Count == 0 && prefix.Length > 1)
+        {
+            // try partial matching by getting most common prefix
+            var partialPrefix = prefix.Substring(0, prefix.Length - 1);
+            var partialNode = FindNode(root, partialPrefix);
+            if (partialNode != null)
             {
-                // Try partial matching by getting most common prefix
-                var partialPrefix = prefix.Substring(0, Math.Max(1, prefix.Length - 1));
-                var partialNode = FindNode(root, partialPrefix);
-                if (partialNode != null)
-                {
-                    CollectWords(partialNode, partialPrefix, results);
-                }
+                CollectWords(partialNode, partialPrefix, results);
+                
+                // filter results to only include those that start with our partial prefix
+                results = results
+                    .Where(r => r.Item1.StartsWith(partialPrefix))
+                    .ToList();
             }
         }
         

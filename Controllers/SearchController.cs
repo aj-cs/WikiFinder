@@ -347,6 +347,7 @@ namespace SearchEngine.Controllers
                 if (results is List<string> wordCompletions)
                 {
                     Console.WriteLine($"Found {wordCompletions.Count} word completions");
+                    Console.WriteLine($"Results: {string.Join(", ", wordCompletions.Take(5))}...");
                     return Ok(wordCompletions.Take(20).ToList());
                 }
 
