@@ -352,4 +352,97 @@ public sealed class InvertedIndex : IFullTextIndex
         foreach (var d in deltas) { cur += d; res.Add(cur); }
         return res;
     }
+
+    public List<(string word, List<int> docIds)> PrefixSearch(string prefix)
+    {
+        // for inverted index, we'll return all terms that start with the prefix
+        var results = new List<(string word, List<int> docIds)>();
+        foreach (var kvp in _map)
+        {
+            if (kvp.Key.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+            {
+                results.Add((kvp.Key, kvp.Value.Select(p => p.DocId).ToList()));
+            }
+        }
+        return results;
+    }
+
+    public List<(int docId, int count)> BooleanSearchNaive(string expr)
+    {
+        var terms = expr.Split(new[] { "&&", "||" }, StringSplitOptions.RemoveEmptyEntries)
+                       .Select(t => t.Trim())
+                       .Where(t => !string.IsNullOrWhiteSpace(t))
+                       .ToList();
+
+        var operators = new List<string>();
+        int i = 0;
+        while (i < expr.Length - 1)
+        {
+            if (i + 2 <= expr.Length && expr.Substring(i, 2) == "&&")
+            {
+                operators.Add("&&");
+                i += 2;
+            }
+            else if (i + 2 <= expr.Length && expr.Substring(i, 2) == "||")
+            {
+                operators.Add("||");
+                i += 2;
+            }
+            else
+            {
+                i++;
+            }
+        }
+
+        var docSets = new List<HashSet<int>>();
+        foreach (var term in terms)
+        {
+            if (_map.TryGetValue(term, out var postings))
+            {
+                docSets.Add(new HashSet<int>(postings.Select(p => p.DocId)));
+            }
+            else
+            {
+                docSets.Add(new HashSet<int>());
+            }
+        }
+
+        var result = docSets[0];
+        for (int j = 0; j < operators.Count; j++)
+        {
+            if (operators[j] == "&&")
+            {
+                result.IntersectWith(docSets[j + 1]);
+            }
+            else // "||"
+            {
+                result.UnionWith(docSets[j + 1]);
+            }
+        }
+
+        // calculate scores for matching documents
+        var results = new List<(int docId, double score)>();
+        foreach (var docId in result)
+        {
+            double totalScore = 0;
+            foreach (var term in terms)
+            {
+                if (_map.TryGetValue(term, out var postings))
+                {
+                    var posting = postings.FirstOrDefault(p => p.DocId == docId);
+                    if (posting != null)
+                    {
+                        totalScore += CalculateBM25Score(term, docId, posting.Count);
+                    }
+                }
+            }
+            results.Add((docId, totalScore));
+        }
+
+        return results
+            .OrderByDescending(r => r.score)
+            .Select(r => (r.docId, (int)(r.score * 1000))) // scaled
+            .ToList();
+    }
+
 }

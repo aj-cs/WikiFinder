@@ -31,7 +31,7 @@ using Porter2StemmerStandard;
 // create the web application builder
 var builder = WebApplication.CreateBuilder(args);
 
-// Get content file path if provide
+// get content file path if provide
 string contentFilePath = args.FirstOrDefault(arg => !arg.StartsWith("--")) ?? "";
 
 // add services to the container

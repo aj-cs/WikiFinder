@@ -477,4 +477,61 @@ public class CompactTrieIndex : IExactPrefixIndex
         wordPool.Clear();
         wordToPoolIndex.Clear();
     }
+
+    public List<(int docId, int count)> BooleanSearchNaive(string expr)
+    {
+        var terms = expr.Split(new[] { "&&", "||" }, StringSplitOptions.RemoveEmptyEntries)
+                       .Select(t => t.Trim())
+                       .Where(t => !string.IsNullOrWhiteSpace(t))
+                       .ToList();
+
+        var operators = new List<string>();
+        int i = 0;
+        while (i < expr.Length - 1)
+        {
+            if (i + 2 <= expr.Length && expr.Substring(i, 2) == "&&")
+            {
+                operators.Add("&&");
+                i += 2;
+            }
+            else if (i + 2 <= expr.Length && expr.Substring(i, 2) == "||")
+            {
+                operators.Add("||");
+                i += 2;
+            }
+            else
+            {
+                i++;
+            }
+        }
+
+        var docSets = new List<HashSet<int>>();
+        foreach (var term in terms)
+        {
+            var node = FindNode(root, term.ToLowerInvariant());
+            if (node != null && node.IsEndOfWord)
+            {
+                docSets.Add(new HashSet<int>(node.DocIds));
+            }
+            else
+            {
+                docSets.Add(new HashSet<int>());
+            }
+        }
+
+        var result = docSets[0];
+        for (int j = 0; j < operators.Count; j++)
+        {
+            if (operators[j] == "&&")
+            {
+                result.IntersectWith(docSets[j + 1]);
+            }
+            else // "||"
+            {
+                result.UnionWith(docSets[j + 1]);
+            }
+        }
+
+        return result.Select(id => (id, 1)).ToList();
+    }
 }
