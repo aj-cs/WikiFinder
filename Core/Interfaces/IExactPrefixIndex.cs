@@ -31,11 +31,6 @@ public interface IExactPrefixIndex
     void Clear();
 
     /// <summary>
-    /// Search for exact phrase matches
-    /// </summary>
-    List<(int docId, int count)> PhraseSearch(string phrase);
-
-    /// <summary>
     /// Search using boolean operators (naive implementation)
     /// </summary>
     List<(int docId, int count)> BooleanSearchNaive(string expr);
