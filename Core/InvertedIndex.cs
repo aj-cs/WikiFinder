@@ -335,7 +335,7 @@ public sealed class InvertedIndex : IFullTextIndex
         {
             int mid = left + (right - left) / 2;
             if (list[mid] == value) return mid;
-            if list[mid] < value) left = mid + 1;
+            if (list[mid] < value) left = mid + 1;
             else right = mid - 1;
         }
         return -1;
