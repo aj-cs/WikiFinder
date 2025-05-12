@@ -135,6 +135,9 @@ while (true)
     if (string.IsNullOrWhiteSpace(input) ||
         input.Equals("exit", StringComparison.OrdinalIgnoreCase))
     {
+        await indexer.RemoveDocumentAsync(1);
+        await docService.DeleteAsync(1);
+        await docService.DeleteTermsAsync(1);
         break;
     }
 
