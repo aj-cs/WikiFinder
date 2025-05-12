@@ -328,6 +328,19 @@ public sealed class InvertedIndex : IFullTextIndex
         _bitBuilt = true;
     }
 
+    private static int BinarySearch(List<int> list, int value)
+    {
+        int left = 0, right = list.Count - 1;
+        while (left <= right)
+        {
+            int mid = left + (right - left) / 2;
+            if (list[mid] == value) return mid;
+            if list[mid] < value) left = mid + 1;
+            else right = mid - 1;
+        }
+        return -1;
+    }
+
     private static List<int> MergePositions(List<int> prev, List<int> cur)
     {
         var outp = new List<int>();
@@ -335,12 +348,12 @@ public sealed class InvertedIndex : IFullTextIndex
         if (prev.Count > 0 && prev[0] == 0) prev = Decode(prev);
         if (cur.Count  > 0 && cur [0] == 0) cur  = Decode(cur);
 
-        int i = 0, j = 0;
-        while (i < prev.Count && j < cur.Count)
+        // use binary search for each prev position
+        foreach (var p in prev)
         {
-            if (cur[j] == prev[i] + 1) { outp.Add(cur[j]); i++; j++; }
-            else if (cur[j] < prev[i] + 1) j++;
-            else i++;
+            int idx = BinarySearch(cur, p + 1);
+            if (idx != -1)
+                outp.Add(cur[idx]);
         }
         return outp;
     }
