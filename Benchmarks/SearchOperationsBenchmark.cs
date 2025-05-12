@@ -33,7 +33,7 @@ public class SearchOperationsBenchmark
     {
         ["Exact"] = new() { "and", "or", "cat", "bread" },
         ["Prefix"] = new() { "an*", "or*", "ca*", "br*" },
-        ["Phrase"] = new() { "and or", "cat bread", "bread cat", "or and" },
+        ["Phrase"] = new() { "he was", "it was a", "and when", "or when" },
         ["Boolean"] = new() { "and && or || cat", "cat && bread", "bread && cat || or", "or && and" }
     };
 
