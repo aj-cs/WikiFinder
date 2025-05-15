@@ -20,6 +20,7 @@ public class IndexConstructionBenchmark
     private IExactPrefixIndex _trie;
     private IFullTextIndex _invertedIndex;
     private IBloomFilter _bloomFilter;
+    private IExactPrefixIndex _simpleInvertedIndex;
     private string _currentFile;
     private string _currentContent;
 
@@ -35,6 +36,7 @@ public class IndexConstructionBenchmark
         _trie = new CompactTrieIndex();
         _invertedIndex = new InvertedIndex();
         _bloomFilter = new BloomFilter(2000000, 0.03); // assuming max 1M unique terms
+        _simpleInvertedIndex = new SimpleInvertedIndex();
         _currentFile = Path.Combine(_basePath, $"{FileSize}.txt");
         _currentContent = File.ReadAllText(_currentFile);
     }
@@ -51,6 +53,13 @@ public class IndexConstructionBenchmark
     {
         var tokens = _analyzer.Analyze(_currentContent).ToList();
         _invertedIndex.AddDocument(1, tokens);
+    }
+
+    [Benchmark]
+    public void SimpleInvertedIndexConstruction()
+    {
+        var tokens = _analyzer.Analyze(_currentContent).ToList();
+        _simpleInvertedIndex.AddDocument(1, tokens);
     }
 
     [Benchmark]
@@ -95,6 +104,16 @@ public class IndexConstructionBenchmark
         GC.Collect();
         long invertedIndexMemory = GC.GetTotalMemory(true) - initialMemory;
         Console.WriteLine($"Inverted Index: {FormatBytes(invertedIndexMemory)}");
+        
+        // Measure Simple Inverted Index memory
+        initialMemory = GC.GetTotalMemory(true);
+        _simpleInvertedIndex = new SimpleInvertedIndex();
+        _simpleInvertedIndex.AddDocument(1, trieTokens);
+        GC.Collect();
+        GC.WaitForPendingFinalizers();
+        GC.Collect();
+        long simpleInvertedIndexMemory = GC.GetTotalMemory(true) - initialMemory;
+        Console.WriteLine($"Simple Inverted Index: {FormatBytes(simpleInvertedIndexMemory)}");
 
         // Measure Bloom Filter memory
         initialMemory = GC.GetTotalMemory(true);
@@ -110,7 +129,7 @@ public class IndexConstructionBenchmark
         Console.WriteLine($"Bloom Filter: {FormatBytes(bloomFilterMemory)}");
 
         // Print total memory
-        Console.WriteLine($"Total Memory: {FormatBytes(trieMemory + invertedIndexMemory + bloomFilterMemory)}");
+        Console.WriteLine($"Total Memory: {FormatBytes(trieMemory + invertedIndexMemory + simpleInvertedIndexMemory + bloomFilterMemory)}");
         Console.WriteLine("----------------------------------------\n");
     }
 
