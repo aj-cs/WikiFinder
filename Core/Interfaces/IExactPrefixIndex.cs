@@ -34,4 +34,9 @@ public interface IExactPrefixIndex
     /// Search using boolean operators (naive implementation)
     /// </summary>
     List<(int docId, int count)> BooleanSearchNaive(string expr);
+    
+    /// <summary>
+    /// Returns document IDs and counts for an exact search term, similar to inverted index
+    /// </summary>
+    List<(int docId, int count)> ExactSearchDocuments(string term);
 }

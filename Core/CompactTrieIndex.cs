@@ -540,4 +540,19 @@ public class CompactTrieIndex : IExactPrefixIndex
 
         return result.Select(id => (id, 1)).ToList();
     }
+
+    public List<(int docId, int count)> ExactSearchDocuments(string term)
+    {
+        var node = FindNode(root, term.ToLowerInvariant());
+        if (node == null || !node.IsEndOfWord)
+        {
+            return new List<(int docId, int count)>();
+        }
+        
+        // Since the trie doesn't track counts per document like inverted index,
+        // we'll just return 1 as the count for each document
+        return node.DocIds
+            .Select(docId => (docId, 1))
+            .ToList();
+    }
 }
