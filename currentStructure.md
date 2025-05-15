@@ -6,8 +6,8 @@ SearchEngine                            # root project directory
 │   ├── SearchEngine.Analysis.csproj  # project file for the Analysis module
 │   ├── Token.cs                      # represents a single unit of text (word)
 │   └── Tokenizers                    # components that break text into individual tokens
-├── appsettings.Development.json      # configuration for development environment
-├── appsettings.json                  # base application configuration 
+├── appsettings.Development.json
+├── appsettings.json
 ├── Benchmarks                        # performance testing code
 │   ├── BenchmarkDotNet.Artifacts     # output from benchmark runs
 │   ├── Benchmarks.csproj             # project file for benchmarks
