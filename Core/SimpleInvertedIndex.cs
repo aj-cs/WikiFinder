@@ -312,10 +312,9 @@ public class SimpleInvertedIndex : IExactPrefixIndex
             candidates = nextSet;
             if (candidates.Count == 0) return new List<(int docId, int count)>();
         }
-    
+        
         return candidates.Keys
             .Select(docId => (docId, 1))
             .ToList();
     }
-} 
 } 
