@@ -7,9 +7,7 @@ using SearchEngine.Core.Interfaces;
 
 namespace SearchEngine.Core;
 
-// simple inverted index implementation for benchmarking against the trie
-// includes postings with positions, delta encoding, and bitset operations, but no scoring
-public class SimpleInvertedIndex : IExactPrefixIndex
+public sealed class SimpleInvertedIndex : IFullTextIndex
 {
     // ----- posting list ------------------------------------------------------
     private sealed class Posting
@@ -33,13 +31,13 @@ public class SimpleInvertedIndex : IExactPrefixIndex
     private bool _bitBuilt;
     private int _nextDocId;
     private bool _delta = true;
-
+    
     public void SetDeltaEncoding(bool on) => _delta = on;
 
     // ------------------------------------------------------------------------
     public void AddDocument(int docId, IEnumerable<Token> tokens)
     {
-        foreach (var t in tokens.ToList())
+        foreach (var t in tokens)
         {
             if (string.IsNullOrEmpty(t.Term)) continue;
 
@@ -63,7 +61,6 @@ public class SimpleInvertedIndex : IExactPrefixIndex
         {
             _nextDocId = docId + 1;
         }
-        BuildBits();
     }
 
     public void RemoveDocument(int docId, IEnumerable<Token> tokens)
@@ -78,10 +75,101 @@ public class SimpleInvertedIndex : IExactPrefixIndex
         _bitBuilt = false;
     }
 
-    public bool Search(string term)
+    public void Clear()
     {
-        term = term.ToLowerInvariant();
-        return _map.ContainsKey(term);
+        _map.Clear();           // remove all postings
+        _bitIndex.Clear();      // remove all bit-vectors
+        _nextDocId = 0;         // reset doc-id counter
+        _bitBuilt = false;      // mark bits as needing rebuild
+    }
+    
+    // ------------------------------------------------------------------------
+    public List<(int docId, int count)> ExactSearch(string searchStr)
+    {
+        if (!_map.TryGetValue(searchStr, out var postings))
+        {
+            return new List<(int docId, int count)>();
+        }
+
+        // Return document ids with their counts
+        return postings
+            .OrderByDescending(p => p.Count)
+            .Select(p => (p.DocId, p.Count))
+            .ToList();
+    }
+
+    public List<(int docId, int count)> PhraseSearch(string phrase)
+    {
+        var words = phrase.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (words.Length == 0) return new List<(int docId, int count)>();
+
+        if (words.Length == 1) return ExactSearch(words[0]);
+
+        if (!_map.TryGetValue(words[0], out var first)) return new List<(int docId, int count)>();
+
+        var candidates = first.ToDictionary(p => p.DocId, p => new List<int>(p.Positions));
+        var matchCounts = new Dictionary<int, int>();
+                                            
+        for (int i = 1; i < words.Length; i++)
+        {
+            if (!_map.TryGetValue(words[i], out var next)) return new List<(int docId, int count)>();
+            var nextSet = new Dictionary<int, List<int>>();
+            var nextMatchCounts = new Dictionary<int, int>();
+            
+            foreach (var p in next)
+            {
+                if (!candidates.TryGetValue(p.DocId, out var prev)) continue;
+                var valid = MergePositions(prev, p.Positions);
+                if (valid.Count > 0) 
+                {
+                    nextSet[p.DocId] = valid;
+                    // Track match count
+                    nextMatchCounts[p.DocId] = matchCounts.TryGetValue(p.DocId, out var prevCount) ? 
+                        prevCount + 1 : 1;
+                }
+            }
+            candidates = nextSet;
+            matchCounts = nextMatchCounts;
+            if (candidates.Count == 0) return new List<(int docId, int count)>();
+        }
+        
+        // Return results in order of match counts
+        return candidates.Keys
+            .OrderByDescending(id => matchCounts.TryGetValue(id, out var count) ? count : 0)
+            .Select(id => (id, matchCounts.TryGetValue(id, out var count) ? count : 0))
+            .ToList();
+    }
+
+    public List<(int docId, int count)> BooleanSearch(string expr)
+    {
+        BuildBits();
+
+        BitArray? acc = null;
+        string? op = null;
+        
+        foreach (var token in expr.Split(' ', StringSplitOptions.RemoveEmptyEntries))
+        {
+            if (token is "&&" or "||") { op = token; continue; }
+            
+            _bitIndex.TryGetValue(token, out var bits);
+            bits ??= new BitArray(_nextDocId); // all false
+
+            acc = acc == null
+                ? (BitArray)bits.Clone()
+                : op == "&&" ? acc.And(bits)
+                : op == "||" ? acc.Or(bits)
+                : acc;
+            op = null;
+        }
+        if (acc == null) return new List<(int docId, int count)>();
+
+        var result = new List<(int docId, int count)>();
+        for (int i = 0; i < acc.Length; i++)
+        {
+            if (acc[i]) result.Add((i, 1)); // Count is not meaningful here
+        }
+        
+        return result;
     }
 
     private void BuildBits()
@@ -98,7 +186,6 @@ public class SimpleInvertedIndex : IExactPrefixIndex
         _bitBuilt = true;
     }
 
-    // Helper methods for position handling
     private static int BinarySearch(List<int> list, int value)
     {
         int left = 0, right = list.Count - 1;
@@ -137,183 +224,77 @@ public class SimpleInvertedIndex : IExactPrefixIndex
         return res;
     }
 
-    public List<int> PrefixSearchDocuments(string prefix)
-    {
-        prefix = prefix.ToLowerInvariant();
-        var result = new HashSet<int>();
-        
-        foreach (var kvp in _map)
-        {
-            if (kvp.Key.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
-            {
-                foreach (var posting in kvp.Value)
-                {
-                    result.Add(posting.DocId);
-                }
-            }
-        }
-        
-        return result.ToList();
-    }
-
     public List<(string word, List<int> docIds)> PrefixSearch(string prefix)
     {
-        prefix = prefix.ToLowerInvariant();
         var results = new List<(string word, List<int> docIds)>();
-        
-        // Empty prefix should return limited set of all words
-        if (string.IsNullOrWhiteSpace(prefix))
-        {
-            // Return top 100 words by document frequency
-            return _map
-                .OrderByDescending(kvp => kvp.Value.Count)
-                .ThenBy(kvp => kvp.Key.Length)
-                .Take(100)
-                .Select(kvp => (kvp.Key, kvp.Value.Select(p => p.DocId).ToList()))
-                .ToList();
-        }
-        
-        // Get exact prefix matches
-        var exactMatches = new List<(string word, List<int> docIds)>();
         foreach (var kvp in _map)
         {
             if (kvp.Key.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
             {
-                exactMatches.Add((kvp.Key, kvp.Value.Select(p => p.DocId).ToList()));
+                results.Add((kvp.Key, kvp.Value.Select(p => p.DocId).ToList()));
             }
         }
-        
-        // if no exact matches, try with progressively shorter prefixes
-        string currentQuery = prefix;
-        int minPrefixLength = 2; // don't go shorter than 2 characters
-        
-        if (exactMatches.Count == 0 && currentQuery.Length > minPrefixLength)
-        {
-            while (exactMatches.Count == 0 && currentQuery.Length > minPrefixLength)
-            {
-                // try with one character less
-                currentQuery = currentQuery.Substring(0, currentQuery.Length - 1);
-                
-                foreach (var kvp in _map)
-                {
-                    if (kvp.Key.StartsWith(currentQuery, StringComparison.OrdinalIgnoreCase))
-                    {
-                        // calculate how much of the original query is contained in the beginning of the word
-                        int matchLength = 0;
-                        for (int i = 0; i < Math.Min(prefix.Length, kvp.Key.Length); i++)
-                        {
-                            if (char.ToLowerInvariant(prefix[i]) == char.ToLowerInvariant(kvp.Key[i]))
-                            {
-                                matchLength++;
-                            }
-                            else
-                            {
-                                break;
-                            }
-                        }
-                        
-                        double matchPercentage = (double)matchLength / prefix.Length;
-                        if (matchPercentage >= 0.6)
-                        {
-                            exactMatches.Add((kvp.Key, kvp.Value.Select(p => p.DocId).ToList()));
-                        }
-                    }
-                }
-            }
-        }
-        
-        // Group results by whether they start with the original query, then by popularity, then by length
-        return exactMatches
-            .GroupBy(h => h.word.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
-            .OrderByDescending(g => g.Key) // true group first (exact prefix matches)
-            .SelectMany(g => g
-                .OrderByDescending(h => h.docIds.Count) // by popularity
-                .ThenBy(h => h.word.Length)             // then by length
-            )
-            .Distinct()
-            .ToList();
-    }
-
-    public void Clear()
-    {
-        _map.Clear();
-        _bitIndex.Clear();
-        _nextDocId = 0;
-        _bitBuilt = false;
+        return results;
     }
 
     public List<(int docId, int count)> BooleanSearchNaive(string expr)
     {
-        BuildBits();
+        var terms = expr.Split(new[] { "&&", "||" }, StringSplitOptions.RemoveEmptyEntries)
+                       .Select(t => t.Trim())
+                       .Where(t => !string.IsNullOrWhiteSpace(t))
+                       .ToList();
 
-        BitArray? acc = null;
-        string? op = null;
-        
-        foreach (var token in expr.Split(' ', StringSplitOptions.RemoveEmptyEntries))
+        var operators = new List<string>();
+        int i = 0;
+        while (i < expr.Length - 1)
         {
-            if (token is "&&" or "||") { op = token; continue; }
-            
-            _bitIndex.TryGetValue(token, out var bits);
-            bits ??= new BitArray(_nextDocId); // all false
-
-            acc = acc == null
-                ? (BitArray)bits.Clone()
-                : op == "&&" ? acc.And(bits)
-                : op == "||" ? acc.Or(bits)
-                : acc;
-            op = null;
-        }
-        if (acc == null) return new List<(int docId, int count)>();
-
-        var docIds = new List<int>();
-        for (int i = 0; i < acc.Length; i++)
-            if (acc[i]) docIds.Add(i);
-        if (docIds.Count == 0) return new List<(int docId, int count)>();
-        
-        // Return docIds with constant count=1 (no scoring)
-        return docIds
-            .Select(docId => (docId, 1))
-            .ToList();
-    }
-
-    // Non-scored phrase search (returns documents with exact phrase matches)
-    public List<(int docId, int count)> PhraseSearch(string phrase)
-    {
-        var words = phrase.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        if (words.Length == 0) return new List<(int docId, int count)>();
-
-        if (words.Length == 1) 
-            return _map.TryGetValue(words[0], out var postings)
-                ? postings.Select(p => (p.DocId, 1)).ToList()
-                : new List<(int docId, int count)>();
-
-        if (!_map.TryGetValue(words[0], out var first)) 
-            return new List<(int docId, int count)>();
-
-        var candidates = first.ToDictionary(p => p.DocId, p => new List<int>(p.Positions));
-                                            
-        for (int i = 1; i < words.Length; i++)
-        {
-            if (!_map.TryGetValue(words[i], out var next)) 
-                return new List<(int docId, int count)>();
-                
-            var nextSet = new Dictionary<int, List<int>>();
-            
-            foreach (var p in next)
+            if (i + 2 <= expr.Length && expr.Substring(i, 2) == "&&")
             {
-                if (!candidates.TryGetValue(p.DocId, out var prev)) continue;
-                var valid = MergePositions(prev, p.Positions);
-                if (valid.Count > 0) 
-                {
-                    nextSet[p.DocId] = valid;
-                }
+                operators.Add("&&");
+                i += 2;
             }
-            candidates = nextSet;
-            if (candidates.Count == 0) return new List<(int docId, int count)>();
+            else if (i + 2 <= expr.Length && expr.Substring(i, 2) == "||")
+            {
+                operators.Add("||");
+                i += 2;
+            }
+            else
+            {
+                i++;
+            }
         }
+
+        var docSets = new List<HashSet<int>>();
+        foreach (var term in terms)
+        {
+            if (_map.TryGetValue(term, out var postings))
+            {
+                docSets.Add(new HashSet<int>(postings.Select(p => p.DocId)));
+            }
+            else
+            {
+                docSets.Add(new HashSet<int>());
+            }
+        }
+
+        if (docSets.Count == 0) return new List<(int docId, int count)>();
         
-        return candidates.Keys
+        var result = docSets[0];
+        for (int j = 0; j < operators.Count; j++)
+        {
+            if (operators[j] == "&&")
+            {
+                result.IntersectWith(docSets[j + 1]);
+            }
+            else // "||"
+            {
+                result.UnionWith(docSets[j + 1]);
+            }
+        }
+
+        // Return matches with simple count of 1
+        return result
             .Select(docId => (docId, 1))
             .ToList();
     }
-}
+} 
