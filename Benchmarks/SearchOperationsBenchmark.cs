@@ -77,24 +77,24 @@ public class SearchOperationsBenchmark
         Console.WriteLine("Benchmark setup complete.");
     }
 
-    // exact search benchmarks
-    [BenchmarkCategory("ExactSearch")]
+    // exact search benchmarks with native return types
+    [BenchmarkCategory("ExactSearchNative")]
     [Arguments("and")]
     [Arguments("or")]
     [Arguments("cat")]
     [Arguments("bread")]
-    [Benchmark(Description = "Trie-Exact")]
+    [Benchmark(Description = "Trie-Exact-Native")]
     public bool TrieExactSearch(string query)
     {
         return _trie.Search(query);
     }
 
-    [BenchmarkCategory("ExactSearch")]
+    [BenchmarkCategory("ExactSearchNative")]
     [Arguments("and")]
     [Arguments("or")]
     [Arguments("cat")]
     [Arguments("bread")]
-    [Benchmark(Description = "InvertedIndex-Exact")]
+    [Benchmark(Description = "InvertedIndex-Exact-Native")]
     public List<(int docId, int count)> InvertedIndexExactSearch(string query)
     {
         // Use a modified approach for benchmarking that focuses on retrieval, not scoring
@@ -104,6 +104,31 @@ public class SearchOperationsBenchmark
             return invertedIdx.ExactSearch(query);
         }
         return _invertedIndex.ExactSearch(query);
+    }
+
+    // exact search benchmarks with standardized boolean return type
+    // this allows for direct comparison by forcing both to the same return type
+    [BenchmarkCategory("ExactSearchComparable")]
+    [Arguments("and")]
+    [Arguments("or")]
+    [Arguments("cat")]
+    [Arguments("bread")]
+    [Benchmark(Description = "Trie-Exact-Boolean")]
+    public bool TrieExactSearchBoolean(string query)
+    {
+        return _trie.Search(query);
+    }
+
+    [BenchmarkCategory("ExactSearchComparable")]
+    [Arguments("and")]
+    [Arguments("or")]
+    [Arguments("cat")]
+    [Arguments("bread")]
+    [Benchmark(Description = "InvertedIndex-Exact-Boolean")]
+    public bool InvertedIndexExactSearchBoolean(string query)
+    {
+        var results = _invertedIndex.ExactSearch(query);
+        return results.Count > 0;
     }
 
     [BenchmarkCategory("ExactSearch")]
