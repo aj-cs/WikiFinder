@@ -91,11 +91,14 @@ public sealed class SimpleInvertedIndex : IFullTextIndex
             return new List<(int docId, int count)>();
         }
 
-        // Return document ids with their counts
-        return postings
-            .OrderByDescending(p => p.Count)
-            .Select(p => (p.DocId, p.Count))
-            .ToList();
+        var result = new List<(int docId, int count)>(postings.Count);
+        
+        foreach (var posting in postings)
+        {
+            result.Add((posting.DocId, posting.Count));
+        }
+        
+        return result;
     }
 
     public List<(int docId, int count)> PhraseSearch(string phrase)
