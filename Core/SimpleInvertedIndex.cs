@@ -136,11 +136,23 @@ public sealed class SimpleInvertedIndex : IFullTextIndex
             if (candidates.Count == 0) return new List<(int docId, int count)>();
         }
         
-        // Return results in order of match counts
-        return candidates.Keys
-            .OrderByDescending(id => matchCounts.TryGetValue(id, out var count) ? count : 0)
-            .Select(id => (id, matchCounts.TryGetValue(id, out var count) ? count : 0))
-            .ToList();
+        // preallocation results list
+        var candidateKeys = candidates.Keys.ToList();
+        var results = new List<(int docId, int count)>(candidateKeys.Count);
+        
+        // manually build sorted results instead of using LINQ
+        // this simulates OrderByDescending but with better performance
+        var orderedIds = new List<(int docId, int count)>(candidateKeys.Count);
+        foreach (var id in candidateKeys)
+        {
+            var count = matchCounts.TryGetValue(id, out var c) ? c : 0;
+            orderedIds.Add((id, count));
+        }
+        
+        // simple insertion sort (faster than LINQ OrderByDescending for small lists)
+        orderedIds.Sort((a, b) => b.count.CompareTo(a.count));
+        
+        return orderedIds;
     }
 
     public List<(int docId, int count)> BooleanSearch(string expr)
@@ -166,10 +178,15 @@ public sealed class SimpleInvertedIndex : IFullTextIndex
         }
         if (acc == null) return new List<(int docId, int count)>();
 
-        var result = new List<(int docId, int count)>();
+        // estimate size for pre-allocation
+        int estimatedMatches = 0;
+        for (int i = 0; i < acc.Length; i++)
+            if (acc[i]) estimatedMatches++;
+            
+        var result = new List<(int docId, int count)>(estimatedMatches);
         for (int i = 0; i < acc.Length; i++)
         {
-            if (acc[i]) result.Add((i, 1)); // Count is not meaningful here
+            if (acc[i]) result.Add((i, 1)); 
         }
         
         return result;
@@ -229,12 +246,21 @@ public sealed class SimpleInvertedIndex : IFullTextIndex
 
     public List<(string word, List<int> docIds)> PrefixSearch(string prefix)
     {
-        var results = new List<(string word, List<int> docIds)>();
+        // estimate capacity to avoid resizing
+        var estimatedMatches = Math.Min(20, _map.Count / 10); // rough guess
+        var results = new List<(string word, List<int> docIds)>(estimatedMatches);
+        
         foreach (var kvp in _map)
         {
             if (kvp.Key.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
             {
-                results.Add((kvp.Key, kvp.Value.Select(p => p.DocId).ToList()));
+                // pre-allocate docIds list
+                var docIds = new List<int>(kvp.Value.Count);
+                foreach (var posting in kvp.Value)
+                {
+                    docIds.Add(posting.DocId);
+                }
+                results.Add((kvp.Key, docIds));
             }
         }
         return results;
@@ -247,7 +273,8 @@ public sealed class SimpleInvertedIndex : IFullTextIndex
                        .Where(t => !string.IsNullOrWhiteSpace(t))
                        .ToList();
 
-        var operators = new List<string>();
+        // preallocation operators list with estimated capacity
+        var operators = new List<string>(terms.Count - 1);
         int i = 0;
         while (i < expr.Length - 1)
         {
@@ -267,12 +294,18 @@ public sealed class SimpleInvertedIndex : IFullTextIndex
             }
         }
 
-        var docSets = new List<HashSet<int>>();
+        // preallocate with known capacity
+        var docSets = new List<HashSet<int>>(terms.Count);
         foreach (var term in terms)
         {
             if (_map.TryGetValue(term, out var postings))
             {
-                docSets.Add(new HashSet<int>(postings.Select(p => p.DocId)));
+                var docSet = new HashSet<int>(postings.Count);
+                foreach (var posting in postings)
+                {
+                    docSet.Add(posting.DocId);
+                }
+                docSets.Add(docSet);
             }
             else
             {
@@ -295,9 +328,13 @@ public sealed class SimpleInvertedIndex : IFullTextIndex
             }
         }
 
-        // Return matches with simple count of 1
-        return result
-            .Select(docId => (docId, 1))
-            .ToList();
+        // preallocate result with exact capacity
+        var finalResults = new List<(int docId, int count)>(result.Count);
+        foreach (var docId in result)
+        {
+            finalResults.Add((docId, 1));
+        }
+        
+        return finalResults;
     }
 } 

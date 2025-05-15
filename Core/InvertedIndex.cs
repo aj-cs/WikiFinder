@@ -173,19 +173,23 @@ public sealed class InvertedIndex : IFullTextIndex
             return new List<(int docId, int count)>();
         }
 
-        // score using BM25
-        var results = new List<(int docId, double score)>();
+        // preallocation of result list with its exact capacity
+        var results = new List<(int docId, double score)>(postings.Count);
+        
         foreach (var posting in postings)
         {
             double score = CalculateBM25Score(word, posting.DocId, posting.Count);
             results.Add((posting.DocId, score));
         }
 
-        // return document ids with their BM25 scores (converted to int)
-        return results
-            .OrderByDescending(r => r.score)
-            .Select(r => (r.docId, (int)(r.score * 1000))) // Scaled
-            .ToList();
+        // preallocation of final list with exact capacity
+        var finalResults = new List<(int docId, int count)>(results.Count);
+        foreach (var item in results.OrderByDescending(r => r.score))
+        {
+            finalResults.Add((item.docId, (int)(item.score * 1000))); // Scaled
+        }
+        
+        return finalResults;
     }
 
     public List<(int docId, int count)> PhraseSearch(string phrase)
@@ -199,7 +203,6 @@ public sealed class InvertedIndex : IFullTextIndex
 
         var candidates = first.ToDictionary(p => p.DocId,
                                             p => new List<int>(p.Positions));
-        // track matching counts for scoring
         var matchCounts = first.ToDictionary(p => p.DocId, p => p.Count);
                                             
         for (int i = 1; i < words.Length; i++)
@@ -232,8 +235,10 @@ public sealed class InvertedIndex : IFullTextIndex
         }
         
         // score using combined BM25
-        var results = new List<(int docId, double score)>();
-        foreach (var docId in candidates.Keys)
+        var docIds = candidates.Keys.ToList();
+        var results = new List<(int docId, double score)>(docIds.Count);
+        
+        foreach (var docId in docIds)
         {
             double totalScore = 0;
             for (int i = 0; i < words.Length; i++)
@@ -252,11 +257,14 @@ public sealed class InvertedIndex : IFullTextIndex
             results.Add((docId, totalScore));
         }
         
-        // return document ids with their BM25 scores (converted to int for backward compatibility)
-        return results
-            .OrderByDescending(r => r.score)
-            .Select(r => (r.docId, (int)(r.score * 1000))) // scaled
-            .ToList();
+        // preallocation of final list with exact capacity
+        var finalResults = new List<(int docId, int count)>(results.Count);
+        foreach (var item in results.OrderByDescending(r => r.score))
+        {
+            finalResults.Add((item.docId, (int)(item.score * 1000))); // scaled
+        }
+        
+        return finalResults;
     }
 
     public List<(int docId, int count)> BooleanSearch(string expr)
@@ -284,13 +292,15 @@ public sealed class InvertedIndex : IFullTextIndex
         }
         if (acc == null) return new List<(int docId, int count)>();
 
+        // collect matching doc IDs
         var docIds = new List<int>();
         for (int i = 0; i < acc.Length; i++)
             if (acc[i]) docIds.Add(i);
+        
         if (docIds.Count == 0) return new List<(int docId, int count)>();
         
         // calculate BM25 scores for each matching document
-        var results = new List<(int docId, double score)>();
+        var results = new List<(int docId, double score)>(docIds.Count);
         foreach (var docId in docIds)
         {
             double totalScore = 0;
@@ -308,11 +318,14 @@ public sealed class InvertedIndex : IFullTextIndex
             results.Add((docId, totalScore));
         }
         
-        // return document ids with their BM25 scores
-        return results
-            .OrderByDescending(r => r.score)
-            .Select(r => (r.docId, (int)(r.score * 1000))) // Scaled
-            .ToList();
+        // preallocation of final list with exact capacity
+        var finalResults = new List<(int docId, int count)>(results.Count);
+        foreach (var item in results.OrderByDescending(r => r.score))
+        {
+            finalResults.Add((item.docId, (int)(item.score * 1000))); // scaled
+        }
+        
+        return finalResults;
     }
 
     private void BuildBits()
@@ -369,13 +382,21 @@ public sealed class InvertedIndex : IFullTextIndex
 
     public List<(string word, List<int> docIds)> PrefixSearch(string prefix)
     {
-        // for inverted index, we'll return all terms that start with the prefix
-        var results = new List<(string word, List<int> docIds)>();
+        // estimate capacity to avoid resizing
+        var estimatedMatches = Math.Min(20, _map.Count / 10); // rough guess
+        var results = new List<(string word, List<int> docIds)>(estimatedMatches);
+        
         foreach (var kvp in _map)
         {
             if (kvp.Key.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
             {
-                results.Add((kvp.Key, kvp.Value.Select(p => p.DocId).ToList()));
+                // pre-allocate docIds list to avoid resizing
+                var docIds = new List<int>(kvp.Value.Count);
+                foreach (var posting in kvp.Value)
+                {
+                    docIds.Add(posting.DocId);
+                }
+                results.Add((kvp.Key, docIds));
             }
         }
         return results;
@@ -408,12 +429,18 @@ public sealed class InvertedIndex : IFullTextIndex
             }
         }
 
-        var docSets = new List<HashSet<int>>();
+        // pre-allocate with known capacity
+        var docSets = new List<HashSet<int>>(terms.Count);
         foreach (var term in terms)
         {
             if (_map.TryGetValue(term, out var postings))
             {
-                docSets.Add(new HashSet<int>(postings.Select(p => p.DocId)));
+                var docSet = new HashSet<int>(postings.Count);
+                foreach (var posting in postings)
+                {
+                    docSet.Add(posting.DocId);
+                }
+                docSets.Add(docSet);
             }
             else
             {
@@ -421,6 +448,8 @@ public sealed class InvertedIndex : IFullTextIndex
             }
         }
 
+        if (docSets.Count == 0) return new List<(int docId, int count)>();
+        
         var result = docSets[0];
         for (int j = 0; j < operators.Count; j++)
         {
@@ -435,7 +464,7 @@ public sealed class InvertedIndex : IFullTextIndex
         }
 
         // calculate scores for matching documents
-        var results = new List<(int docId, double score)>();
+        var scoreResults = new List<(int docId, double score)>(result.Count);
         foreach (var docId in result)
         {
             double totalScore = 0;
@@ -450,13 +479,17 @@ public sealed class InvertedIndex : IFullTextIndex
                     }
                 }
             }
-            results.Add((docId, totalScore));
+            scoreResults.Add((docId, totalScore));
         }
 
-        return results
-            .OrderByDescending(r => r.score)
-            .Select(r => (r.docId, (int)(r.score * 1000))) // scaled
-            .ToList();
+        // preallocation of final list with exact capacity
+        var finalResults = new List<(int docId, int count)>(scoreResults.Count);
+        foreach (var item in scoreResults.OrderByDescending(r => r.score))
+        {
+            finalResults.Add((item.docId, (int)(item.score * 1000))); // scaled
+        }
+        
+        return finalResults;
     }
 
 }
