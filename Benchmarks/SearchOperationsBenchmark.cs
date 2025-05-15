@@ -23,9 +23,8 @@ public class SearchOperationsBenchmark
     private string _basePath = "/home/shierfall/Downloads/texts/"; // path to text files
     private Analyzer _analyzer = null!;
     private IExactPrefixIndex _trie = null!;
-    private IFullTextIndex _invertedIndex = null!;
-    private IBloomFilter _bloomFilter = null!;
     private IExactPrefixIndex _simpleInvertedIndex = null!;
+    private IBloomFilter _bloomFilter = null!;
     private string _currentFile = null!;
     private string _currentContent = null!;
     
@@ -48,9 +47,8 @@ public class SearchOperationsBenchmark
     {
         _analyzer = new Analyzer(new MinimalTokenizer());
         _trie = new CompactTrieIndex();
-        _invertedIndex = new InvertedIndex();
-        _bloomFilter = new BloomFilter(2000000, 0.03);
         _simpleInvertedIndex = new SimpleInvertedIndex();
+        _bloomFilter = new BloomFilter(2000000, 0.03);
         _currentFile = Path.Combine(_basePath, $"{FileSize}.txt");
         
         Console.WriteLine($"Loading file: {_currentFile}");
@@ -62,19 +60,11 @@ public class SearchOperationsBenchmark
         Console.WriteLine($"Tokens generated: {tokens.Count}");
         
         _trie.AddDocument(1, tokens);
-        _invertedIndex.AddDocument(1, tokens);
         _simpleInvertedIndex.AddDocument(1, tokens);
         
         foreach (var token in tokens)
         {
             _bloomFilter.Add(token.Term);
-        }
-        
-        // Ensure InvertedIndex doesn't compute scores in benchmarks
-        if (_invertedIndex is InvertedIndex invertedIdx)
-        {
-            // Set BM25 parameters to 0 to minimize scoring impact
-            invertedIdx.SetBM25Params(0, 0);
         }
         
         Console.WriteLine("Benchmark setup complete.");
@@ -98,15 +88,9 @@ public class SearchOperationsBenchmark
     [Arguments("cat")]
     [Arguments("bread")]
     [Benchmark(Description = "InvertedIndex-Exact-Native")]
-    public List<(int docId, int count)> InvertedIndexExactSearch(string query)
+    public bool InvertedIndexExactSearch(string query)
     {
-        // Use a modified approach for benchmarking that focuses on retrieval, not scoring
-        if (_invertedIndex is InvertedIndex invertedIdx)
-        {
-            // Access the raw document IDs and counts without complex BM25 scoring
-            return invertedIdx.ExactSearch(query);
-        }
-        return _invertedIndex.ExactSearch(query);
+        return _simpleInvertedIndex.Search(query);
     }
 
     // exact search benchmarks with standardized boolean return type
@@ -130,8 +114,7 @@ public class SearchOperationsBenchmark
     [Benchmark(Description = "InvertedIndex-Exact-Boolean")]
     public bool InvertedIndexExactSearchBoolean(string query)
     {
-        var results = _invertedIndex.ExactSearch(query);
-        return results.Count > 0;
+        return _simpleInvertedIndex.Search(query);
     }
 
     [BenchmarkCategory("ExactSearch")]
@@ -176,10 +159,10 @@ public class SearchOperationsBenchmark
     [Benchmark(Description = "InvertedIndex-Prefix")]
     public List<(string word, List<int> docIds)> InvertedIndexPrefixSearch(string query)
     {
-        return _invertedIndex.PrefixSearch(query);
+        return _simpleInvertedIndex.PrefixSearch(query);
     }
 
-    // phrase search benchmarks - only for InvertedIndex, as requested
+    // phrase search benchmarks
     [BenchmarkCategory("PhraseSearch")]
     [Arguments("and or")]
     [Arguments("cat bread")]
@@ -187,17 +170,6 @@ public class SearchOperationsBenchmark
     [Arguments("or and")]
     [Benchmark(Description = "InvertedIndex-Phrase")]
     public List<(int docId, int count)> InvertedIndexPhraseSearch(string query)
-    {
-        return _invertedIndex.PhraseSearch(query);
-    }
-
-    [BenchmarkCategory("PhraseSearch")]
-    [Arguments("and or")]
-    [Arguments("cat bread")]
-    [Arguments("bread cat")]
-    [Arguments("or and")]
-    [Benchmark(Description = "SimpleInvertedIndex-Phrase")]
-    public List<(int docId, int count)> SimpleInvertedIndexPhraseSearch(string query)
     {
         // Cast to SimpleInvertedIndex to access its PhraseSearch method
         if (_simpleInvertedIndex is SimpleInvertedIndex simpleIdx)
@@ -227,7 +199,7 @@ public class SearchOperationsBenchmark
     [Benchmark(Description = "InvertedIndex-Boolean-Naive")]
     public List<(int docId, int count)> InvertedIndexBooleanSearchNaive(string query)
     {
-        return _invertedIndex.BooleanSearchNaive(query);
+        return _simpleInvertedIndex.BooleanSearchNaive(query);
     }
 
     [BenchmarkCategory("BooleanSearch")]
@@ -238,55 +210,10 @@ public class SearchOperationsBenchmark
     [Benchmark(Description = "InvertedIndex-Boolean-Bitset")]
     public List<(int docId, int count)> InvertedIndexBooleanSearchBitset(string query)
     {
-        return _invertedIndex.BooleanSearch(query);
-    }
-
-    // Add SimplifiedInvertedIndex benchmarks
-    [BenchmarkCategory("PrefixSearch")]
-    [Arguments("an")]
-    [Arguments("or")]
-    [Arguments("ca")]
-    [Arguments("br")]
-    [Benchmark(Description = "SimpleInvertedIndex-Prefix")]
-    public List<(string word, List<int> docIds)> SimpleInvertedIndexPrefixSearch(string query)
-    {
-        return _simpleInvertedIndex.PrefixSearch(query);
-    }
-
-    [BenchmarkCategory("ExactSearchComparable")]
-    [Arguments("and")]
-    [Arguments("or")]
-    [Arguments("cat")]
-    [Arguments("bread")]
-    [Benchmark(Description = "SimpleInvertedIndex-Exact-Boolean")]
-    public bool SimpleInvertedIndexExactSearchBoolean(string query)
-    {
-        return _simpleInvertedIndex.Search(query);
-    }
-    
-    [BenchmarkCategory("BooleanSearch")]
-    [Arguments("and && or || cat")]
-    [Arguments("cat && bread")]
-    [Arguments("bread && cat || or")]
-    [Arguments("or && and")]
-    [Benchmark(Description = "SimpleInvertedIndex-Boolean-Naive")]
-    public List<(int docId, int count)> SimpleInvertedIndexBooleanSearchNaive(string query)
-    {
-        return _simpleInvertedIndex.BooleanSearchNaive(query);
-    }
-    
-    [BenchmarkCategory("BooleanSearch")]
-    [Arguments("and && or || cat")]
-    [Arguments("cat && bread")]
-    [Arguments("bread && cat || or")]
-    [Arguments("or && and")]
-    [Benchmark(Description = "SimpleInvertedIndex-Boolean-Bitset")]
-    public List<(int docId, int count)> SimpleInvertedIndexBooleanSearchBitset(string query)
-    {
         // Cast to SimpleInvertedIndex to use its bitset-based boolean search
         if (_simpleInvertedIndex is SimpleInvertedIndex simpleIdx)
         {
-            return simpleIdx.BooleanSearchNaive(query); // Use the best available method
+            return simpleIdx.BooleanSearchNaive(query);
         }
         return _simpleInvertedIndex.BooleanSearchNaive(query);
     }

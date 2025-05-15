@@ -212,7 +212,6 @@ public class SimpleInvertedIndex : IExactPrefixIndex
                             }
                         }
                         
-                        // accept if at least 60% of the original query matches the beginning of the word
                         double matchPercentage = (double)matchLength / prefix.Length;
                         if (matchPercentage >= 0.6)
                         {
@@ -317,4 +316,4 @@ public class SimpleInvertedIndex : IExactPrefixIndex
             .Select(docId => (docId, 1))
             .ToList();
     }
-} 
+}
