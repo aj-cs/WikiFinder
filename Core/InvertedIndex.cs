@@ -99,6 +99,7 @@ public sealed class InvertedIndex : IFullTextIndex
         {
             _nextDocId = docId + 1;
         }
+        BuildBits();
     }
 
     public void RemoveDocument(int docId, IEnumerable<Token> tokens)
@@ -254,7 +255,7 @@ public sealed class InvertedIndex : IFullTextIndex
         // return document ids with their BM25 scores (converted to int for backward compatibility)
         return results
             .OrderByDescending(r => r.score)
-            .Select(r => (r.docId, (int)(r.score * 1000))) // Scaled
+            .Select(r => (r.docId, (int)(r.score * 1000))) // scaled
             .ToList();
     }
 
