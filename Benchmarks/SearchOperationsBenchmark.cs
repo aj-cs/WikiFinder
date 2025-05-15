@@ -47,7 +47,7 @@ public class SearchOperationsBenchmark
     {
         _analyzer = new Analyzer(new MinimalTokenizer());
         _trie = new CompactTrieIndex();
-        _invertedIndex = new InvertedIndex();
+        _invertedIndex = new SimpleInvertedIndex();
         _bloomFilter = new BloomFilter(2000000, 0.03);
         _currentFile = Path.Combine(_basePath, $"{FileSize}.txt");
         
@@ -65,13 +65,6 @@ public class SearchOperationsBenchmark
         foreach (var token in tokens)
         {
             _bloomFilter.Add(token.Term);
-        }
-        
-        // Ensure InvertedIndex doesn't compute scores in benchmarks
-        if (_invertedIndex is InvertedIndex invertedIdx)
-        {
-            // Set BM25 parameters to 0 to minimize scoring impact
-            invertedIdx.SetBM25Params(0, 0);
         }
         
         Console.WriteLine("Benchmark setup complete.");
@@ -97,12 +90,7 @@ public class SearchOperationsBenchmark
     [Benchmark(Description = "InvertedIndex-Exact-Native")]
     public List<(int docId, int count)> InvertedIndexExactSearch(string query)
     {
-        // Use a modified approach for benchmarking that focuses on retrieval, not scoring
-        if (_invertedIndex is InvertedIndex invertedIdx)
-        {
-            // Access the raw document IDs and counts without complex BM25 scoring
-            return invertedIdx.ExactSearch(query);
-        }
+        // SimpleInvertedIndex implementation already returns document IDs without BM25 scoring
         return _invertedIndex.ExactSearch(query);
     }
 

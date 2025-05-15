@@ -33,7 +33,7 @@ public class IndexConstructionBenchmark
     {
         _analyzer = new Analyzer(new MinimalTokenizer());
         _trie = new CompactTrieIndex();
-        _invertedIndex = new InvertedIndex();
+        _invertedIndex = new SimpleInvertedIndex();
         _bloomFilter = new BloomFilter(2000000, 0.03); // assuming max 1M unique terms
         _currentFile = Path.Combine(_basePath, $"{FileSize}.txt");
         _currentContent = File.ReadAllText(_currentFile);
@@ -88,7 +88,7 @@ public class IndexConstructionBenchmark
 
         // Measure Inverted Index memory
         initialMemory = GC.GetTotalMemory(true);
-        _invertedIndex = new InvertedIndex();
+        _invertedIndex = new SimpleInvertedIndex();
         _invertedIndex.AddDocument(1, trieTokens);
         GC.Collect();
         GC.WaitForPendingFinalizers();
