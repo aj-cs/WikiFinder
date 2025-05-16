@@ -140,10 +140,10 @@ public class SearchOperationsBenchmark
 
     // phrase search benchmarks - only for InvertedIndex, as requested
     [BenchmarkCategory("PhraseSearch")]
-    [Arguments("and or")]
-    [Arguments("cat bread")]
-    [Arguments("bread cat")]
-    [Arguments("or and")]
+    [Arguments("he was")]
+    [Arguments("it was")]
+    [Arguments("and it was")]
+    [Arguments("and it")]
     [Benchmark(Description = "InvertedIndex-Phrase")]
     public List<(int docId, int count)> InvertedIndexPhraseSearch(string query)
     {
@@ -153,9 +153,9 @@ public class SearchOperationsBenchmark
     // boolean search benchmarks
     [BenchmarkCategory("BooleanSearch")]
     [Arguments("and && or || cat")]
-    [Arguments("cat && bread")]
-    [Arguments("bread && cat || or")]
-    [Arguments("or && and")]
+    [Arguments("cat || or && and || it")]
+    [Arguments("and || or || bread || or")]
+    [Arguments("cat || bread")]
     [Benchmark(Description = "Trie-Boolean-Naive")]
     public List<(int docId, int count)> TrieBooleanSearchNaive(string query)
     {
@@ -164,9 +164,9 @@ public class SearchOperationsBenchmark
 
     [BenchmarkCategory("BooleanSearch")]
     [Arguments("and && or || cat")]
-    [Arguments("cat && bread")]
-    [Arguments("bread && cat || or")]
-    [Arguments("or && and")]
+    [Arguments("cat || or && and || it")]
+    [Arguments("and || or || bread || or")]
+    [Arguments("cat || bread")]
     [Benchmark(Description = "InvertedIndex-Boolean-Naive")]
     public List<(int docId, int count)> InvertedIndexBooleanSearchNaive(string query)
     {
@@ -175,9 +175,9 @@ public class SearchOperationsBenchmark
 
     [BenchmarkCategory("BooleanSearch")]
     [Arguments("and && or || cat")]
-    [Arguments("cat && bread")]
-    [Arguments("bread && cat || or")]
-    [Arguments("or && and")]
+    [Arguments("cat || or && and || it")]
+    [Arguments("and || or || bread || or")]
+    [Arguments("cat || bread")]
     [Benchmark(Description = "InvertedIndex-Boolean-Bitset")]
     public List<(int docId, int count)> InvertedIndexBooleanSearchBitset(string query)
     {

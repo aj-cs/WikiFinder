@@ -31,57 +31,99 @@ public class BloomFilter : IBloomFilter
     public void Add(string term)  
     {  
         var bytes = Encoding.UTF8.GetBytes(term);  
-        for (uint i = 0; i < _hashCount; i++)  
+        for (uint i = 0; i < (uint)_hashCount; i++)  
         {  
-            uint hash = MurmurHash3(bytes, i);  
-            _bits[(int)(hash % _bits.Length)] = true;  
+            ulong hash = MurmurHash3_x64_64(bytes, i);  
+            _bits[(int)(hash % (ulong)_bits.Length)] = true;  
         }  
     }  
 
     public bool MightContain(string term)  
     {  
         var bytes = Encoding.UTF8.GetBytes(term);  
-        for (uint i = 0; i < _hashCount; i++)  
+        for (uint i = 0; i < (uint)_hashCount; i++)  
         {  
-            uint hash = MurmurHash3(bytes, i);  
-            if (!_bits[(int)(hash % _bits.Length)]) return false;  
+            ulong hash = MurmurHash3_x64_64(bytes, i);  
+            if (!_bits[(int)(hash % (ulong)_bits.Length)]) return false;  
         }  
         return true;  
     }
-    // MurmurHash3 ported from Austin Appleby's C++ implementation
-    // // https://github.com/aappleby/smhasher/blob/master/src/MurmurHash3.cpp
-    private static uint MurmurHash3(byte[] data, uint seed)
+    
+    // MurmurHash3_x64_64 implementation
+    private static ulong MurmurHash3_x64_64(byte[] data, uint seed)
     {
-        const uint c1 = 0xcc9e2d51, c2 = 0x1b873593;
-        uint h1 = seed;
-        int len = data.Length, roundedEnd = len & ~3;
-        for (int i = 0; i < roundedEnd; i += 4)
+        const ulong c1 = 0x87c37b91114253d5UL;
+        const ulong c2 = 0x4cf5ad432745937fUL;
+
+        ulong h1 = seed;
+        ulong h2 = seed;
+
+        int len = data.Length;
+        int nblocks = len / 16;
+
+        // body
+        for (int i = 0; i < nblocks; i++)
         {
-            uint k1 = (uint)(data[i] | data[i+1]<<8 | data[i+2]<<16 | data[i+3]<<24);
-            k1 = Rotl32(k1 * c1, 15) * c2;
-            h1 = Rotl32(h1 ^ k1, 13) * 5 + 0xe6546b64;
+            int idx = i * 16;
+            ulong k1 = BitConverter.ToUInt64(data, idx);
+            ulong k2 = BitConverter.ToUInt64(data, idx + 8);
+
+            k1 *= c1; k1 = Rotl64(k1, 31); k1 *= c2; h1 ^= k1;
+            h1 = Rotl64(h1, 27); h1 += h2; h1 = h1 * 5 + 0x52dce729;
+
+            k2 *= c2; k2 = Rotl64(k2, 33); k2 *= c1; h2 ^= k2;
+            h2 = Rotl64(h2, 31); h2 += h1; h2 = h2 * 5 + 0x38495ab5;
         }
-        uint k2 = 0;
-        switch (len & 3)
+
+        // tail
+        ulong k1_tail = 0, k2_tail = 0;
+        int tailIdx = nblocks * 16;
+        int tailLen = len & 15;
+        if (tailLen > 0)
         {
-            case 3: k2 ^= (uint)data[roundedEnd+2] << 16; goto case 2;
-            case 2: k2 ^= (uint)data[roundedEnd+1] << 8; goto case 1;
-            case 1:
-                k2 ^= data[roundedEnd];
-                k2 = Rotl32(k2 * c1, 15) * c2;
-                h1 ^= k2;
-                break;
+            for (int i = 0; i < tailLen; i++)
+            {
+                byte b = data[tailIdx + i];
+                if (i < 8)
+                    k1_tail |= ((ulong)b) << (8 * i);
+                else
+                    k2_tail |= ((ulong)b) << (8 * (i - 8));
+            }
+            if (k1_tail != 0)
+            {
+                k1_tail *= c1; k1_tail = Rotl64(k1_tail, 31); k1_tail *= c2; h1 ^= k1_tail;
+            }
+            if (k2_tail != 0)
+            {
+                k2_tail *= c2; k2_tail = Rotl64(k2_tail, 33); k2_tail *= c1; h2 ^= k2_tail;
+            }
         }
-        h1 ^= (uint)len;
-        return FMix(h1);
+
+        // finalization
+        h1 ^= (ulong)len;
+        h2 ^= (ulong)len;
+
+        h1 += h2;
+        h2 += h1;
+
+        h1 = FMix64(h1);
+        h2 = FMix64(h2);
+
+        h1 += h2;
+        // h2 += h1; // not needed if you only want 64 bits
+
+        return h1;
     }
 
-    private static uint Rotl32(uint x, byte r) => (x << r) | (x >> (32 - r));
-    private static uint FMix(uint h)
+    private static ulong Rotl64(ulong x, int r) => (x << r) | (x >> (64 - r));
+
+    private static ulong FMix64(ulong k)
     {
-        h ^= h >> 16; h *= 0x85ebca6b;
-        h ^= h >> 13; h *= 0xc2b2ae35;
-        h ^= h >> 16;
-        return h;
+        k ^= k >> 33;
+        k *= 0xff51afd7ed558ccdUL;
+        k ^= k >> 33;
+        k *= 0xc4ceb9fe1a85ec53UL;
+        k ^= k >> 33;
+        return k;
     } 
-}  
+}
