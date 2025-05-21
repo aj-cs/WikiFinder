@@ -555,4 +555,30 @@ public class CompactTrieIndex : IExactPrefixIndex
             .Select(docId => (docId, 1))
             .ToList();
     }
+
+    public int TotalNodeCount
+    {
+        get
+        {
+            int count = 0;
+            void Traverse(TrieNode node)
+            {
+                count++;
+                foreach (var child in node.ArrayChildren)
+                {
+                    if (child != null) Traverse(child);
+                }
+                foreach (var kv in node.DictChildren)
+                {
+                    Traverse(kv.Value);
+                }
+            }
+            Traverse(root);
+            return count;
+        }
+    }
+
+    public IReadOnlyList<string> WordPool => wordPool;
+
+    public IReadOnlyDictionary<string, int> WordToPoolIndex => wordToPoolIndex;
 }

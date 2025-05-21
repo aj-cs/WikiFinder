@@ -5,12 +5,11 @@ using SearchEngine.Core.Interfaces;
 namespace SearchEngine.Core;
 
 public class BloomFilter : IBloomFilter  
-{  
+{
     private readonly BitArray _bits;  
     private readonly int _hashCount;  
-
     public BloomFilter(int expectedItems, double falsePositiveRate)  
-    {  
+    {
         if (expectedItems <= 0) throw new ArgumentOutOfRangeException(nameof(expectedItems));
         if (falsePositiveRate <= 0 || falsePositiveRate >= 1)
             throw new ArgumentOutOfRangeException(nameof(falsePositiveRate));
@@ -29,7 +28,7 @@ public class BloomFilter : IBloomFilter
     }  
 
     public void Add(string term)  
-    {  
+    {
         var bytes = Encoding.UTF8.GetBytes(term);  
         for (uint i = 0; i < (uint)_hashCount; i++)  
         {  
@@ -39,7 +38,7 @@ public class BloomFilter : IBloomFilter
     }  
 
     public bool MightContain(string term)  
-    {  
+    {
         var bytes = Encoding.UTF8.GetBytes(term);  
         for (uint i = 0; i < (uint)_hashCount; i++)  
         {  
@@ -110,7 +109,7 @@ public class BloomFilter : IBloomFilter
         h2 = FMix64(h2);
 
         h1 += h2;
-        // h2 += h1; // not needed if you only want 64 bits
+        // h2 += h1; // not needed anymore
 
         return h1;
     }
@@ -126,4 +125,6 @@ public class BloomFilter : IBloomFilter
         k ^= k >> 33;
         return k;
     } 
+
+    public BitArray BitArray => _bits;
 }

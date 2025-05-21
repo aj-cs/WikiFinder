@@ -152,10 +152,10 @@ public sealed class InvertedIndex : IFullTextIndex
             
         // IDF component: log((N-n+0.5)/(n+0.5))
         double N = _totalDocs;
-        double n = postings.Count; // number of documents containing the term
+        double n = postings.Count; // number of documents containing the term (n)
         double idf = Math.Log((N - n + 0.5) / (n + 0.5) + 1.0);
         
-        // normalized term frequency
+        // term frequency being normalized to the document length
         double normalizedTF = termFrequency / (1.0 - _b + _b * (docLength / _avgDocLength));
         
         // BM25 score
@@ -186,7 +186,7 @@ public sealed class InvertedIndex : IFullTextIndex
         var finalResults = new List<(int docId, int count)>(results.Count);
         foreach (var item in results.OrderByDescending(r => r.score))
         {
-            finalResults.Add((item.docId, (int)(item.score * 1000))); // Scaled
+            finalResults.Add((item.docId, (int)(item.score * 1000))); //scaled by 1000
         }
         
         return finalResults;
@@ -261,7 +261,7 @@ public sealed class InvertedIndex : IFullTextIndex
         var finalResults = new List<(int docId, int count)>(results.Count);
         foreach (var item in results.OrderByDescending(r => r.score))
         {
-            finalResults.Add((item.docId, (int)(item.score * 1000))); // scaled
+            finalResults.Add((item.docId, (int)(item.score * 1000)));
         }
         
         return finalResults;
@@ -322,7 +322,7 @@ public sealed class InvertedIndex : IFullTextIndex
         var finalResults = new List<(int docId, int count)>(results.Count);
         foreach (var item in results.OrderByDescending(r => r.score))
         {
-            finalResults.Add((item.docId, (int)(item.score * 1000))); // scaled
+            finalResults.Add((item.docId, (int)(item.score * 1000)));
         }
         
         return finalResults;

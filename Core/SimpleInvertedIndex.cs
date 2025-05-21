@@ -10,7 +10,7 @@ namespace SearchEngine.Core;
 public sealed class SimpleInvertedIndex : IFullTextIndex
 {
     // ----- posting list ------------------------------------------------------
-    private sealed class Posting
+    public class Posting
     {
         public int DocId;
         public int Count;
@@ -337,4 +337,6 @@ public sealed class SimpleInvertedIndex : IFullTextIndex
         
         return finalResults;
     }
-} 
+
+    public IReadOnlyDictionary<string, List<Posting>> Map => _map;
+}
