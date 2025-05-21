@@ -140,7 +140,7 @@ public class IndexConstructionBenchmark
         using (var writer = new StreamWriter(csvFileName))
         {
             // write header
-            writer.WriteLine("File Size,Total Tokens,Unique Tokens,Trie Memory (Bytes),Trie Memory (Human),Inverted Index Memory (Bytes),Inverted Index Memory (Human),Bloom Filter Memory (Bytes),Bloom Filter Memory (Human),Total Memory (Bytes),Total Memory (Human)");
+            writer.WriteLine("File Size,Total Tokens,Unique Tokens,Trie Memory (Bytes),Trie Memory (MB),Inverted Index Memory (Bytes),Inverted Index Memory (MB),Bloom Filter Memory (Bytes),Bloom Filter Memory (MB),Total Memory (Bytes),Total Memory (MB)");
             
             // write data rows
             foreach (var result in results)
