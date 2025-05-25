@@ -75,17 +75,29 @@ public class DocumentService : IDocumentService
 
     public async Task<List<Token>> GetIndexedTokensAsync(int docId)
     {
-        // Load each distinct term's positions, but for indexing we only need the term itself
+        
         var termMap = await _terms.GetByDocumentAsync(docId);
-        return termMap.Keys
-            .Select(term => new Token
+        var tokens = new List<Token>();
+        
+        foreach (var kvp in termMap)
+        {
+            string term = kvp.Key;
+            List<int> positions = kvp.Value;
+            
+            // create a token for each position of this term
+            foreach (int position in positions)
             {
-                Term = term,
-                Position = 0,
-                StartOffset = 0,
-                EndOffset = 0
-            })
-        .ToList();
+                tokens.Add(new Token
+                {
+                    Term = term,
+                    Position = position,
+                    StartOffset = 0,  // we don't have this info in ze database
+                    EndOffset = 0     // we don't have this info in ze database
+                });
+            }
+        }
+        
+        return tokens;
     }
 
     public Task DeleteTermsAsync(int docId)
