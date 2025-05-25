@@ -40,6 +40,29 @@ public sealed class InvertedIndex : IFullTextIndex
     private bool _delta = true;            
     public void SetDeltaEncoding(bool on) => _delta = on;
     
+    /// <summary>
+    /// Gets whether delta encoding is enabled for this index
+    /// </summary>
+    public bool IsDeltaEncodingEnabled => _delta;
+    
+    /// <summary>
+    /// Gets the position data for a specific term and document
+    /// </summary>
+    /// <param name="term">The term to get positions for</param>
+    /// <param name="docId">The document ID</param>
+    /// <returns>List of position values or null if term/document not found</returns>
+    public List<int> GetPositions(string term, int docId)
+    {
+        if (!_map.TryGetValue(term, out var postings))
+            return null;
+    
+        var posting = postings.FirstOrDefault(p => p.DocId == docId);
+        if (posting == null)
+            return null;
+        // returns a copy of the positions list and not the original since it may be modified
+        return new List<int>(posting.Positions);
+    }
+    
     // methods to tune BM25 parameters
     public void SetBM25Params(double k1, double b)
     {

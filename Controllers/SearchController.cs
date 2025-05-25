@@ -17,15 +17,18 @@ namespace SearchEngine.Controllers
         private readonly ISearchService _searchService;
         private readonly FileContentService _fileContentService;
         private readonly IWikipediaService _wikipediaService;
+        private readonly IIndexingService _indexingService;
 
         public SearchController(
             ISearchService searchService, 
             FileContentService fileContentService,
-            IWikipediaService wikipediaService)
+            IWikipediaService wikipediaService,
+            IIndexingService indexingService)
         {
             _searchService = searchService;
             _fileContentService = fileContentService;
             _wikipediaService = wikipediaService;
+            _indexingService = indexingService;
         }
 
         [HttpGet]
@@ -224,6 +227,17 @@ namespace SearchEngine.Controllers
                 
                 var tasks = docIds.Select(async (docId, index) => {
                     var title = await _searchService.GetTitleAsync(docId);
+                    
+                    if (title == null)
+                    {
+                        return new
+                        {
+                            id = docId.ToString(),
+                            title = "[Deleted document]",
+                            snippet = "This document no longer exists."
+                        };
+                    }
+                    
                     string snippet = await _fileContentService.GetSnippetAsync(title, cleanQuery, operationType);
                     
                     return new
@@ -245,6 +259,18 @@ namespace SearchEngine.Controllers
                         .OrderByDescending(r => r.score)
                         .Select(async (result, index) => {
                             var title = await _searchService.GetTitleAsync(result.docId);
+                            
+                            if (title == null)
+                            {
+                                return new
+                                {
+                                    id = result.docId.ToString(),
+                                    title = "[Deleted document]",
+                                    snippet = "This document no longer exists.",
+                                    score = Math.Round(result.score, 1) 
+                                };
+                            }
+                            
                             string snippet = await _fileContentService.GetSnippetAsync(title, cleanQuery, operationType);
                             
                             return new
@@ -273,6 +299,17 @@ namespace SearchEngine.Controllers
                         .OrderByDescending(r => r.count)
                         .Select<(int docId, int count), Task<object>>(async (result, index) => {
                             var title = await _searchService.GetTitleAsync(result.docId);
+                            if (title == null)
+                            {
+                                return new
+                                {
+                                    id = result.docId.ToString(),
+                                    title = "[Deleted document]",
+                                    snippet = "This document no longer exists.",
+                                    score = result.count / 10.0 // convert to a normalized score
+                                };
+                            }
+                            
                             string snippet = await _fileContentService.GetSnippetAsync(title, cleanQuery, operationType);
                             
                             // include the count as score for BM25 results
@@ -444,5 +481,29 @@ namespace SearchEngine.Controllers
                 return BadRequest($"Error adding Wikipedia article: {ex.Message}");
             }
         }
+
+        [HttpDelete("document/{docId}")]
+        public async Task<IActionResult> DeleteDocument(int docId)
+        {
+            try
+            {
+        string title = await _searchService.GetTitleAsync(docId);
+                
+                bool result = await _indexingService.RemoveDocumentAsync(docId);
+                
+                if (result)
+                {
+                    return Ok(new { success = true, message = $"Document '{title}' successfully removed" });
+                }
+                else
+                {
+                    return NotFound(new { success = false, message = $"Document with ID {docId} not found" });
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { success = false, message = $"Error removing document: {ex.Message}" });
+            }
+        }
     }
-} 
+}

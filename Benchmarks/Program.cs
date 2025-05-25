@@ -6,27 +6,51 @@ public class Program
 {
     public static void Main(string[] args)
     {
-        // run construction benchmark
-        //Console.WriteLine("Running Index Construction Benchmark...");
-        //BenchmarkRunner.Run<IndexConstructionBenchmark>();
-
-        // run search operations benchmark
-        //Console.WriteLine("\nRunning Search Operations Benchmark...");
-        //BenchmarkRunner.Run<SearchOperationsBenchmark>();            
-        if (args.Length > 0 && args[0] == "memory-analysis")
+        if (args.Length > 0)
         {
-            Console.WriteLine("Running memory usage analysis across all file sizes and exporting to CSV...");
-            IndexConstructionBenchmark benchmark = new IndexConstructionBenchmark();
-
-            benchmark.PrintMemoryUsage(exportToCsv: true);
-        }
-        else if (args.Length > 0 && args[0] == "benchmark")
-        {
-            Console.WriteLine("Running Index Construction Benchmark...");
-            BenchmarkRunner.Run<IndexConstructionBenchmark>();
-            
-            Console.WriteLine("\nRunning Search Operations Benchmark...");
-            BenchmarkRunner.Run<SearchOperationsBenchmark>();
+            switch (args[0])
+            {
+                case "memory-analysis":
+                    Console.WriteLine("Running memory usage analysis across all file sizes and exporting to CSV...");
+                    var indexBenchmark = new IndexConstructionBenchmark();
+                    indexBenchmark.PrintMemoryUsage(exportToCsv: true);
+                    break;
+                    
+                case "benchmark":
+                    Console.WriteLine("Running Index Construction Benchmark...");
+                    BenchmarkRunner.Run<IndexConstructionBenchmark>();
+                    
+                    Console.WriteLine("\nRunning Search Operations Benchmark...");
+                    BenchmarkRunner.Run<SearchOperationsBenchmark>();
+                    break;
+                    
+                case "compression-stats":
+                    Console.WriteLine("Analyzing document compression statistics...");
+                    var compBenchmark = new CompressionBenchmark();
+                    compBenchmark.PrintCompressionStats();
+                    break;
+                    
+                case "delta-stats":
+                    Console.WriteLine("Analyzing delta encoding statistics...");
+                    var deltaBenchmark = new CompressionBenchmark();
+                    deltaBenchmark.PrintDeltaEncodingStats();
+                    break;
+                    
+                case "compression-benchmark":
+                    Console.WriteLine("Running compression performance benchmarks...");
+                    BenchmarkRunner.Run<CompressionBenchmark>();
+                    break;
+                    
+                case "filter-analysis":
+                    Console.WriteLine("Running filter analysis across all file sizes...");
+                    var filterBenchmark = new FilterAnalysisBenchmark();
+                    filterBenchmark.RunFilterAnalysis();
+                    break;
+                    
+                default:
+                    ShowHelp();
+                    break;
+            }
         }
         else
         {
@@ -39,8 +63,18 @@ public class Program
             benchmark.BloomFilterConstruction();
             benchmark.PrintMemoryUsage();
             
-            Console.WriteLine("\nRun with 'memory-analysis' argument to analyze all file sizes and export to CSV.");
-            Console.WriteLine("Run with 'benchmark' argument to run full benchmarks.");
+            ShowHelp();
         }
+    }
+    
+    private static void ShowHelp()
+    {
+        Console.WriteLine("\nAvailable commands:");
+        Console.WriteLine("  memory-analysis      - Analyze memory usage across all file sizes and export to CSV");
+        Console.WriteLine("  benchmark            - Run full index construction and search operation benchmarks");
+        Console.WriteLine("  compression-stats    - Analyze document compression statistics and export to CSV");
+        Console.WriteLine("  delta-stats          - Analyze delta encoding statistics and export to CSV");
+        Console.WriteLine("  compression-benchmark - Run performance benchmarks for compression and delta encoding");
+        Console.WriteLine("  filter-analysis      - Analyze how different filter combinations affect memory usage");
     }
 } 

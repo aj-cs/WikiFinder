@@ -34,6 +34,23 @@ const fetchSuggestions = async (q: string) => {
   }
 };
 
+// delete document by ID
+const deleteDocument = async (docId: string): Promise<{ success: boolean, message: string }> => {
+  try {
+    const response = await axios.delete(`${API_BASE_URL}/search/document/${docId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error deleting document:', error);
+    if (axios.isAxiosError(error) && error.response) {
+      return { 
+        success: false, 
+        message: error.response.data.message || 'Failed to delete document' 
+      };
+    }
+    return { success: false, message: 'Failed to delete document' };
+  }
+};
+
 // fetch search results
 const fetchResults = async (q: string) => {
   if (!q.trim()) return { results: [], totalCount: 0, searchTime: 0, query: '', operation: '' };
@@ -113,6 +130,8 @@ export default function SearchEngineGUI() {
   const [isFetchingSuggestions, setIsFetchingSuggestions] = useState(false);
   const [highlightEnabled, setHighlightEnabled] = useState(true);
   const [lastExecutedSearchType, setLastExecutedSearchType] = useState('');
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteMessage, setDeleteMessage] = useState({ text: '', type: '' as 'success' | 'error' | '' });
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -251,6 +270,11 @@ export default function SearchEngineGUI() {
       const result = searchResponse.results.find(r => r.id === id);
       if (!result) return { title: "Unknown", content: "Document not found" };
       
+      // handle documents marked as deleted in the backend
+      if (result.title === "[Deleted document]") {
+        return { title: "Deleted Document", content: "This document has been deleted." };
+      }
+      
       // fetch the full document with highlighted search terms
       const response = await axios.get(
         `${API_BASE_URL}/search/document/${encodeURIComponent(result.title)}?searchTerm=${encodeURIComponent(searchResponse.query)}&operation=${encodeURIComponent(searchResponse.operation)}`
@@ -258,6 +282,9 @@ export default function SearchEngineGUI() {
       return response.data;
     } catch (error) {
       console.error('Error fetching document:', error);
+      if (axios.isAxiosError(error) && error.response?.status === 404) {
+        return { title: "Not Found", content: "The document could not be found. It might have been deleted." };
+      }
       return { title: "Error", content: "Failed to load document content." };
     }
   };
@@ -272,6 +299,41 @@ export default function SearchEngineGUI() {
     setDoc(document);
     setPage('document');
     setIsLoading(false);
+  };
+
+  const handleDocumentDelete = async (id: string) => {
+    if (!showDeleteConfirm) {
+      setShowDeleteConfirm(true);
+      return;
+    }
+
+    setIsLoading(true);
+    const result = await deleteDocument(id);
+    setIsLoading(false);
+    
+    if (result.success) {
+      // success message
+      setDeleteMessage({ text: result.message, type: 'success' });
+      
+      // reset the search results to remove the deleted document
+      setTimeout(() => {
+        setDeleteMessage({ text: '', type: '' });
+        setShowDeleteConfirm(false);
+        setPage('results');
+        
+        setSearchResponse(prev => ({
+          ...prev,
+          results: prev.results.filter(r => r.id !== id),
+          totalCount: prev.totalCount - 1
+        }));
+      }, 1500);
+    } else {
+      setDeleteMessage({ text: result.message, type: 'error' });
+      setTimeout(() => {
+        setDeleteMessage({ text: '', type: '' });
+        setShowDeleteConfirm(false);
+      }, 3000);
+    }
   };
 
   const onScroll = useCallback(() => {
@@ -552,14 +614,49 @@ export default function SearchEngineGUI() {
               <div className="shadow-xl rounded-lg bg-white dark:bg-gray-800 p-4">
                 <div className="flex justify-between items-center mb-3">
                   <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{doc.title}</h2>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={() => setHighlightEnabled(!highlightEnabled)}
-                  >
-                    {highlightEnabled ? 'Disable Highlighting' : 'Enable Highlighting'}
-                  </Button>
+                  <div className="flex items-center space-x-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => setHighlightEnabled(!highlightEnabled)}
+                    >
+                      {highlightEnabled ? 'Disable Highlighting' : 'Enable Highlighting'}
+                    </Button>
+                    <Button 
+                      variant="destructive" 
+                      size="sm" 
+                      onClick={() => handleDocumentDelete(searchResponse.results.find(r => r.title === doc.title)?.id || '')}
+                    >
+                      {showDeleteConfirm ? 'Confirm Delete' : 'Delete'}
+                    </Button>
+                  </div>
                 </div>
+                
+                {/* Delete confirmation/message */}
+                {(showDeleteConfirm || deleteMessage.text) && (
+                  <div className={`mb-3 p-2 rounded ${
+                    deleteMessage.type === 'success' 
+                      ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' 
+                      : deleteMessage.type === 'error'
+                      ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                      : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+                  }`}>
+                    {deleteMessage.text || 'Are you sure you want to delete this document? This action cannot be undone.'}
+                    
+                    {showDeleteConfirm && !deleteMessage.text && (
+                      <div className="flex space-x-2 mt-2">
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => setShowDeleteConfirm(false)}
+                        >
+                          Cancel
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                )}
+                
                 <div 
                   className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed min-h-[3rem] max-h-[78vh] overflow-y-auto p-2"
                   dangerouslySetInnerHTML={{ 
@@ -567,7 +664,12 @@ export default function SearchEngineGUI() {
                   }}
                 />
               </div>
-              <Button className="mt-2" variant="outline" size="sm" onClick={() => setPage('results')}>Back to results</Button>
+              <div className="flex space-x-2 mt-2">
+                <Button variant="outline" size="sm" onClick={() => setPage('results')}>Back to results</Button>
+                {isLoading && (
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-900 dark:border-gray-100"></div>
+                )}
+              </div>
             </div>
           )}
         </div>
@@ -580,4 +682,4 @@ export default function SearchEngineGUI() {
       </div>
     </div>
   );
-} 
+}

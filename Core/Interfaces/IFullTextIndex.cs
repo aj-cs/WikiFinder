@@ -20,4 +20,22 @@ public interface IFullTextIndex
     /// Search using boolean operators (naive implementation)
     /// </summary>
     List<(int docId, int count)> BooleanSearchNaive(string expr);
+    
+    /// <summary>
+    /// Gets the position data for a specific term and document
+    /// </summary>
+    /// <param name="term">The term to get positions for</param>
+    /// <param name="docId">The document ID</param>
+    /// <returns>List of position values or empty list if term/document not found</returns>
+    List<int> GetPositions(string term, int docId);
+
+    /// <summary>
+    /// Gets whether delta encoding is enabled for this index
+    /// </summary>
+    bool IsDeltaEncodingEnabled { get; }
+    
+    /// <summary>
+    /// Sets whether delta encoding is enabled for this index
+    /// </summary>
+    void SetDeltaEncoding(bool on);
 }

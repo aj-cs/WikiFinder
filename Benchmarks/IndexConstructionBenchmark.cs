@@ -15,7 +15,7 @@ namespace SearchEngine.Benchmarks;
 public class IndexConstructionBenchmark
 {
     private string[] _fileSizes = new[] { "100KB", "1MB", "2MB", "5MB", "10MB", "20MB", "50MB", "100MB", "200MB", "400MB" };
-    private string _basePath = "/home/shierfall/Downloads/texts/";
+    private string _basePath = "/home/shierfall/Downloads/texts/"; // adjust this path to your local environment
     private Analyzer _analyzer;
     private IExactPrefixIndex _trie;
     private IFullTextIndex _invertedIndex;
@@ -69,7 +69,9 @@ public class IndexConstructionBenchmark
         Console.WriteLine("====================");
         
         // create a list to store results for CSV export
-        var results = new List<(string FileSize, int TotalTokens, int UniqueTokens, long TrieMemory, long InvertedIndexMemory, long BloomFilterMemory, long TotalMemory)>();
+        var results = new List<(string FileSize, int TotalTokens, int UniqueTokens, 
+            long TrieMemory, long InvertedIndexMemory, long InvertedIndexNoPositionsMemory, 
+            long BloomFilterMemory, long TotalMemory)>();
 
         foreach (var fileSize in _fileSizes)
         {
@@ -100,10 +102,14 @@ public class IndexConstructionBenchmark
                 long trieMemory = CalculateTrieMemory((CompactTrieIndex)trie);
                 Console.WriteLine($"Trie Index: {FormatBytes(trieMemory)}");
 
-                // calculate Inverted Index memory
+                // calculate Inverted Index memory with positions
                 invertedIndex.AddDocument(1, tokens);
-                long invertedIndexMemory = CalculateInvertedIndexMemory((SimpleInvertedIndex)invertedIndex);
+                long invertedIndexMemory = CalculateInvertedIndexMemory((SimpleInvertedIndex)invertedIndex, true);
                 Console.WriteLine($"Inverted Index: {FormatBytes(invertedIndexMemory)}");
+                
+                // calculate Inverted Index memory without positions
+                long invertedIndexNoPositionsMemory = CalculateInvertedIndexMemory((SimpleInvertedIndex)invertedIndex, false);
+                Console.WriteLine($"Inverted Index (no positions): {FormatBytes(invertedIndexNoPositionsMemory)}");
 
                 // calculate Bloom Filter memory
                 foreach (var token in tokens)
@@ -119,7 +125,9 @@ public class IndexConstructionBenchmark
                 Console.WriteLine("----------------------------------------");
 
                 // add results to our list for CSV export
-                results.Add((fileSize, totalTokens, uniqueTokens, trieMemory, invertedIndexMemory, bloomFilterMemory, totalMemory));
+                results.Add((fileSize, totalTokens, uniqueTokens, trieMemory, 
+                    invertedIndexMemory, invertedIndexNoPositionsMemory,
+                    bloomFilterMemory, totalMemory));
             }
             catch (Exception ex)
             {
@@ -134,27 +142,35 @@ public class IndexConstructionBenchmark
         }
     }
     
-    private void ExportResultsToCsv(List<(string FileSize, int TotalTokens, int UniqueTokens, long TrieMemory, long InvertedIndexMemory, long BloomFilterMemory, long TotalMemory)> results)
+private void ExportResultsToCsv(List<(string FileSize, int TotalTokens, int UniqueTokens, 
+    long TrieMemory, long InvertedIndexMemory, long InvertedIndexNoPositionsMemory, 
+    long BloomFilterMemory, long TotalMemory)> results)
+{
+    string csvFileName = $"memory_usage_analysis_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.csv";
+    using (var writer = new StreamWriter(csvFileName))
     {
-        string csvFileName = $"memory_usage_analysis_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.csv";
-        using (var writer = new StreamWriter(csvFileName))
+        // Updated header with no positions column
+        writer.WriteLine("File Size,Total Tokens,Unique Tokens," +
+            "Trie Memory (Bytes),Trie Memory (MB)," +
+            "Inverted Index Memory (Bytes),Inverted Index Memory (MB)," +
+            "Inverted Index No Positions (Bytes),Inverted Index No Positions (MB)," +
+            "Bloom Filter Memory (Bytes),Bloom Filter Memory (MB)," +
+            "Total Memory (Bytes),Total Memory (MB)");
+        
+        // Updated data rows
+        foreach (var result in results)
         {
-            // write header
-            writer.WriteLine("File Size,Total Tokens,Unique Tokens,Trie Memory (Bytes),Trie Memory (MB),Inverted Index Memory (Bytes),Inverted Index Memory (MB),Bloom Filter Memory (Bytes),Bloom Filter Memory (MB),Total Memory (Bytes),Total Memory (MB)");
-            
-            // write data rows
-            foreach (var result in results)
-            {
-                writer.WriteLine(
-                    $"{result.FileSize}," +
-                    $"{result.TotalTokens},{result.UniqueTokens}," +
-                    $"{result.TrieMemory},{FormatBytes(result.TrieMemory)}," +
-                    $"{result.InvertedIndexMemory},{FormatBytes(result.InvertedIndexMemory)}," +
-                    $"{result.BloomFilterMemory},{FormatBytes(result.BloomFilterMemory)}," +
-                    $"{result.TotalMemory},{FormatBytes(result.TotalMemory)}"
-                );
-            }
+            writer.WriteLine(
+                $"{result.FileSize}," +
+                $"{result.TotalTokens},{result.UniqueTokens}," +
+                $"{result.TrieMemory},{FormatBytes(result.TrieMemory)}," +
+                $"{result.InvertedIndexMemory},{FormatBytes(result.InvertedIndexMemory)}," +
+                $"{result.InvertedIndexNoPositionsMemory},{FormatBytes(result.InvertedIndexNoPositionsMemory)}," +
+                $"{result.BloomFilterMemory},{FormatBytes(result.BloomFilterMemory)}," +
+                $"{result.TotalMemory},{FormatBytes(result.TotalMemory)}"
+            );
         }
+    }
         
         Console.WriteLine($"\nResults exported to {Path.GetFullPath(csvFileName)}");
     }
@@ -205,7 +221,7 @@ public class IndexConstructionBenchmark
         return totalTrieNodeMemory + wordPoolMemory + wordToPoolIndexMemory;
     }
 
-    private long CalculateInvertedIndexMemory(SimpleInvertedIndex invertedIndex)
+    private long CalculateInvertedIndexMemory(SimpleInvertedIndex invertedIndex, bool includePositions = true)
     {
         // constants for object overhead
         const int OBJECT_OVERHEAD = 16; // object header (12) + padding (4)
@@ -231,11 +247,13 @@ public class IndexConstructionBenchmark
             {
                 // posting object overhead + DocId + Count fields
                 long postingSize = OBJECT_OVERHEAD + sizeof(int) * 2;
-                
+                if (includePositions)
+                {
+                    postingSize += LIST_OVERHEAD + (posting.Positions.Count * sizeof(int));
+                }
                 // List<int> Positions overhead + content
-                postingSize += LIST_OVERHEAD + (posting.Positions.Count * sizeof(int));
-                
-                postingsMemory += postingSize;
+
+                    postingsMemory += postingSize;
             }
         }
         

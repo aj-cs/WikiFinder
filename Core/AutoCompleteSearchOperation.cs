@@ -25,6 +25,9 @@ public class AutoCompleteSearchOperation : ISearchOperation
         // Get prefix matches for the query (query is already normalized by SearchService if needed)
         List<(string word, List<int> docIds)> hits = _trie.PrefixSearch(query);
         
+        // Filter out terms that don't have any associated documents
+        hits = hits.Where(h => h.docIds != null && h.docIds.Count > 0).ToList();
+        
         // if no results, try with progressively shorter prefixes until we find matches
         // or until we reach a minimum prefix length (2 characters)
         string currentQuery = query;
@@ -35,6 +38,9 @@ public class AutoCompleteSearchOperation : ISearchOperation
             // try with one character less
             currentQuery = currentQuery.Substring(0, currentQuery.Length - 1);
             hits = _trie.PrefixSearch(currentQuery);
+            
+            // Filter out terms with no associated documents
+            hits = hits.Where(h => h.docIds != null && h.docIds.Count > 0).ToList();
             
             // if we find hits with the shorter prefix, filter them to only include words that would be relevant to the original prefix
             if (hits.Count > 0)

@@ -110,6 +110,9 @@ namespace SearchEngine.Services
         
         public async Task<string> GetSnippetAsync(string title, string query, string operation)
         {
+            if (string.IsNullOrEmpty(title))
+                return "No content available (document miight have been deleted)";
+                
             var content = await GetDocumentContentAsync(title);
             if (string.IsNullOrEmpty(content))
                 return $"No content available for {title}";
