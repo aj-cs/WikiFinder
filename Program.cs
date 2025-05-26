@@ -39,6 +39,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHttpClient();//HttpClient factory for wikipedia
+builder.Services.AddLogging();
 
 // configure CORS
 builder.Services.AddCors(options =>
@@ -72,7 +73,7 @@ builder.Services.AddSingleton<IBloomFilter>(provider => new BloomFilter(100000, 
 builder.Services.AddDbContext<SearchEngineContext>(opts => 
     opts.UseSqlite("Data Source=quicktest.db"));
 builder.Services.AddScoped<DocumentRepository>();
-builder.Services.AddScoped<DocumentTermRepository>();
+builder.Services.AddScoped<SearchEngine.Persistence.DocumentTermRepository>();
 builder.Services.AddSingleton<DocumentCompressionService>();
 builder.Services.AddScoped<IDocumentService, DocumentService>();
 
@@ -119,7 +120,8 @@ using (var scope = app.Services.CreateScope())
     if (!string.IsNullOrEmpty(contentFilePath))
     {
         Console.WriteLine($"Preprocessing {contentFilePath}…");
-        var stopwatch = Stopwatch.StartNew();
+        var totalStopwatch = Stopwatch.StartNew();
+        var processStages = new Dictionary<string, TimeSpan>();
         
         // enable database mode to store compressed content
         fileContentService.EnableDatabaseMode();
@@ -133,6 +135,14 @@ using (var scope = app.Services.CreateScope())
         var sb = new StringBuilder();
         long startPos = 0;
         long currentPos = 0;
+        
+        var documentBatch = new List<(int docId, string content)>();
+        var batchSize = 100;
+        
+        var docCounter = 0;
+        var dbStopwatch = new Stopwatch();
+        var tokenizeStopwatch = new Stopwatch();
+        var indexStopwatch = new Stopwatch();
         
         while ((line = reader.ReadLine()) != null)
         {
@@ -154,10 +164,27 @@ using (var scope = app.Services.CreateScope())
                 if (sb.Length > 0)
                 {
                     string content = sb.ToString().Trim();
+                    docCounter++;
                     
-                    // insert document with content and index it
+                    // Time document insertion to database
+                    dbStopwatch.Start();
                     var docId = await documentService.CreateWithContentAsync(currentTitle, content);
-                    await indexingService.IndexDocumentByIdAsync(docId, content);
+                    dbStopwatch.Stop();
+                    
+                    // add to batch instead of immediate indexing
+                    documentBatch.Add((docId, content));
+                    
+                    // process batch when it reaches the target size
+                    if (documentBatch.Count >= batchSize)
+                    {
+                        // Time indexing operation
+                        indexStopwatch.Start();
+                        await indexingService.IndexDocumentsBatchAsync(documentBatch);
+                        indexStopwatch.Stop();
+                        
+                        documentBatch.Clear();
+                        Console.WriteLine($"Processed batch of {batchSize} documents (total: {docCounter})");
+                    }
                 }
                 
                 // reset for next document
@@ -173,38 +200,23 @@ using (var scope = app.Services.CreateScope())
             currentPos += lineLength;
         }
         
-        // handle last document if no final marker
-        if (currentTitle != null && sb.Length > 0)
+        // process final batch if any documents remain
+        if (documentBatch.Count > 0)
         {
-            string content = sb.ToString().Trim();
-            var docId = await documentService.CreateWithContentAsync(currentTitle, content);
-            await indexingService.IndexDocumentByIdAsync(docId, content);
+            indexStopwatch.Start();
+            await indexingService.IndexDocumentsBatchAsync(documentBatch);
+            indexStopwatch.Stop();
+            Console.WriteLine($"Processed final batch of {documentBatch.Count} documents (total: {docCounter})");
         }
 
-        stopwatch.Stop();
-        Console.WriteLine($"Pre-process time: {stopwatch.Elapsed.TotalSeconds:F3}s");
-/*
-        // debugging: show total uncompressed vs compressed size
-        var allDocs = await documentService.GetAllAsync();
-        long totalCompressed = 0;
-        long totalUncompressed = 0;
-        foreach (var doc in allDocs)
-        {
-            if (doc.CompressedContent != null)
-            {
-                totalCompressed += doc.CompressedContent.Length;
-                var uncompressed = new SearchEngine.Services.DocumentCompressionService().Decompress(doc.CompressedContent);
-                totalUncompressed += System.Text.Encoding.UTF8.GetByteCount(uncompressed);
-            }
-        }
-        Console.WriteLine($"Total uncompressed size: {totalUncompressed:N0} bytes");
-        Console.WriteLine($"Total compressed size:   {totalCompressed:N0} bytes");
-        if (totalUncompressed > 0)
-        {
-            double ratio = (double)totalCompressed / totalUncompressed;
-            Console.WriteLine($"Compression ratio: {ratio:P1}");
-        }
-*/
+        totalStopwatch.Stop();
+        
+        // Display detailed timing information
+        Console.WriteLine("\nTiming Information:");
+        Console.WriteLine($"Database operations: {dbStopwatch.Elapsed.TotalSeconds:F3}s");
+        Console.WriteLine($"Indexing operations: {indexStopwatch.Elapsed.TotalSeconds:F3}s");
+        Console.WriteLine($"Total processing time: {totalStopwatch.Elapsed.TotalSeconds:F3}s");
+        Console.WriteLine($"Average per document: {totalStopwatch.Elapsed.TotalMilliseconds / docCounter:F2}ms");
     }
     else
     {

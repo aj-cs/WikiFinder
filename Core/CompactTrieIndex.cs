@@ -1,5 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
+using System.Threading;
+using System.Threading.Tasks;
 using SearchEngine.Analysis;
 using SearchEngine.Core.Interfaces;
 using System.Linq;
@@ -25,78 +28,28 @@ public class CompactTrieIndex : IExactPrefixIndex
         }
     }
 
-
     private readonly TrieNode root = new();
     private readonly List<string> wordPool = new();
     private readonly Dictionary<string, int> wordToPoolIndex = new();
+    
+    // locks for thread safety
+    private readonly ReaderWriterLockSlim _trielock = new ReaderWriterLockSlim();
+    private readonly object _poolLock = new object();
 
     public CompactTrieIndex() { }
 
-    // public CompactTrieIndex(string filename)
-    // {
-    //     try
-    //     {
-    //         using var input = new StreamReader(filename, System.Text.Encoding.UTF8);
-    //         string line;
-    //         string currentTitle = null;
-    //         bool titleRead = false;
-    //         while ((line = input.ReadLine()) != null)
-    //         {
-    //             if (string.IsNullOrWhiteSpace(line)) continue;
-    //             if (line.Equals("---END.OF.DOCUMENT---", StringComparison.Ordinal))
-    //             {
-    //                 titleRead = false;
-    //                 currentTitle = null;
-    //                 continue;
-    //             }
-    //             if (!titleRead)
-    //             {
-    //                 currentTitle = line;
-    //                 RegisterTitle(currentTitle);
-    //                 titleRead = true;
-    //             }
-    //             else
-    //             {
-    //                 foreach (var rawWord in line.Split(' ', StringSplitOptions.RemoveEmptyEntries))
-    //                 {
-    //                     var word = Normalize(rawWord);
-    //                     if (word.Length > 0)
-    //                         InsertWord(word, currentTitle);
-    //                 }
-    //             }
-    //         }
-    //     }
-    //     catch (FileNotFoundException)
-    //     {
-    //         throw;
-    //     }
-    // }
-
-    // private void RegisterTitle(int docId, string title)
-    // {
-    //     while (idToTitle.Count <= docId)
-    //     {
-    //         idToTitle.Add(null);
-    //     }
-    //     idToTitle[docId] = title;
-    // }
-    //
-    // private void InsertWord(string word, string title)
-    // {
-    //     int poolIdx = GetPoolIndex(word);
-    //     int titleId = titleToId[title];
-    //     Insert(root, poolIdx, 0, word.Length, titleId);
-    // }
-
     private int GetPoolIndex(string word)
     {
-        if (!wordToPoolIndex.TryGetValue(word, out int idx))
+        lock (_poolLock)
         {
-            idx = wordPool.Count;
-            wordPool.Add(word);
-            wordToPoolIndex[word] = idx;
+            if (!wordToPoolIndex.TryGetValue(word, out int idx))
+            {
+                idx = wordPool.Count;
+                wordPool.Add(word);
+                wordToPoolIndex[word] = idx;
+            }
+            return idx;
         }
-        return idx;
     }
 
     private void Insert(TrieNode node, int poolIdx, int offset, int length, int titleId)
@@ -194,8 +147,16 @@ public class CompactTrieIndex : IExactPrefixIndex
 
     public bool Search(string query)
     {
-        var node = FindNode(root, query.ToLowerInvariant());
-        return node != null && node.IsEndOfWord;
+        _trielock.EnterReadLock();
+        try
+        {
+            var node = FindNode(root, query.ToLowerInvariant());
+            return node != null && node.IsEndOfWord;
+        }
+        finally
+        {
+            _trielock.ExitReadLock();
+        }
     }
 
     private TrieNode FindNode(TrieNode node, string query)
@@ -225,14 +186,22 @@ public class CompactTrieIndex : IExactPrefixIndex
 
     public List<int> PrefixSearchDocuments(string prefix)
     {
-        prefix.ToLowerInvariant(); // maybe ew can remove this since we do it in tokenizer
-        var docs = new HashSet<int>();
-        var node = FindNode(root, prefix);
-        if (node != null)
+        _trielock.EnterReadLock();
+        try
         {
-            CollectDocs(node, docs);
+            prefix = prefix.ToLowerInvariant();
+            var docs = new HashSet<int>();
+            var node = FindNode(root, prefix);
+            if (node != null)
+            {
+                CollectDocs(node, docs);
+            }
+            return new List<int>(docs);
         }
-        return new List<int>(docs);
+        finally
+        {
+            _trielock.ExitReadLock();
+        }
     }
 
     private void CollectDocs(TrieNode node, HashSet<int> docs)
@@ -254,102 +223,122 @@ public class CompactTrieIndex : IExactPrefixIndex
 
     public List<(string word, List<int> docIds)> PrefixSearch(string prefix)
     {
-        prefix = prefix.ToLowerInvariant(); 
-        var results = new List<(string, List<int>)>();
-        
-        // Empty prefix should return limited set of all words
-        if (string.IsNullOrWhiteSpace(prefix))
+        _trielock.EnterReadLock();
+        try
         {
-            CollectAllWords(root, "", results, 100); // Limit to 100 words for empty prefix
-            return results;
+            prefix = prefix.ToLowerInvariant();
+            var node = FindNode(root, prefix);
+            if (node == null) return new List<(string, List<int>)>();
+
+            var builder = new List<(string, List<int>)>();
+            var currentWord = prefix.Substring(0, prefix.Length - (node.Length - CommonPrefix(node, 0, 0, 0)));
+            CollectWords(node, currentWord, builder);
+            return builder;
         }
-        
-        var startNode = FindNode(root, prefix);
-        if (startNode != null)
+        finally
         {
-            CollectWords(startNode, prefix, results);
+            _trielock.ExitReadLock();
         }
-        
-        // if no exact matches, try partial matching
-        if (results.Count == 0 && prefix.Length > 1)
+    }
+
+    public void AddDocument(int docId, IEnumerable<Token> tokens)
+    {
+        // process each token
+        var uniqueTerms = tokens
+            .Where(t => !string.IsNullOrEmpty(t.Term))
+            .Select(t => t.Term)
+            .Distinct()
+            .ToList();
+
+        // process each term in sequence with write lock
+        _trielock.EnterWriteLock();
+        try
         {
-            // try partial matching by getting most common prefix
-            var partialPrefix = prefix.Substring(0, prefix.Length - 1);
-            var partialNode = FindNode(root, partialPrefix);
-            if (partialNode != null)
+            foreach (var term in uniqueTerms)
             {
-                CollectWords(partialNode, partialPrefix, results);
+                int poolIdx = GetPoolIndex(term);
+                Insert(root, poolIdx, 0, term.Length, docId);
+            }
+        }
+        finally
+        {
+            _trielock.ExitWriteLock();
+        }
+    }
+
+    // add batch document processing
+    public void AddDocumentsBatch(IEnumerable<(int docId, IEnumerable<Token> tokens)> documents)
+    {
+        var docTerms = new ConcurrentDictionary<int, HashSet<string>>();
+        
+        // frist process tokens in parallel to extract unique terms per document
+        Parallel.ForEach(documents, doc => 
+        {
+            var uniqueTerms = doc.tokens
+                .Where(t => !string.IsNullOrEmpty(t.Term))
+                .Select(t => t.Term)
+                .Distinct()
+                .ToHashSet();
                 
-                // filter results to only include those that start with our partial prefix
-                results = results
-                    .Where(r => r.Item1.StartsWith(partialPrefix))
-                    .ToList();
+            docTerms[doc.docId] = uniqueTerms;
+        });
+        
+        // then prepare word pool indices (to minimize lock contention during trie updates)
+        var termPoolIndices = new ConcurrentDictionary<string, int>();
+        foreach (var docEntry in docTerms)
+        {
+            foreach (var term in docEntry.Value)
+            {
+                if (!termPoolIndices.ContainsKey(term))
+                {
+                    int poolIdx = GetPoolIndex(term);
+                    termPoolIndices[term] = poolIdx;
+                }
             }
         }
         
-        return results;
+        // then update trie with single write lock (to maintain trie integrity)
+        _trielock.EnterWriteLock();
+        try
+        {
+            foreach (var docEntry in docTerms)
+            {
+                int docId = docEntry.Key;
+                foreach (var term in docEntry.Value)
+                {
+                    int poolIdx = termPoolIndices[term];
+                    Insert(root, poolIdx, 0, term.Length, docId);
+                }
+            }
+        }
+        finally
+        {
+            _trielock.ExitWriteLock();
+        }
     }
 
-    // Helper method to collect all words in the trie (used when prefix is empty)
-    private void CollectAllWords(TrieNode node, string current, List<(string, List<int>)> output, int limit)
+    public void RemoveDocument(int docId, IEnumerable<Token> tokens)
     {
-        if (output.Count >= limit)
-            return;
-            
-        if (node.IsEndOfWord)
+        _trielock.EnterWriteLock();
+        try
         {
-            output.Add((current, new List<int>(node.DocIds)));
-        }
-        
-        foreach (var c in node.ArrayChildren)
-        {
-            if (c != null && output.Count < limit)
+            foreach (var token in tokens)
             {
-                var w = wordPool[c.PoolIndex].Substring(c.Offset, c.Length);
-                CollectAllWords(c, current + w, output, limit);
+                if (string.IsNullOrEmpty(token.Term)) continue;
+                
+                // check if the word exists in the pool
+                if (wordToPoolIndex.TryGetValue(token.Term, out int poolIdx))
+                {
+                    RemoveWord(root, poolIdx, 0, token.Term.Length, docId);
+                }
             }
         }
-        
-        foreach (var kv in node.DictChildren)
+        finally
         {
-            if (output.Count < limit)
-            {
-                CollectAllWords(kv.Value, current + kv.Key, output, limit);
-            }
+            _trielock.ExitWriteLock();
         }
     }
 
-    private void CollectWords(TrieNode node, string prefix, List<(string, List<int>)> output)
-    {
-        if (node.IsEndOfWord)
-        {
-            output.Add((prefix, new List<int>(node.DocIds)));
-        }
-        foreach (var c in node.ArrayChildren)
-        {
-            if (c != null)
-            {
-                var w = wordPool[c.PoolIndex].Substring(c.Offset, c.Length);
-                CollectWords(c, prefix + w, output);
-            }
-        }
-        foreach (var kv in node.DictChildren)
-        {
-            CollectWords(kv.Value, prefix + kv.Key, output);
-        }
-    }
-    // helper for RemoveDocument
-    ///<summary>
-    ///if (length == 0)
-    /// we're at the "terminal" node for this word.
-    /// remove docId and unmark eow if empty.
-    ///else
-    /// compute c = next character
-    /// look up child = node.ArrayChildren[...] or DictChildren[c]
-    /// recurse: bool pruneChild = RemoveWord(child, poolIdx, offset+1, length-1, docId);
-    /// if pruneChild==true, unlink that child pointer
-    ///finally, check: no docs & no children ⇒ return true (prune this node too)
-    ///<summary/>
     private bool RemoveWord(TrieNode node, int poolIndex, int offset, int length, int docId)
     {
         if (length == 0)
@@ -409,79 +398,45 @@ public class CompactTrieIndex : IExactPrefixIndex
 
         return hasNoDocs && hasNoChildren;
     }
-    public void AddDocument(int docId, IEnumerable<Token> tokens)
-    {
-        foreach (var tok in tokens)
-        {
-            var word = tok.Term;
-            if (string.IsNullOrEmpty(word))
-            {
-                continue;
-            }
 
-            // we pool the word, then insert into the tree
-
-            int poolIndex = GetPoolIndex(word);
-            Insert(root, poolIndex, 0, word.Length, docId);
-        }
-    }
-
-    public void RemoveDocument(int docId, IEnumerable<Token> tokens)
-    {
-        foreach (var tok in tokens)
-        {
-            var word = tok.Term;
-            if (string.IsNullOrEmpty(word))
-            {
-                continue;
-            }
-
-            // find the final node for this word then remove docId from that node and if 
-            // no docs remaining, then unmark the word
-            //
-            //
-            if (!wordToPoolIndex.TryGetValue(word, out var poolIndex))
-            {
-                continue;
-            }
-            RemoveWord(root, poolIndex, 0, word.Length, docId);
-        }
-    }
-
-    // private string Normalize(string raw)
-    // {
-    //     return raw.Trim().ToLowerInvariant();
-    // }
-    public void PrintDemo(string term, string prefix)
-    {
-        Console.WriteLine($"Search(\"{term}\") → {Search(term)}");
-
-        var docsByPrefix = PrefixSearchDocuments(prefix);
-        Console.WriteLine($"\nDocuments containing words starting with \"{prefix}\":");
-        foreach (var title in docsByPrefix)
-            Console.WriteLine($"  • {title}");
-
-        var detailed = PrefixSearch(prefix);
-        Console.WriteLine($"\nAll words beginning with \"{prefix}\" and their documents:");
-        foreach (var (word, titles) in detailed)
-        {
-            Console.WriteLine($"  {word}:");
-            foreach (var t in titles)
-                Console.WriteLine($"    – {t}");
-        }
-    }
     public void Clear()
     {
-        // for debugging, maybe for implementation
-        // reset the root node
-        for (int i = 0; i < 26; i++)
-            root.ArrayChildren[i] = null;
-        root.DictChildren.Clear();
-        root.DocIds.Clear();
-        root.IsEndOfWord = false;
-        // reset pool of stored words
-        wordPool.Clear();
-        wordToPoolIndex.Clear();
+        _trielock.EnterWriteLock();
+        try
+        {
+            // clear all children of root
+            Array.Clear(root.ArrayChildren, 0, root.ArrayChildren.Length);
+            root.DictChildren.Clear();
+            root.DocIds.Clear();
+            root.IsEndOfWord = false;
+            
+            // clear the word pool
+            wordPool.Clear();
+            wordToPoolIndex.Clear();
+        }
+        finally
+        {
+            _trielock.ExitWriteLock();
+        }
+    }
+
+    public List<(int docId, int count)> ExactSearchDocuments(string term)
+    {
+        _trielock.EnterReadLock();
+        try
+        {
+            term = term.ToLowerInvariant();
+            var node = FindNode(root, term);
+            if (node == null || !node.IsEndOfWord) 
+                return new List<(int docId, int count)>();
+                
+            // convert to required format with count always set to 1
+            return node.DocIds.Select(id => (id, 1)).ToList();
+        }
+        finally
+        {
+            _trielock.ExitReadLock();
+        }
     }
 
     public List<(int docId, int count)> BooleanSearchNaive(string expr)
@@ -541,18 +496,42 @@ public class CompactTrieIndex : IExactPrefixIndex
         return result.Select(id => (id, 1)).ToList();
     }
 
-    public List<(int docId, int count)> ExactSearchDocuments(string term)
+    private void CollectWords(TrieNode node, string prefix, List<(string, List<int>)> output)
     {
-        var node = FindNode(root, term.ToLowerInvariant());
-        if (node == null || !node.IsEndOfWord)
+        if (node.IsEndOfWord)
         {
-            return new List<(int docId, int count)>();
+            output.Add((prefix, new List<int>(node.DocIds)));
         }
-        
-        // Since the trie doesn't track counts per document like inverted index,
-        // we'll just return 1 as the count for each document
-        return node.DocIds
-            .Select(docId => (docId, 1))
-            .ToList();
+        foreach (var c in node.ArrayChildren)
+        {
+            if (c != null)
+            {
+                var w = wordPool[c.PoolIndex].Substring(c.Offset, c.Length);
+                CollectWords(c, prefix + w, output);
+            }
+        }
+        foreach (var kv in node.DictChildren)
+        {
+            CollectWords(kv.Value, prefix + kv.Key, output);
+        }
+    }
+
+    public void PrintDemo(string term, string prefix)
+    {
+        Console.WriteLine($"Search(\"{term}\") → {Search(term)}");
+
+        var docsByPrefix = PrefixSearchDocuments(prefix);
+        Console.WriteLine($"\nDocuments containing words starting with \"{prefix}\":");
+        foreach (var title in docsByPrefix)
+            Console.WriteLine($"  • {title}");
+
+        var detailed = PrefixSearch(prefix);
+        Console.WriteLine($"\nAll words beginning with \"{prefix}\" and their documents:");
+        foreach (var (word, titles) in detailed)
+        {
+            Console.WriteLine($"  {word}:");
+            foreach (var t in titles)
+                Console.WriteLine($"    – {t}");
+        }
     }
 }
