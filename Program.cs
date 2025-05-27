@@ -12,7 +12,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Sqlite;
-using Microsoft.EntityFrameworkCore.SqlServer;
+// using Microsoft.EntityFrameworkCore.SqlServer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -53,7 +53,7 @@ builder.Services.AddCors(options =>
 
 // add search operations
 builder.Services.AddSingleton<ISearchOperation, ExactSearchOperation>();
-builder.Services.AddSingleton<ISearchOperation>(sp => 
+builder.Services.AddSingleton<ISearchOperation>(sp =>
     new PrefixDocsSearchOperation(
         sp.GetRequiredService<IExactPrefixIndex>()
     )
@@ -70,7 +70,7 @@ builder.Services.AddSingleton<IFullTextIndex, InvertedIndex>();
 builder.Services.AddSingleton<IBloomFilter>(provider => new BloomFilter(100000, 0.01));
 
 // add database context and repository services
-builder.Services.AddDbContext<SearchEngineContext>(opts => 
+builder.Services.AddDbContext<SearchEngineContext>(opts =>
     opts.UseSqlite("Data Source=quicktest.db"));
 builder.Services.AddScoped<DocumentRepository>();
 builder.Services.AddScoped<SearchEngine.Persistence.DocumentTermRepository>();
@@ -79,7 +79,7 @@ builder.Services.AddScoped<IDocumentService, DocumentService>();
 
 // add services
 builder.Services.AddScoped<IWikipediaService, WikipediaService>();
-builder.Services.AddSingleton<FileContentService>(sp => 
+builder.Services.AddSingleton<FileContentService>(sp =>
 {
     // use the content file path we extracted
     return new FileContentService(contentFilePath, sp);
@@ -89,7 +89,7 @@ builder.Services.AddSingleton<FileContentService>(sp =>
 builder.Services.AddSingleton<Analyzer>(sp =>
     new Analyzer(
         new MinimalTokenizer()
-        //,new PorterStemFilter(new EnglishPorter2Stemmer())
+    //,new PorterStemFilter(new EnglishPorter2Stemmer())
     )
 );
 
@@ -115,17 +115,17 @@ using (var scope = app.Services.CreateScope())
     var indexingService = scope.ServiceProvider.GetRequiredService<IIndexingService>();
     var fileContentService = scope.ServiceProvider.GetRequiredService<FileContentService>();
     var documentService = scope.ServiceProvider.GetRequiredService<IDocumentService>();
-    
+
     //if a file is specified, preprocess it
     if (!string.IsNullOrEmpty(contentFilePath))
     {
         Console.WriteLine($"Preprocessing {contentFilePath}…");
         var totalStopwatch = Stopwatch.StartNew();
         var processStages = new Dictionary<string, TimeSpan>();
-        
+
         // enable database mode to store compressed content
         fileContentService.EnableDatabaseMode();
-        
+
         // clear any existing document positions
         fileContentService.ClearDocumentPositions();
 
@@ -135,20 +135,20 @@ using (var scope = app.Services.CreateScope())
         var sb = new StringBuilder();
         long startPos = 0;
         long currentPos = 0;
-        
+
         var documentBatch = new List<(int docId, string content)>();
         var batchSize = 100;
-        
+
         var docCounter = 0;
         var dbStopwatch = new Stopwatch();
         var tokenizeStopwatch = new Stopwatch();
         var indexStopwatch = new Stopwatch();
-        
+
         while ((line = reader.ReadLine()) != null)
         {
             // track current position
             long lineLength = line.Length + Environment.NewLine.Length;
-            
+
             if (currentTitle == null)
             {
                 // first non-empty line is the title
@@ -165,15 +165,15 @@ using (var scope = app.Services.CreateScope())
                 {
                     string content = sb.ToString().Trim();
                     docCounter++;
-                    
+
                     // Time document insertion to database
                     dbStopwatch.Start();
                     var docId = await documentService.CreateWithContentAsync(currentTitle, content);
                     dbStopwatch.Stop();
-                    
+
                     // add to batch instead of immediate indexing
                     documentBatch.Add((docId, content));
-                    
+
                     // process batch when it reaches the target size
                     if (documentBatch.Count >= batchSize)
                     {
@@ -181,12 +181,12 @@ using (var scope = app.Services.CreateScope())
                         indexStopwatch.Start();
                         await indexingService.IndexDocumentsBatchAsync(documentBatch);
                         indexStopwatch.Stop();
-                        
+
                         documentBatch.Clear();
                         Console.WriteLine($"Processed batch of {batchSize} documents (total: {docCounter})");
                     }
                 }
-                
+
                 // reset for next document
                 currentTitle = null;
                 sb.Clear();
@@ -196,10 +196,10 @@ using (var scope = app.Services.CreateScope())
                 // regular content line
                 sb.AppendLine(line);
             }
-            
+
             currentPos += lineLength;
         }
-        
+
         // process final batch if any documents remain
         if (documentBatch.Count > 0)
         {
@@ -210,7 +210,7 @@ using (var scope = app.Services.CreateScope())
         }
 
         totalStopwatch.Stop();
-        
+
         // Display detailed timing information
         Console.WriteLine("\nTiming Information:");
         Console.WriteLine($"Database operations: {dbStopwatch.Elapsed.TotalSeconds:F3}s");
