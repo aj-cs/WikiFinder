@@ -65,8 +65,9 @@ builder.Services.AddScoped<ISearchService, SearchService>();
 builder.Services.AddScoped<IIndexingService, IndexingService>();
 
 // register index implementations
-builder.Services.AddSingleton<IExactPrefixIndex, CompactTrieIndex>();
-builder.Services.AddSingleton<IFullTextIndex, InvertedIndex>();
+builder.Services.AddSingleton<CompactTrieIndex>();
+builder.Services.AddSingleton<IExactPrefixIndex>(provider => provider.GetRequiredService<CompactTrieIndex>());
+builder.Services.AddSingleton<IFullTextIndex>(provider => provider.GetRequiredService<CompactTrieIndex>());
 builder.Services.AddSingleton<IBloomFilter>(provider => new BloomFilter(100000, 0.01));
 
 // add database context and repository services
@@ -82,7 +83,10 @@ builder.Services.AddScoped<IWikipediaService, WikipediaService>();
 builder.Services.AddSingleton<FileContentService>(sp =>
 {
     // use the content file path we extracted
-    return new FileContentService(contentFilePath, sp);
+    var service = new FileContentService(contentFilePath, sp);
+    // always enable database mode by default
+    service.EnableDatabaseMode();
+    return service;
 });
 
 // add analyzer pipeline

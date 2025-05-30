@@ -1,3 +1,5 @@
+namespace SearchEngine.Core;
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -59,6 +61,15 @@ public sealed class InvertedIndex : IFullTextIndex
     }
     
     public (double k1, double b) GetBM25Params() => (_k1, _b);
+
+    private bool _useBM25 = true; // default to using BM25
+
+    public void SetBM25Enabled(bool enabled)
+    {
+        _useBM25 = enabled;
+    }
+
+    public bool IsBM25Enabled() => _useBM25;
 
     // ------------------------------------------------------------------------
     public void AddDocument(int docId, IEnumerable<Token> tokens)
@@ -309,6 +320,8 @@ public sealed class InvertedIndex : IFullTextIndex
     // BM25 scoring function
     private double CalculateBM25Score(string term, int docId, int termFrequency)
     {
+        if (!_useBM25) return 0; // Skip BM25 calculation if disabled
+
         if (!_map.TryGetValue(term, out var postings) || postings.Count == 0 || !_docLengths.TryGetValue(docId, out var docLength))
             return 0;
             

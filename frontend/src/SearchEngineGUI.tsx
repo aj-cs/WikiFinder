@@ -35,21 +35,24 @@ const fetchSuggestions = async (q: string) => {
 };
 
 // fetch search results
-const fetchResults = async (q: string) => {
+const fetchResults = async (q: string, k1?: number, b?: number) => {
   if (!q.trim()) return { results: [], totalCount: 0, searchTime: 0, query: '', operation: '' };
   
   try {
     let endpoint = 'search';
     const isPrefix = q.endsWith('*');
+    let params: any = { q };
     
     // use BM25 endpoint for full-text searches
     if (!isPrefix) {
       endpoint = 'search/bm25';
+      
+      // Add BM25 parameters if provided
+      if (k1 !== undefined) params.k1 = k1;
+      if (b !== undefined) params.b = b;
     }
     
-    const response = await axios.get(`/api/${endpoint}`, { 
-      params: { q }
-    });
+    const response = await axios.get(`/api/${endpoint}`, { params });
     
     return response.data as SearchResponse;
   } catch (error) {
@@ -96,13 +99,16 @@ export default function SearchEngineGUI() {
   const [query, setQuery] = useState('');
   const [exists, setExists] = useState(false);
   const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [bm25K1, setBm25K1] = useState<number>(1.2);
+  const [bm25B, setBm25B] = useState<number>(0.75);
+  const [showBm25Controls, setShowBm25Controls] = useState<boolean>(false);
   const [searchResponse, setSearchResponse] = useState<SearchResponse>({
     results: [],
     totalCount: 0,
     searchTime: 0,
     query: '',
     operation: ''
-  });
+  }); 
   const [visibleCount, setVisibleCount] = useState(10);
   const [doc, setDoc] = useState<Document | null>(null);
   const [page, setPage] = useState('home');
@@ -235,7 +241,8 @@ export default function SearchEngineGUI() {
     setLastExecutedSearchType(currentSearchType);
     
     setPage('results');
-    const response = await fetchResults(query);
+    // Pass BM25 parameters for non-prefix searches
+    const response = await fetchResults(query, bm25K1, bm25B);
     setSearchResponse(response);
     setIsLoading(false);
     
@@ -390,6 +397,85 @@ export default function SearchEngineGUI() {
                 <Button onClick={handleSearch} aria-label="Search" className="absolute right-4 p-2 rounded-full shadow-md bg-white dark:bg-gray-700">
                   <Search className="w-5 h-5 text-gray-700 dark:text-gray-200" />
                 </Button>
+              </div>
+              
+              {/* BM25 Controls */}
+              <div className="mt-3 w-full">
+                <button
+                  onClick={() => setShowBm25Controls(!showBm25Controls)}
+                  className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 underline"
+                >
+                  {showBm25Controls ? 'Hide' : 'Show'} BM25 Parameters
+                </button>
+                
+                <AnimatePresence>
+                  {showBm25Controls && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="mt-3 p-4 bg-white bg-opacity-40 dark:bg-gray-800 dark:bg-opacity-40 backdrop-blur-md rounded-lg shadow-sm border border-gray-200 dark:border-gray-600"
+                    >
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                            k1 Parameter: {bm25K1}
+                          </label>
+                          <input
+                            type="range"
+                            min="0.1"
+                            max="3.0"
+                            step="0.1"
+                            value={bm25K1}
+                            onChange={(e) => setBm25K1(parseFloat(e.target.value))}
+                            className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer"
+                          />
+                          <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
+                            <span>0.1</span>
+                            <span>3.0</span>
+                          </div>
+                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                            Controls term frequency saturation
+                          </p>
+                        </div>
+                        
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                            b Parameter: {bm25B.toFixed(2)}
+                          </label>
+                          <input
+                            type="range"
+                            min="0.0"
+                            max="1.0"
+                            step="0.05"
+                            value={bm25B}
+                            onChange={(e) => setBm25B(parseFloat(e.target.value))}
+                            className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer"
+                          />
+                          <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
+                            <span>0.0</span>
+                            <span>1.0</span>
+                          </div>
+                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                            Controls document length normalization
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-600">
+                        <button
+                          onClick={() => {
+                            setBm25K1(1.2);
+                            setBm25B(0.75);
+                          }}
+                          className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 underline"
+                        >
+                          Reset to defaults (k1=1.2, b=0.75)
+                        </button>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
               
               <AnimatePresence>
