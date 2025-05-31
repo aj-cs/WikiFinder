@@ -4,7 +4,9 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text;
 using SearchEngine.Analysis;
+using SearchEngine.Analysis.Tokenizers;
 using SearchEngine.Core;
 using SearchEngine.Core.Interfaces;
 
@@ -16,7 +18,7 @@ namespace ManualBenchmarks
         private static readonly string BasePath = "/home/shierfall/Downloads/texts/"; // Adjust as needed
         private static readonly int Iterations = 15; // Adjustable
 
-        // Define search methods
+        // define search methods
         private enum SearchMethod
         {
             Exact,
@@ -35,6 +37,60 @@ namespace ManualBenchmarks
             [SearchMethod.BooleanNaive] = new() { "and && or || cat", "cat && because", "because && cat || or", "or && and" }
         };
 
+        /// <summary>
+        /// parse a file with documents separated by ---end.of.document--- markers
+        /// returns a list of (title, content) pairs representing real documents
+        /// </summary>
+        private static List<(string title, string content)> ParseDocuments(string filePath)
+        {
+            var documents = new List<(string title, string content)>();
+            
+            using var reader = new StreamReader(filePath, Encoding.UTF8);
+            string? line;
+            string? currentTitle = null;
+            var sb = new StringBuilder();
+            bool titleRead = false;
+
+            while ((line = reader.ReadLine()) != null)
+            {
+                if (string.IsNullOrWhiteSpace(line))
+                {
+                    continue;
+                }
+
+                if (line.Trim() == "---END.OF.DOCUMENT---")
+                {
+                    if (titleRead && currentTitle != null && sb.Length > 0)
+                    {
+                        documents.Add((currentTitle, sb.ToString().Trim()));
+                    }
+
+                    titleRead = false;
+                    currentTitle = null;
+                    sb.Clear();
+                    continue;
+                }
+
+                if (!titleRead)
+                {
+                    currentTitle = line;
+                    titleRead = true;
+                }
+                else
+                {
+                    sb.AppendLine(line);
+                }
+            }
+
+            // handle case where file doesn't end with the marker
+            if (titleRead && currentTitle != null && sb.Length > 0)
+            {
+                documents.Add((currentTitle, sb.ToString().Trim()));
+            }
+
+            return documents;
+        }
+
         public static void RunBenchmark()
         {
             var csvPath = "search_benchmark_results.csv";
@@ -49,33 +105,41 @@ namespace ManualBenchmarks
                     Console.WriteLine($"File not found: {filePath}");
                     continue;
                 }
-                var content = File.ReadAllText(filePath);
-                var analyzer = new Analyzer(new SearchEngine.Analysis.Tokenizers.MinimalTokenizer());
-                var tokens = analyzer.Analyze(content).ToList();
 
-                Console.WriteLine($"Indexing file size: {fileSize}");
+                Console.WriteLine($"Parsing documents from file: {fileSize}");
                 
-                // Prepare batch processing - simulate real document structure
-                // Group tokens into "documents" (similar to how real documents would contain multiple tokens)
-                const int tokensPerDoc = 100; // Arbitrary document size
-                var documentTokens = new List<(int docId, List<Token> tokens)>();
-                
-                for (int i = 0; i < tokens.Count; i += tokensPerDoc)
+                // parse real documents from the file
+                var documents = ParseDocuments(filePath);
+                if (documents.Count == 0)
                 {
-                    int docId = i / tokensPerDoc;
-                    var docTokens = tokens.Skip(i).Take(tokensPerDoc).ToList();
-                    if (docTokens.Count > 0)
+                    Console.WriteLine($"No documents found in {filePath}. File should contain documents separated by '---END.OF.DOCUMENT---' markers.");
+                    continue;
+                }
+
+                Console.WriteLine($"Found {documents.Count} documents in {fileSize}");
+                
+                // create analyzer
+                var analyzer = new Analyzer(new MinimalTokenizer());
+                
+                // tokenize all documents and prepare for indexing
+                var documentTokens = new List<(int docId, List<Token> tokens)>();
+                for (int i = 0; i < documents.Count; i++)
+                {
+                    var tokens = analyzer.Analyze(documents[i].content).ToList();
+                    if (tokens.Count > 0)
                     {
-                        documentTokens.Add((docId, docTokens));
+                        documentTokens.Add((i, tokens));
                     }
                 }
+
+                Console.WriteLine($"Indexing {documentTokens.Count} documents for file size: {fileSize}");
                 
-                // Index for Trie using batch processing
+                // index for trie using batch processing
                 var trie = new CompactTrieIndex();
                 trie.SetBM25Enabled(false);
                 var trieTimer = Stopwatch.StartNew();
                 
-                // Convert to format expected by AddDocumentsBatch
+                // convert to format expected by adddocumentsbatch
                 var trieDocTokens = documentTokens
                     .Select(dt => (dt.docId, (IEnumerable<Token>)dt.tokens))
                     .ToList();
@@ -84,12 +148,12 @@ namespace ManualBenchmarks
                 trieTimer.Stop();
                 Console.WriteLine($"Trie indexing time: {trieTimer.ElapsedMilliseconds}ms");
 
-                // Index for InvertedIndex using batch processing
+                // index for invertedindex using batch processing
                 var inverted = new InvertedIndex();
                 inverted.SetBM25Enabled(false);
                 var invertedTimer = Stopwatch.StartNew();
                 
-                // Convert to format expected by AddDocumentsBatch
+                // convert to format expected by adddocumentsbatch
                 var invertedDocTokens = documentTokens
                     .Select(dt => (dt.docId, (IEnumerable<Token>)dt.tokens))
                     .ToList();
@@ -102,7 +166,7 @@ namespace ManualBenchmarks
                 {
                     foreach (var query in queries)
                     {
-                        // Trie
+                        // trie
                         double totalTimeTrie = 0;
                         for (int i = 0; i < Iterations; i++)
                         {
@@ -131,7 +195,7 @@ namespace ManualBenchmarks
                         double meanTrie = totalTimeTrie / Iterations;
                         writer.WriteLine($"{fileSize},CompactTrieIndex,{searchMethod},{query},{meanTrie.ToString(CultureInfo.InvariantCulture)}");
 
-                        // Inverted Index
+                        // inverted index
                         double totalTimeInv = 0;
                         for (int i = 0; i < Iterations; i++)
                         {
