@@ -14,9 +14,9 @@ namespace ManualBenchmarks
 {
     public class ManualSearchBenchmark
     {
-        private static readonly string[] FileSizes = { "100KB", "1MB", "2MB", "5MB", "10MB" };
-        private static readonly string BasePath = "/home/shierfall/Downloads/texts/"; // Adjust as needed
-        private static readonly int Iterations = 15; // Adjustable
+        private static readonly string[] FileSizes = { "100KB", "1MB", "2MB", "5MB", "10MB", "20MB", "50MB", "100MB", "200MB", "400MB", "800Mb"};
+        private static readonly string BasePath = "/zhome/6b/1/188023/Downloads/texts/"; // Adjust as needed
+        private static readonly int Iterations = 25; // Adjustable
 
         // define search methods
         private enum SearchMethod
