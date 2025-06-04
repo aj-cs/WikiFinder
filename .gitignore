@@ -3,3 +3,9 @@ obj/
 /packages/
 riderModule.iml
 /_ReSharper.Caches/
+.idea/
+quicktest.db
+*.db-shm
+*.db-wal
+Benchmarks/BenchmarkDotNet.Artifacts/
+Benchmarks/search_benchmark_results.csv
