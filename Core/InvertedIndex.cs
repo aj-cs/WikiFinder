@@ -113,7 +113,8 @@ public sealed class InvertedIndex : IFullTextIndex
         foreach (var group in termGroups)
         {
             string term = group.Key;
-            var positions = group.Select(t => t.Position).OrderBy(p => p).ToList();
+            // positions should already be in order from tokenizer - Hopefully the parallel tokenizer doesnt break it 
+            var positions = group.Select(t => t.Position).ToList();
             
             lock (_mapLock)
             {
