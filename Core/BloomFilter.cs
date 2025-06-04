@@ -13,8 +13,8 @@ namespace SearchEngine.Core;
 /// A Bloom filter is a space-efficient probabilistic data structure
 /// used to test whether an element is a member of a set.
 /// </summary>
-public class BloomFilter : IBloomFilter
-{
+public class BloomFilter : IBloomFilter  
+{  
     // Bloom filter parameters
     private readonly ulong[] _filter;
     private readonly int _numHashes;
@@ -111,7 +111,7 @@ public class BloomFilter : IBloomFilter
             finally
             {
                 _lock.ExitWriteLock();
-            }
+    }  
             return;
         }
         
@@ -144,7 +144,7 @@ public class BloomFilter : IBloomFilter
         {
             // Set all bits at once while holding the lock
             for (int i = 0; i < bitPositions.Length; i++)
-            {
+    {  
                 var positions = bitPositions[i];
                 if (positions == null) continue;
                 
@@ -165,7 +165,7 @@ public class BloomFilter : IBloomFilter
     /// </summary>
     /// <returns>True if the item might be in the set, false if it's definitely not</returns>
     public bool MightContain(string item)
-    {
+        {  
         if (string.IsNullOrEmpty(item))
             return false;
             
@@ -180,9 +180,9 @@ public class BloomFilter : IBloomFilter
                 var combinedHash = (hash1 + (ulong)i * hash2) % _filterSize;
                 if (!GetBit(combinedHash))
                     return false;
-            }
-            return true;
-        }
+        }  
+        return true;  
+    }
         finally
         {
             _lock.ExitReadLock();
@@ -223,7 +223,7 @@ public class BloomFilter : IBloomFilter
                     bool mightContain = true;
                     
                     for (int i = 0; i < _numHashes && mightContain; i++)
-                    {
+        {
                         var combinedHash = (hash1 + (ulong)i * hash2) % _filterSize;
                         if (!GetBit(combinedHash))
                             mightContain = false;
@@ -264,7 +264,7 @@ public class BloomFilter : IBloomFilter
                     var combinedHash = (hash1 + (ulong)h * hash2) % _filterSize;
                     if (!GetBit(combinedHash))
                         mightContain = false;
-                }
+        }
             }
             finally
             {
@@ -278,7 +278,7 @@ public class BloomFilter : IBloomFilter
         for (int i = 0; i < localResults.Length; i++)
         {
             if (localResults[i] != null)
-            {
+        {
                 foreach (var kvp in localResults[i])
                 {
                     results[kvp.Key] = kvp.Value;
@@ -340,7 +340,7 @@ internal static class MurmurHash3
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static ulong Hash(string data, ulong seed)
-    {
+            {
         const ulong c1 = 0x87c37b91114253d5;
         const ulong c2 = 0x4cf5ad432745937f;
         
@@ -360,7 +360,7 @@ internal static class MurmurHash3
             k1 *= c2;
             h1 ^= k1;
             h1 = RotateLeft(h1, 27);
-            h1 += h2;
+        h1 += h2;
             h1 = h1 * 5 + 0x52dce729;
             i += 4;
         }
@@ -391,13 +391,13 @@ internal static class MurmurHash3
         h1 ^= h1 >> 33;
         h1 *= 0xc4ceb9fe1a85ec53;
         h1 ^= h1 >> 33;
-        
+
         return h1;
     }
-    
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static ulong RotateLeft(ulong x, int r)
     {
         return (x << r) | (x >> (64 - r));
-    }
+    } 
 }

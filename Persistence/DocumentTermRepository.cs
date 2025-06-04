@@ -113,7 +113,7 @@ public class DocumentTermRepository
             throw;
         }
     }
-    
+
     /// <summary>
     /// Fallback bulk insert using EF Core batching
     /// </summary>
@@ -128,7 +128,7 @@ public class DocumentTermRepository
                 Positions = g.Select(t => t.Position).ToList()
             })
             .ToList();
-            
+
         // Process in chunks to avoid excessive memory usage
         var chunks = termGroups
             .Select((term, index) => new { term, index })
@@ -152,7 +152,7 @@ public class DocumentTermRepository
             _context.ChangeTracker.Clear();
         }
     }
-    
+
     /// <summary>
     /// Delete all terms for a document
     /// </summary>
@@ -166,10 +166,10 @@ public class DocumentTermRepository
     /// Delete all terms from the database
     /// </summary>
     public async Task DeleteAllTermsAsync()
-    {
+        {
         await _context.Database.ExecuteSqlRawAsync("DELETE FROM DocumentTerms");
     }
-    
+
     /// <summary>
     /// Get all terms for a document
     /// </summary>
@@ -178,8 +178,8 @@ public class DocumentTermRepository
         var terms = await _context.DocumentTerms
             .AsNoTracking()
             .Where(t => t.DocumentId == documentId)
-            .ToListAsync();
-            
+          .ToListAsync();
+
         var result = new Dictionary<string, List<int>>();
         
         foreach (var term in terms)

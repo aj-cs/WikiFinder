@@ -42,13 +42,13 @@ public class CompactTrieIndex : IExactPrefixIndex
     {
         lock (_poolLock)
         {
-            if (!wordToPoolIndex.TryGetValue(word, out int idx))
-            {
-                idx = wordPool.Count;
-                wordPool.Add(word);
-                wordToPoolIndex[word] = idx;
-            }
-            return idx;
+        if (!wordToPoolIndex.TryGetValue(word, out int idx))
+        {
+            idx = wordPool.Count;
+            wordPool.Add(word);
+            wordToPoolIndex[word] = idx;
+        }
+        return idx;
         }
     }
 
@@ -149,9 +149,9 @@ public class CompactTrieIndex : IExactPrefixIndex
     {
         _trielock.EnterReadLock();
         try
-        {
-            var node = FindNode(root, query.ToLowerInvariant());
-            return node != null && node.IsEndOfWord;
+    {
+        var node = FindNode(root, query.ToLowerInvariant());
+        return node != null && node.IsEndOfWord;
         }
         finally
         {
@@ -190,13 +190,13 @@ public class CompactTrieIndex : IExactPrefixIndex
         try
         {
             prefix = prefix.ToLowerInvariant();
-            var docs = new HashSet<int>();
-            var node = FindNode(root, prefix);
-            if (node != null)
-            {
-                CollectDocs(node, docs);
-            }
-            return new List<int>(docs);
+        var docs = new HashSet<int>();
+        var node = FindNode(root, prefix);
+        if (node != null)
+        {
+            CollectDocs(node, docs);
+        }
+        return new List<int>(docs);
         }
         finally
         {
@@ -226,10 +226,10 @@ public class CompactTrieIndex : IExactPrefixIndex
         _trielock.EnterReadLock();
         try
         {
-            prefix = prefix.ToLowerInvariant();
+        prefix = prefix.ToLowerInvariant(); 
             var node = FindNode(root, prefix);
             if (node == null) return new List<(string, List<int>)>();
-
+        
             var builder = new List<(string, List<int>)>();
             var currentWord = prefix.Substring(0, prefix.Length - (node.Length - CommonPrefix(node, 0, 0, 0)));
             CollectWords(node, currentWord, builder);
@@ -269,52 +269,73 @@ public class CompactTrieIndex : IExactPrefixIndex
     // add batch document processing
     public void AddDocumentsBatch(IEnumerable<(int docId, IEnumerable<Token> tokens)> documents)
     {
-        var docTerms = new ConcurrentDictionary<int, HashSet<string>>();
-        
-        // frist process tokens in parallel to extract unique terms per document
-        Parallel.ForEach(documents, doc => 
+        // Stage 1: Parallel processing of documents to extract unique terms for each document.
+        var docTermLists = new ConcurrentBag<(int docId, List<string> terms)>();
+        Parallel.ForEach(documents, doc =>
         {
-            var uniqueTerms = doc.tokens
+            var lowerCaseUniqueTerms = doc.tokens
                 .Where(t => !string.IsNullOrEmpty(t.Term))
-                .Select(t => t.Term)
+                .Select(t => t.Term.ToLowerInvariant()) // Ensure consistent casing early
                 .Distinct()
-                .ToHashSet();
-                
-            docTerms[doc.docId] = uniqueTerms;
+                    .ToList();
+            if (lowerCaseUniqueTerms.Any())
+            {
+                docTermLists.Add((doc.docId, lowerCaseUniqueTerms));
+    }
         });
-        
-        // then prepare word pool indices (to minimize lock contention during trie updates)
-        var termPoolIndices = new ConcurrentDictionary<string, int>();
-        foreach (var docEntry in docTerms)
+
+        if (!docTermLists.Any()) return;
+
+        // Stage 2: Collect all unique terms across all documents and ensure they are in the word pool.
+        // This populates termToPoolIndexMap. GetPoolIndex handles its own locking.
+        var termToPoolIndexMap = new Dictionary<string, int>();
+        var allUniqueTerms = new HashSet<string>();
+
+        foreach (var docEntry in docTermLists)
         {
-            foreach (var term in docEntry.Value)
-            {
-                if (!termPoolIndices.ContainsKey(term))
-                {
-                    int poolIdx = GetPoolIndex(term);
-                    termPoolIndices[term] = poolIdx;
-                }
+            foreach (var term in docEntry.terms)
+        {
+                allUniqueTerms.Add(term);
             }
         }
         
-        // then update trie with single write lock (to maintain trie integrity)
-        _trielock.EnterWriteLock();
-        try
+        foreach (var term in allUniqueTerms)
         {
-            foreach (var docEntry in docTerms)
+            termToPoolIndexMap[term] = GetPoolIndex(term); // GetPoolIndex is internally locked
+        }
+
+        // Stage 3: Prepare (poolIndex, termLength, docId) for trie insertion.
+        var trieInsertData = new List<(int poolIndex, int termLength, int docId)>();
+        foreach (var docEntry in docTermLists)
+        {
+            var docId = docEntry.docId;
+            foreach (var term in docEntry.terms) // term here is already lowercased
+        {
+                if (termToPoolIndexMap.TryGetValue(term, out int poolIndex))
             {
-                int docId = docEntry.Key;
-                foreach (var term in docEntry.Value)
-                {
-                    int poolIdx = termPoolIndices[term];
-                    Insert(root, poolIdx, 0, term.Length, docId);
-                }
+                    trieInsertData.Add((poolIndex, term.Length, docId));
             }
         }
-        finally
+    }
+
+        // Stage 4: Insert all data into the trie under a single write lock.
+        if (trieInsertData.Any())
+    {
+            _trielock.EnterWriteLock();
+            try
+            {
+                foreach (var (poolIndex, termLength, docId) in trieInsertData)
         {
-            _trielock.ExitWriteLock();
+                    // The Insert method uses wordPool[poolIndex][offset + i] to get characters.
+                    // The offset for Insert is 0 as we are inserting the whole word from the pool.
+                    Insert(root, poolIndex, 0, termLength, docId);
+            }
         }
+            finally
+        {
+                _trielock.ExitWriteLock();
+        }
+    }
     }
 
     public void RemoveDocument(int docId, IEnumerable<Token> tokens)
