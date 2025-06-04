@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sun, Moon, Search, ArrowUp } from 'lucide-react';
+import { Sun, Moon, Search, ArrowUp, Trash2 } from 'lucide-react';
 import { Button } from './components/ui/button';
 import WikipediaImporter from './components/WikipediaImporter';
 import debounce from 'lodash/debounce';
@@ -61,14 +61,17 @@ const fetchResults = async (q: string, k1?: number, b?: number) => {
   }
 };
 
-interface Suggestion {
-  id: string;
-  displayText: string;
-  matchCount?: number;
-  isQuerySuggestion?: boolean;
-  isPopular?: boolean;
-  isError?: boolean;
-}
+// delete document
+const deleteDocument = async (docId: string): Promise<{ success: boolean; message: string }> => {
+  try {
+    const response = await axios.delete(`${API_BASE_URL}/search/document/${docId}`);
+    return { success: true, message: response.data.message || 'Document deleted successfully' };
+  } catch (error: any) {
+    console.error('Error deleting document:', error);
+    const message = error.response?.data?.message || 'Failed to delete document';
+    return { success: false, message };
+  }
+};
 
 interface Result {
   id: string;
@@ -111,6 +114,7 @@ export default function SearchEngineGUI() {
   }); 
   const [visibleCount, setVisibleCount] = useState(10);
   const [doc, setDoc] = useState<Document | null>(null);
+  const [currentDocId, setCurrentDocId] = useState<string | null>(null);
   const [page, setPage] = useState('home');
   const [darkMode, setDarkMode] = useState(false);
   const [inputFocused, setInputFocused] = useState(false);
@@ -119,6 +123,9 @@ export default function SearchEngineGUI() {
   const [isFetchingSuggestions, setIsFetchingSuggestions] = useState(false);
   const [highlightEnabled, setHighlightEnabled] = useState(true);
   const [lastExecutedSearchType, setLastExecutedSearchType] = useState('');
+  const [deleteConfirm, setDeleteConfirm] = useState<{docId: string, title: string} | null>(null);
+  const [notification, setNotification] = useState<{message: string, type: 'success' | 'error'} | null>(null);
+  const [deletingDocId, setDeletingDocId] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -277,6 +284,7 @@ export default function SearchEngineGUI() {
     // fetch document with term highlighting
     const document = await fetchDocument(id);
     setDoc(document);
+    setCurrentDocId(id); // Store the current document ID
     setPage('document');
     setIsLoading(false);
   };
@@ -296,29 +304,54 @@ export default function SearchEngineGUI() {
     }
   };
 
-  const handleSuggestionClick = (suggestion: string) => {
-    // replace only the last word in the query with the suggestion
-    const words = query.split(' ');
-    if (words.length > 1) {
-      // keep all words except the last one and then add the suggestion
-      words.pop(); // remove last word
-      setQuery(words.join(' ') + ' ' + suggestion);
+  const showNotification = (message: string, type: 'success' | 'error') => {
+    setNotification({ message, type });
+    setTimeout(() => setNotification(null), 4000);
+  };
+
+  const handleDeleteFromDocView = () => {
+    if (!currentDocId || !doc) return;
+    setDeleteConfirm({ docId: currentDocId, title: doc.title });
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteConfirm) return;
+    
+    setDeletingDocId(deleteConfirm.docId);
+    const result = await deleteDocument(deleteConfirm.docId);
+    
+    if (result.success) {
+      showNotification(result.message, 'success');
+      // Remove the deleted document from search results
+      setSearchResponse(prev => ({
+        ...prev,
+        results: prev.results.filter(r => r.id !== deleteConfirm.docId),
+        totalCount: prev.totalCount - 1
+      }));
+      
+      // If we're in document view and deleted the current document, go back to results
+      if (page === 'document' && currentDocId === deleteConfirm.docId) {
+        setPage('results');
+        setDoc(null);
+        setCurrentDocId(null);
+      }
     } else {
-      // just use suggestion when empty or alone
-      setQuery(suggestion);
+      showNotification(result.message, 'error');
     }
     
-    inputRef.current?.focus();
-    
-    // clear suggestions immediately to prevent flickering
-    setSuggestions([]);
+    setDeleteConfirm(null);
+    setDeletingDocId(null);
+  };
+
+  const cancelDelete = () => {
+    setDeleteConfirm(null);
   };
 
   return (
     <div
       ref={containerRef}
       className={`min-h-screen transition-colors duration-200 ${
-        darkMode ? 'dark bg-slate-900 text-white' : 'bg-slate-50 text-slate-900'
+        darkMode ? 'dark bg-slate-900 text-white' : 'bg-slate-200 text-slate-900'
       }`}
     >
       <div className="max-w-6xl mx-auto p-4">
@@ -328,7 +361,7 @@ export default function SearchEngineGUI() {
             <WikipediaImporter />
             <button
               onClick={toggleDarkMode}
-              className="p-2 rounded-full bg-slate-200 dark:bg-slate-800"
+              className="p-2 rounded-full bg-slate-300 dark:bg-slate-800"
               aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
             >
               {darkMode ? <Sun size={20} /> : <Moon size={20} />}
@@ -612,7 +645,7 @@ export default function SearchEngineGUI() {
                         {r.score !== undefined && (
                           <div className="text-xs text-gray-500 dark:text-gray-400 mt-1 flex items-center">
                             <div className="flex items-center">
-                              <span className="mr-1">BM25 Score:</span>
+                              <span className="mr-1">Relevance:</span>
                               <div className="w-20 h-2 bg-gray-200 dark:bg-gray-600 rounded-full overflow-hidden">
                                 <div 
                                   className="h-full bg-blue-500 rounded-full"
@@ -653,7 +686,30 @@ export default function SearchEngineGUI() {
                   }}
                 />
               </div>
-              <Button className="mt-2" variant="outline" size="sm" onClick={() => setPage('results')}>Back to results</Button>
+              <div className="flex gap-2 mt-2">
+                <Button variant="outline" size="sm" onClick={() => setPage('results')}>
+                  Back to results
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={handleDeleteFromDocView}
+                  disabled={deletingDocId === currentDocId}
+                  className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/20"
+                >
+                  {deletingDocId === currentDocId ? (
+                    <div className="flex items-center">
+                      <div className="w-4 h-4 animate-spin rounded-full border-2 border-current border-t-transparent mr-2"></div>
+                      Deleting...
+                    </div>
+                  ) : (
+                    <div className="flex items-center">
+                      <Trash2 size={16} className="mr-1" />
+                      Delete Document
+                    </div>
+                  )}
+                </Button>
+              </div>
             </div>
           )}
         </div>
@@ -663,6 +719,83 @@ export default function SearchEngineGUI() {
             <ArrowUp className="w-5 h-5 text-gray-700 dark:text-gray-300" />
           </button>
         )}
+
+        {/* Delete Confirmation Dialog */}
+        <AnimatePresence>
+          {deleteConfirm && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+            >
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
+                className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full shadow-xl"
+              >
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                  Delete Document
+                </h3>
+                <p className="text-gray-700 dark:text-gray-300 mb-4">
+                  Are you sure you want to delete "<strong>{deleteConfirm.title}</strong>"? This action cannot be undone.
+                </p>
+                <div className="flex justify-end space-x-3">
+                  <Button
+                    variant="outline"
+                    onClick={cancelDelete}
+                    disabled={deletingDocId !== null}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={confirmDelete}
+                    disabled={deletingDocId !== null}
+                    className="bg-red-500 hover:bg-red-600 text-white"
+                  >
+                    {deletingDocId === deleteConfirm.docId ? (
+                      <div className="flex items-center">
+                        <div className="w-4 h-4 animate-spin rounded-full border-2 border-white border-t-transparent mr-2"></div>
+                        Deleting...
+                      </div>
+                    ) : (
+                      'Delete'
+                    )}
+                  </Button>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Notification Toast */}
+        <AnimatePresence>
+          {notification && (
+            <motion.div
+              initial={{ opacity: 0, y: -50 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -50 }}
+              className="fixed top-4 right-4 z-50"
+            >
+              <div className={`px-4 py-3 rounded-lg shadow-lg ${
+                notification.type === 'success' 
+                  ? 'bg-green-500 text-white' 
+                  : 'bg-red-500 text-white'
+              }`}>
+                <div className="flex items-center">
+                  <span>{notification.message}</span>
+                  <button
+                    onClick={() => setNotification(null)}
+                    className="ml-3 text-white hover:text-gray-200"
+                  >
+                    ×
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );

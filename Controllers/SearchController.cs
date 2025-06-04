@@ -17,15 +17,18 @@ namespace SearchEngine.Controllers
         private readonly ISearchService _searchService;
         private readonly FileContentService _fileContentService;
         private readonly IWikipediaService _wikipediaService;
+        private readonly IIndexingService _indexingService;
 
         public SearchController(
             ISearchService searchService, 
             FileContentService fileContentService,
-            IWikipediaService wikipediaService)
+            IWikipediaService wikipediaService,
+            IIndexingService indexingService)
         {
             _searchService = searchService;
             _fileContentService = fileContentService;
             _wikipediaService = wikipediaService;
+            _indexingService = indexingService;
         }
 
     [HttpGet]
@@ -449,6 +452,28 @@ namespace SearchEngine.Controllers
             catch (Exception ex)
             {
                 return BadRequest($"Error adding Wikipedia article: {ex.Message}");
+            }
+        }
+
+        [HttpDelete("document/{docId:int}")]
+        public async Task<IActionResult> DeleteDocument(int docId)
+        {
+            try
+            {
+                var result = await _indexingService.RemoveDocumentAsync(docId);
+                
+                if (result)
+                {
+                    return Ok(new { message = $"Document {docId} successfully deleted" });
+                }
+                else
+                {
+                    return NotFound(new { message = $"Document {docId} not found" });
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = $"Error deleting document: {ex.Message}" });
             }
         }
     }

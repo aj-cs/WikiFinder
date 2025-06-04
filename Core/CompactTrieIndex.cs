@@ -656,90 +656,94 @@ public class CompactTrieIndex : IExactPrefixIndex, IFullTextIndex
     }
     
     public List<(int docId, int count)> PhraseSearch(string phrase)
+{
+    _trielock.EnterReadLock();
+    try
     {
-        _trielock.EnterReadLock();
-        try
+        var words = phrase.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (words.Length == 0) return new List<(int docId, int count)>();
+
+        if (words.Length == 1) return ExactSearch(words[0]);
+
+        // find the first term
+        var firstNode = FindNode(root, words[0].ToLowerInvariant());
+        if (firstNode == null || !firstNode.IsEndOfWord) 
+            return new List<(int docId, int count)>();
+
+        // initialize candidates with positions from first term
+        var candidates = new Dictionary<int, List<int>>();
+        
+        foreach (var docId in firstNode.DocIds)
         {
-            var words = phrase.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-            if (words.Length == 0) return new List<(int docId, int count)>();
-
-            if (words.Length == 1) return ExactSearch(words[0]);
-
-            // find the first term
-            var firstNode = FindNode(root, words[0].ToLowerInvariant());
-            if (firstNode == null || !firstNode.IsEndOfWord) 
-                return new List<(int docId, int count)>();
-
-            // initialize candidates with positions from first term
-            var candidates = new Dictionary<int, List<int>>();
-            var matchCounts = new Dictionary<int, int>();
-            
-            foreach (var docId in firstNode.DocIds)
+            if (firstNode.Positions.TryGetValue(docId, out var positions))
             {
-                if (firstNode.Positions.TryGetValue(docId, out var positions))
-                {
-                    candidates[docId] = positions.Count > 0 && positions[0] == 0 ? 
-                        Decode(positions) : new List<int>(positions);
-                    matchCounts[docId] = 1; // starting count
-                }
+                candidates[docId] = positions.Count > 0 && positions[0] == 0 ? 
+                    Decode(positions) : new List<int>(positions);
             }
-            
-            // process remaining terms
-            for (int i = 1; i < words.Length; i++)
-            {
-                var nextNode = FindNode(root, words[i].ToLowerInvariant());
-                if (nextNode == null || !nextNode.IsEndOfWord) 
-                    return new List<(int docId, int count)>();
-                    
-                var nextSet = new Dictionary<int, List<int>>();
-                var nextMatchCounts = new Dictionary<int, int>();
+        }
+        
+        // process remaining terms
+        for (int i = 1; i < words.Length; i++)
+        {
+            var nextNode = FindNode(root, words[i].ToLowerInvariant());
+            if (nextNode == null || !nextNode.IsEndOfWord) 
+                return new List<(int docId, int count)>();
                 
-                foreach (var docId in nextNode.DocIds)
+            var nextSet = new Dictionary<int, List<int>>();
+            
+            foreach (var docId in nextNode.DocIds)
+            {
+                if (!candidates.TryGetValue(docId, out var prevPositions)) continue;
+                
+                if (nextNode.Positions.TryGetValue(docId, out var currPositions))
                 {
-                    if (!candidates.TryGetValue(docId, out var prevPositions)) continue;
-                    
-                    if (nextNode.Positions.TryGetValue(docId, out var currPositions))
+                    var valid = MergePositions(prevPositions, 
+                        currPositions.Count > 0 && currPositions[0] == 0 ? 
+                        Decode(currPositions) : currPositions);
+                        
+                    if (valid.Count > 0)
                     {
-                        var valid = MergePositions(prevPositions, 
-                            currPositions.Count > 0 && currPositions[0] == 0 ? 
-                            Decode(currPositions) : currPositions);
-                            
-                        if (valid.Count > 0)
-                        {
-                            nextSet[docId] = valid;
-                            // add count from this term if document matched
-                            if (matchCounts.TryGetValue(docId, out var prevCount))
-                            {
-                                nextMatchCounts[docId] = prevCount + 1;
-                            }
-                            else
-                            {
-                                nextMatchCounts[docId] = 1;
-                            }
-                        }
+                        nextSet[docId] = valid;
                     }
                 }
-                
-                candidates = nextSet;
-                matchCounts = nextMatchCounts;
-                if (candidates.Count == 0) break;
             }
             
-            // prepare final results with document IDs and match counts
-            var finalResults = new List<(int docId, int count)>();
-            foreach (var kv in matchCounts)
-            {
-                finalResults.Add((kv.Key, kv.Value));
-            }
-            
-            // sort by count descending, then by docId ascending
-            return finalResults.OrderByDescending(r => r.count).ThenBy(r => r.docId).ToList();
+            candidates = nextSet;
+            if (candidates.Count == 0) break;
         }
-        finally
+        
+        var docIds = candidates.Keys.ToList();
+        var results = new List<(int docId, double score)>(docIds.Count);
+        
+        foreach (var docId in docIds)
         {
-            _trielock.ExitReadLock();
+            double totalScore = 0;
+            for (int i = 0; i < words.Length; i++)
+            {
+                var node = FindNode(root, words[i].ToLowerInvariant());
+                if (node != null && node.IsEndOfWord && node.DocIds.Contains(docId))
+                {
+                    int termFreq = node.Positions.TryGetValue(docId, out var positions) ? positions.Count : 1;
+                    totalScore += CalculateBM25Score(words[i], docId, termFreq);
+                }
+            }
+            //boost
+            totalScore *= 1.2;
+            results.Add((docId, totalScore));
         }
+        var finalResults = new List<(int docId, int count)>(results.Count);
+        foreach (var item in results.OrderByDescending(r => r.score))
+        {
+            finalResults.Add((item.docId, (int)(item.score * 1000))); // scaled
+        }
+        
+        return finalResults;
     }
+    finally
+    {
+        _trielock.ExitReadLock();
+    }
+}
 
     public List<(int docId, int count)> BooleanSearchNaive(string expr)
     {
