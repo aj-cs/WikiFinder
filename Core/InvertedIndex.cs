@@ -27,10 +27,17 @@ public sealed class InvertedIndex : IFullTextIndex
         }
     }
 
+    // ----- unified term entry structure :) -----------------------------------------
+    private sealed class TermEntry
+    {
+        public readonly List<Posting> Postings = new();
+        public readonly HashSet<int> DocSet = new();
+        public BitArray? BitIndex; 
+    }
+
     // ----- fields ------------------------------------------------------------
-    private readonly Dictionary<string, List<Posting>> _map = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, TermEntry> _termIndex = new(StringComparer.Ordinal);
     private readonly Dictionary<int, string> _docTitles = new(); // only needed for debug
-    private readonly Dictionary<string, BitArray> _bitIndex = new(StringComparer.Ordinal);
     
     // BM25 specific fields
     private readonly Dictionary<int, int> _docLengths = new();
@@ -43,10 +50,9 @@ public sealed class InvertedIndex : IFullTextIndex
     private int _nextDocId;
 
     private bool _delta = true;
-    // lock objects for thread safety
-    private readonly object _mapLock = new object();
+    // lock objects for thread safety (simplified to single lock)
+    private readonly object _termLock = new object();
     private readonly object _statsLock = new object();
-    private readonly object _bitsLock = new object();
             
     public void SetDeltaEncoding(bool on) => _delta = on;
     
@@ -115,21 +121,21 @@ public sealed class InvertedIndex : IFullTextIndex
             string term = group.Key;
             var positions = group.Select(t => t.Position).OrderBy(p => p).ToList();
             
-            lock (_mapLock)
+            lock (_termLock)
             {
-                if (!_map.TryGetValue(term, out var list))
-                    _map[term] = list = new();
+                if (!_termIndex.TryGetValue(term, out var termEntry))
+                    _termIndex[term] = termEntry = new TermEntry();
 
-                if (list.Count > 0 && list[^1].DocId == docId)
+                if (termEntry.Postings.Count > 0 && termEntry.Postings[^1].DocId == docId)
                 {
                     // update existing posting
-                    int lastPos = list[^1].Positions[^1];
+                    int lastPos = termEntry.Postings[^1].Positions[^1];
                     foreach (var pos in positions)
                     {
-                        list[^1].Positions.Add(_delta ? pos - lastPos : pos);
+                        termEntry.Postings[^1].Positions.Add(_delta ? pos - lastPos : pos);
                         lastPos = pos;
                     }
-                    list[^1].Count += positions.Count;
+                    termEntry.Postings[^1].Count += positions.Count;
                 }
                 else
                 {
@@ -144,16 +150,18 @@ public sealed class InvertedIndex : IFullTextIndex
                         posting.Count++;
                     }
                     
-                    list.Add(posting);
+                    termEntry.Postings.Add(posting);
                 }
+                
+                // update document set cache
+                termEntry.DocSet.Add(docId);
+                
+                // invalidate bit index for this term
+                termEntry.BitIndex = null;
             }
         }
 
-        lock (_bitsLock)
-        {
-            _bitBuilt = false;
-            BuildBits();
-        }
+        _bitBuilt = false;
     }
 
     // support for batch document processing
@@ -219,31 +227,31 @@ public sealed class InvertedIndex : IFullTextIndex
         }
 
         // third update inverted index with term postings
-        lock (_mapLock)
+        lock (_termLock)
         {
             foreach (var termEntry in termPostingsMap)
             {
                 string term = termEntry.Key;
                 var docPostings = termEntry.Value;
                 
-                if (!_map.TryGetValue(term, out var list))
-                    _map[term] = list = new();
+                if (!_termIndex.TryGetValue(term, out var termEntryData))
+                    _termIndex[term] = termEntryData = new TermEntry();
                 
                 foreach (var docEntry in docPostings)
                 {
                     int docId = docEntry.Key;
                     var positions = docEntry.Value.OrderBy(p => p).ToList();
                     
-                    if (list.Count > 0 && list[^1].DocId == docId)
+                    if (termEntryData.Postings.Count > 0 && termEntryData.Postings[^1].DocId == docId)
                     {
                         // update existing posting
-                        int lastPos = list[^1].Positions[^1];
+                        int lastPos = termEntryData.Postings[^1].Positions[^1];
                         foreach (var pos in positions)
                         {
-                            list[^1].Positions.Add(_delta ? pos - lastPos : pos);
+                            termEntryData.Postings[^1].Positions.Add(_delta ? pos - lastPos : pos);
                             lastPos = pos;
                         }
-                        list[^1].Count += positions.Count;
+                        termEntryData.Postings[^1].Count += positions.Count;
                     }
                     else
                     {
@@ -260,59 +268,85 @@ public sealed class InvertedIndex : IFullTextIndex
                                 posting.Count++;
                             }
                             
-                            list.Add(posting);
+                            termEntryData.Postings.Add(posting);
                         }
                     }
+                    
+                    // update document set cache
+                    termEntryData.DocSet.Add(docId);
                 }
+                
+                // invalidate bit index for this term
+                termEntryData.BitIndex = null;
             }
         }
 
-        // finally rebuild bit indices
-        lock (_bitsLock)
-        {
-            _bitBuilt = false;
-            BuildBits();
-        }
+        _bitBuilt = false;
     }
 
     public void RemoveDocument(int docId, IEnumerable<Token> tokens)
     {
         // update document length stats
-        if (_docLengths.ContainsKey(docId))
+        lock (_statsLock)
         {
-            // emove document length from average calculation
-            if (_totalDocs > 1)
+            if (_docLengths.ContainsKey(docId))
             {
-                _avgDocLength = (_avgDocLength * _totalDocs - _docLengths[docId]) / (_totalDocs - 1);
+                // emove document length from average calculation
+                if (_totalDocs > 1)
+                {
+                    _avgDocLength = (_avgDocLength * _totalDocs - _docLengths[docId]) / (_totalDocs - 1);
+                }
+                else
+                {
+                    _avgDocLength = 0;
+                }
+                
+                _docLengths.Remove(docId);
+                _totalDocs--;
             }
-            else
-            {
-                _avgDocLength = 0;
-            }
-            
-            _docLengths.Remove(docId);
-            _totalDocs--;
         }
         
         // remove document from all term postings
-        foreach (var t in tokens)
+        lock (_termLock)
         {
-            if (!_map.TryGetValue(t.Term, out var list)) continue;
-            list.RemoveAll(p => p.DocId == docId);
-            if (list.Count == 0) _map.Remove(t.Term);
+            foreach (var t in tokens)
+            {
+                if (!_termIndex.TryGetValue(t.Term, out var termEntry)) continue;
+                
+                termEntry.Postings.RemoveAll(p => p.DocId == docId);
+                termEntry.DocSet.Remove(docId);
+                
+                if (termEntry.Postings.Count == 0)
+                {
+                    _termIndex.Remove(t.Term);
+                }
+                else
+                {
+                    // invalidate bit index for this term
+                    termEntry.BitIndex = null;
+                }
+            }
         }
+        
         _bitBuilt = false;
     }
 
     public void Clear()
     {
-        _map.Clear();           // remove all postings
-        _bitIndex.Clear();      // remove all bit-vectors
-        _docTitles.Clear();     // forget any stored titles/debug info
-        _docLengths.Clear();    // clear document lengths
-        _avgDocLength = 0;      // reset average document length
-        _totalDocs = 0;         // reset total document count
-        _nextDocId = 0;         // reset doc-id counter
+        lock (_termLock)
+        {
+            _termIndex.Clear();     // remove all term entries (postings, docsets, bitindex)
+        }
+        
+        lock (_statsLock)
+        {
+            _docTitles.Clear();     // forget any stored titles/debug info
+            _docLengths.Clear();    // clear document lengths
+            _avgDocLength = 0;      // reset average document length
+            _totalDocs = 0;         // reset total document count
+            _nextDocId = 0;         // reset doc-id counter
+        }
+        
         _bitBuilt = false;      // mark bits as needing rebuild
     }
     
@@ -322,12 +356,12 @@ public sealed class InvertedIndex : IFullTextIndex
     {
         if (!_useBM25) return 0; // Skip BM25 calculation if disabled
 
-        if (!_map.TryGetValue(term, out var postings) || postings.Count == 0 || !_docLengths.TryGetValue(docId, out var docLength))
+        if (!_termIndex.TryGetValue(term, out var termEntry) || termEntry.Postings.Count == 0 || !_docLengths.TryGetValue(docId, out var docLength))
             return 0;
             
         // IDF component: log((N-n+0.5)/(n+0.5))
         double N = _totalDocs;
-        double n = postings.Count; // number of documents containing the term
+        double n = termEntry.Postings.Count; // number of documents containing the term
         double idf = Math.Log((N - n + 0.5) / (n + 0.5) + 1.0);
         
         // normalized term frequency
@@ -343,18 +377,27 @@ public sealed class InvertedIndex : IFullTextIndex
     public List<(int docId, int count)> ExactSearch(string searchStr)
     {
         string word = searchStr;
-        if (!_map.TryGetValue(word, out var postings))
+        
+        // O(1) lookup to get term entry
+        if (!_termIndex.TryGetValue(word, out var termEntry))
         {
             return new List<(int docId, int count)>();
         }
 
+        // create lookup dictionary for O(1) posting access
+        var postingLookup = termEntry.Postings.ToDictionary(p => p.DocId, p => p);
+
         // preallocation of result list with its exact capacity
-        var results = new List<(int docId, double score)>(postings.Count);
+        var results = new List<(int docId, double score)>(termEntry.DocSet.Count);
         
-        foreach (var posting in postings)
+        // O(d) iteration through documents, but O(1) posting lookup per document
+        foreach (var docId in termEntry.DocSet)
         {
-            double score = CalculateBM25Score(word, posting.DocId, posting.Count);
-            results.Add((posting.DocId, score));
+            if (postingLookup.TryGetValue(docId, out var posting))
+            {
+                double score = CalculateBM25Score(word, posting.DocId, posting.Count);
+                results.Add((posting.DocId, score));
+            }
         }
 
         // preallocation of final list with exact capacity
@@ -374,19 +417,19 @@ public sealed class InvertedIndex : IFullTextIndex
 
         if (words.Length == 1) return ExactSearch(words[0]);
 
-        if (!_map.TryGetValue(words[0], out var first)) return new List<(int docId, int count)>();
+        if (!_termIndex.TryGetValue(words[0], out var firstTermEntry)) return new List<(int docId, int count)>();
 
-        var candidates = first.ToDictionary(p => p.DocId,
+        var candidates = firstTermEntry.Postings.ToDictionary(p => p.DocId,
                                             p => new List<int>(p.Positions));
-        var matchCounts = first.ToDictionary(p => p.DocId, p => p.Count);
+        var matchCounts = firstTermEntry.Postings.ToDictionary(p => p.DocId, p => p.Count);
                                             
         for (int i = 1; i < words.Length; i++)
         {
-            if (!_map.TryGetValue(words[i], out var next)) return new List<(int docId, int count)>();
+            if (!_termIndex.TryGetValue(words[i], out var nextTermEntry)) return new List<(int docId, int count)>();
             var nextSet = new Dictionary<int, List<int>>();
             var nextMatchCounts = new Dictionary<int, int>();
             
-            foreach (var p in next)
+            foreach (var p in nextTermEntry.Postings)
             {
                 if (!candidates.TryGetValue(p.DocId, out var prev)) continue;
                 var valid = MergePositions(prev, p.Positions);
@@ -413,18 +456,25 @@ public sealed class InvertedIndex : IFullTextIndex
         var docIds = candidates.Keys.ToList();
         var results = new List<(int docId, double score)>(docIds.Count);
         
+        // Create posting lookup dictionaries for O(1) access
+        var postingLookups = new Dictionary<string, Dictionary<int, Posting>>();
+        for (int i = 0; i < words.Length; i++)
+        {
+            if (_termIndex.TryGetValue(words[i], out var termEntry))
+            {
+                postingLookups[words[i]] = termEntry.Postings.ToDictionary(p => p.DocId, p => p);
+            }
+        }
+        
         foreach (var docId in docIds)
         {
             double totalScore = 0;
             for (int i = 0; i < words.Length; i++)
             {
-                if (_map.TryGetValue(words[i], out var termPostings))
+                if (postingLookups.TryGetValue(words[i], out var lookup) &&
+                    lookup.TryGetValue(docId, out var posting))
                 {
-                    var posting = termPostings.FirstOrDefault(p => p.DocId == docId);
-                    if (posting != null)
-                    {
-                        totalScore += CalculateBM25Score(words[i], docId, posting.Count);
-                    }
+                    totalScore += CalculateBM25Score(words[i], docId, posting.Count);
                 }
             }
             // boost phrase matches
@@ -455,7 +505,11 @@ public sealed class InvertedIndex : IFullTextIndex
             if (token is "&&" or "||") { op = token; continue; }
             
             terms.Add(token);
-            _bitIndex.TryGetValue(token, out var bits);
+            BitArray? bits = null;
+            if (_termIndex.TryGetValue(token, out var termEntry))
+            {
+                bits = termEntry.BitIndex;
+            }
             bits ??= new BitArray(_nextDocId); // all false
 
             acc = acc == null
@@ -476,18 +530,26 @@ public sealed class InvertedIndex : IFullTextIndex
         
         // calculate BM25 scores for each matching document
         var results = new List<(int docId, double score)>(docIds.Count);
+        
+        // create posting lookup dictionaries for O(1) access
+        var postingLookups = new Dictionary<string, Dictionary<int, Posting>>();
+        foreach (var term in terms)
+        {
+            if (_termIndex.TryGetValue(term, out var termEntry))
+            {
+                postingLookups[term] = termEntry.Postings.ToDictionary(p => p.DocId, p => p);
+            }
+        }
+        
         foreach (var docId in docIds)
         {
             double totalScore = 0;
             foreach (var term in terms)
             {
-                if (_map.TryGetValue(term, out var postings))
+                if (postingLookups.TryGetValue(term, out var lookup) &&
+                    lookup.TryGetValue(docId, out var posting))
                 {
-                    var posting = postings.FirstOrDefault(p => p.DocId == docId);
-                    if (posting != null)
-                    {
-                        totalScore += CalculateBM25Score(term, docId, posting.Count);
-                    }
+                    totalScore += CalculateBM25Score(term, docId, posting.Count);
                 }
             }
             results.Add((docId, totalScore));
@@ -506,19 +568,21 @@ public sealed class InvertedIndex : IFullTextIndex
     private void BuildBits()
     {
         if (_bitBuilt) return;
-        _bitIndex.Clear();
         
-        foreach (var kv in _map)
+        lock (_termLock)
         {
-            var word = kv.Key;
-            var list = kv.Value;
-            var bits = new BitArray(_nextDocId);
-            foreach (var p in list)
+            foreach (var kv in _termIndex)
             {
-                if (p.DocId < _nextDocId)
-                    bits[p.DocId] = true;
+                var term = kv.Key;
+                var termEntry = kv.Value;
+                var bits = new BitArray(_nextDocId);
+                foreach (var p in termEntry.Postings)
+                {
+                    if (p.DocId < _nextDocId)
+                        bits[p.DocId] = true;
+                }
+                termEntry.BitIndex = bits;
             }
-            _bitIndex[word] = bits;
         }
         _bitBuilt = true;
     }
@@ -571,20 +635,19 @@ private static List<int> MergePositions(List<int> prev, List<int> cur)
     public List<(string word, List<int> docIds)> PrefixSearch(string prefix)
     {
         // estimate capacity to avoid resizing
-        var estimatedMatches = Math.Min(20, _map.Count / 10); // rough guess
+        var estimatedMatches = Math.Min(20, _termIndex.Count / 10); // rough guess
         var results = new List<(string word, List<int> docIds)>(estimatedMatches);
         
-        foreach (var kvp in _map)
+        lock (_termLock)
         {
-            if (kvp.Key.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+            foreach (var kvp in _termIndex)
             {
-                // pre-allocate docIds list to avoid resizing
-                var docIds = new List<int>(kvp.Value.Count);
-                foreach (var posting in kvp.Value)
+                if (kvp.Key.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
                 {
-                    docIds.Add(posting.DocId);
+                    // use cached document set directly - O(1) operation
+                    var docIds = new List<int>(kvp.Value.DocSet);
+                    results.Add((kvp.Key, docIds));
                 }
-                results.Add((kvp.Key, docIds));
             }
         }
         return results;
@@ -617,22 +680,20 @@ private static List<int> MergePositions(List<int> prev, List<int> cur)
             }
         }
 
-        // pre-allocate with known capacity
+        // use document set cache for O(1) lookup instead of building from postings
         var docSets = new List<HashSet<int>>(terms.Count);
-        foreach (var term in terms)
+        lock (_termLock)
         {
-            if (_map.TryGetValue(term, out var postings))
+            foreach (var term in terms)
             {
-                var docSet = new HashSet<int>(postings.Count);
-                foreach (var posting in postings)
+                if (_termIndex.TryGetValue(term, out var termEntry))
                 {
-                    docSet.Add(posting.DocId);
+                    docSets.Add(new HashSet<int>(termEntry.DocSet)); // Clone the cached set
                 }
-                docSets.Add(docSet);
-            }
-            else
-            {
-                docSets.Add(new HashSet<int>());
+                else
+                {
+                    docSets.Add(new HashSet<int>());
+                }
             }
         }
 
@@ -653,18 +714,29 @@ private static List<int> MergePositions(List<int> prev, List<int> cur)
 
         // calculate scores for matching documents
         var scoreResults = new List<(int docId, double score)>(result.Count);
+        
+        // create posting lookup dictionaries for O(1) access
+        var postingLookups = new Dictionary<string, Dictionary<int, Posting>>();
+        lock (_termLock)
+        {
+            foreach (var term in terms)
+            {
+                if (_termIndex.TryGetValue(term, out var termEntry))
+                {
+                    postingLookups[term] = termEntry.Postings.ToDictionary(p => p.DocId, p => p);
+                }
+            }
+        }
+        
         foreach (var docId in result)
         {
             double totalScore = 0;
             foreach (var term in terms)
             {
-                if (_map.TryGetValue(term, out var postings))
+                if (postingLookups.TryGetValue(term, out var lookup) &&
+                    lookup.TryGetValue(docId, out var posting))
                 {
-                    var posting = postings.FirstOrDefault(p => p.DocId == docId);
-                    if (posting != null)
-                    {
-                        totalScore += CalculateBM25Score(term, docId, posting.Count);
-                    }
+                    totalScore += CalculateBM25Score(term, docId, posting.Count);
                 }
             }
             scoreResults.Add((docId, totalScore));
