@@ -246,7 +246,7 @@ namespace ManualBenchmarks
                             for (int i = 0; i < Iterations; i++)
                             {
                                 var sw = Stopwatch.StartNew();
-                                bloomFilter.Contains(query);
+                                bloomFilter.MightContain(query);
                                 sw.Stop();
                                 totalTimeBloom += sw.Elapsed.TotalMilliseconds;
                             }
