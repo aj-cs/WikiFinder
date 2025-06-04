@@ -41,7 +41,12 @@ public sealed class InvertedIndex : IFullTextIndex
     
     // BM25 specific fields
     private readonly Dictionary<int, int> _docLengths = new();
-    private double _avgDocLength = 0;
+    private double _avgDocLength = 0;    private sealed class TermEntry
+    {
+        public readonly Dictionary<int, Posting> Postings = new();
+        public readonly HashSet<int> DocSet = new();
+        public BitArray? BitIndex; 
+    }
     private int _totalDocs = 0;
     private double _k1 = 1.2; // BM25 parameter: term frequency saturation
     private double _b = 0.75; // BM25 parameter: document length normalization
