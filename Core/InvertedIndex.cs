@@ -37,7 +37,7 @@ public sealed class InvertedIndex : IFullTextIndex
 
     // ----- fields ------------------------------------------------------------
     private readonly Dictionary<string, TermEntry> _termIndex = new(StringComparer.Ordinal);
-    private readonly Dictionary<int, string> _docTitles = new(); // only needed for debug
+    private readonly Dictionary<int, string> _docTitles = new();
     
     // BM25 specific fields
     private readonly Dictionary<int, int> _docLengths = new();
@@ -276,7 +276,7 @@ public sealed class InvertedIndex : IFullTextIndex
                     termEntryData.DocSet.Add(docId);
                 }
                 
-                // invalidate bit index for this term
+                // invalidate bit index for this term :(
                 termEntryData.BitIndex = null;
             }
         }
@@ -570,7 +570,7 @@ public sealed class InvertedIndex : IFullTextIndex
         }
         _bitBuilt = true;
     }
-
+    //not used
     private static int BinarySearch(List<int> list, int value)
     {
         int left = 0, right = list.Count - 1;
@@ -723,7 +723,7 @@ private static List<int> MergePositions(List<int> prev, List<int> cur)
         return finalResults;
     }
 
-    // Public methods for benchmarking to access actual built data structure statistics
+    // public methods for benchmarking to access actual built data structure statistics
     public int GetTermCount() 
     {
         lock (_termLock)
