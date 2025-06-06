@@ -173,20 +173,26 @@ public class SearchService : ISearchService
     
     public Task SetBM25ParamsAsync(double k1, double b)
     {
-        if (_index is SearchEngine.Core.CompactTrieIndex)
+        if (_index is SearchEngine.Core.CompactTrieIndex trieIndex)
         {
-            var trieIndex = (SearchEngine.Core.CompactTrieIndex)_index;
             trieIndex.SetBM25Params(k1, b);
+        }
+        else if (_index is SearchEngine.Core.InvertedIndex invertedIndex)
+        {
+            invertedIndex.SetBM25Params(k1, b);
         }
         return Task.CompletedTask;
     }
     
     public Task<(double k1, double b)> GetBM25ParamsAsync()
     {
-        if (_index is SearchEngine.Core.CompactTrieIndex)
+        if (_index is SearchEngine.Core.CompactTrieIndex trieIndex)
         {
-            var trieIndex = (SearchEngine.Core.CompactTrieIndex)_index;
             return Task.FromResult(trieIndex.GetBM25Params());
+        }
+        else if (_index is SearchEngine.Core.InvertedIndex invertedIndex)
+        {
+            return Task.FromResult(invertedIndex.GetBM25Params());
         }
         return Task.FromResult((1.2, 0.75)); // default values
     }
