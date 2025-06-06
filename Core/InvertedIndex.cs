@@ -37,7 +37,7 @@ public sealed class InvertedIndex : IFullTextIndex
 
     // ----- fields ------------------------------------------------------------
     private readonly Dictionary<string, TermEntry> _termIndex = new(StringComparer.Ordinal);
-    private readonly Dictionary<int, string> _docTitles = new(); // only needed for debug
+    private readonly Dictionary<int, string> _docTitles = new();
     
     // BM25 specific fields
     private readonly Dictionary<int, int> _docLengths = new();
@@ -119,7 +119,7 @@ public sealed class InvertedIndex : IFullTextIndex
         foreach (var group in termGroups)
         {
             string term = group.Key;
-            var positions = group.Select(t => t.Position).OrderBy(p => p).ToList();
+            var positions = group.Select(t => t.Position).ToList();
             
             lock (_termLock)
             {
@@ -276,7 +276,7 @@ public sealed class InvertedIndex : IFullTextIndex
                     termEntryData.DocSet.Add(docId);
                 }
                 
-                // invalidate bit index for this term
+                // invalidate bit index for this term :(
                 termEntryData.BitIndex = null;
             }
         }
@@ -387,7 +387,7 @@ public sealed class InvertedIndex : IFullTextIndex
         // preallocation of result list with its exact capacity
         var results = new List<(int docId, double score)>(termEntry.DocSet.Count);
         
-        // O(d) iteration through documents with direct O(1) posting lookup
+        // O(d) iteration through documents with O(1) posting lookup
         foreach (var docId in termEntry.DocSet)
         {
             if (termEntry.Postings.TryGetValue(docId, out var posting))
@@ -418,8 +418,7 @@ public sealed class InvertedIndex : IFullTextIndex
 
         var candidates = new Dictionary<int, List<int>>();
         var matchCounts = new Dictionary<int, int>();
-        
-        // Initialize with first term's postings
+        // initialize candidates with first term's postings
         foreach (var kvp in firstTermEntry.Postings)
         {
             candidates[kvp.Key] = new List<int>(kvp.Value.Positions);
@@ -571,7 +570,7 @@ public sealed class InvertedIndex : IFullTextIndex
         }
         _bitBuilt = true;
     }
-
+    //not used
     private static int BinarySearch(List<int> list, int value)
     {
         int left = 0, right = list.Count - 1;
@@ -724,4 +723,57 @@ private static List<int> MergePositions(List<int> prev, List<int> cur)
         return finalResults;
     }
 
+    // public methods for benchmarking to access actual built data structure statistics
+    public int GetTermCount() 
+    {
+        lock (_termLock)
+        {
+            return _termIndex.Count;
+        }
+    }
+    
+    public int GetTotalPostingsCount()
+    {
+        lock (_termLock)
+        {
+            return _termIndex.Values.Sum(entry => entry.Postings.Count);
+        }
+    }
+    
+    public int GetTotalPositionsCount()
+    {
+        lock (_termLock)
+        {
+            return _termIndex.Values
+                .SelectMany(entry => entry.Postings.Values)
+                .Sum(posting => posting.Positions.Count);
+        }
+    }
+    
+    public int GetDocumentCount()
+    {
+        lock (_statsLock)
+        {
+            return _totalDocs;
+        }
+    }
+    
+    public bool IsBitBuilt() => _bitBuilt;
+    
+    public int GetMaxDocId() => _nextDocId - 1;
+
+    // get actual memory-relevant statistics for benchmarking
+    public (int termCount, int totalPostings, int totalPositions, int maxDocId, bool bitsBuilt) GetMemoryStats()
+    {
+        lock (_termLock)
+        {
+            var termCount = _termIndex.Count;
+            var totalPostings = _termIndex.Values.Sum(entry => entry.Postings.Count);
+            var totalPositions = _termIndex.Values
+                .SelectMany(entry => entry.Postings.Values)
+                .Sum(posting => posting.Positions.Count);
+            
+            return (termCount, totalPostings, totalPositions, _nextDocId - 1, _bitBuilt);
+        }
+    }
 }
